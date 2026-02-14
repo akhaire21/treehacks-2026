@@ -1,5 +1,6 @@
 import React, { useState } from 'react'
-import { Search, Loader2, CheckCircle, ThumbsUp, ThumbsDown, Sparkles } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
+import { Search, Loader2, CheckCircle, ThumbsUp, ThumbsDown, Sparkles, Rocket } from 'lucide-react'
 import WorkflowCard from './WorkflowCard'
 import TokenComparison from './TokenComparison'
 
@@ -171,28 +172,41 @@ const Demo = () => {
     <div className="space-y-8">
       {/* Step: Select scenario */}
       {step === 'select' && (
-        <div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Choose a Demo Scenario</h2>
-          <p className="text-gray-600 mb-6">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+        >
+          <h2 className="text-3xl font-black text-gray-900 mb-4 flex items-center gap-2">
+            <Rocket className="w-8 h-8 text-primary-600" />
+            Choose a Demo Scenario
+          </h2>
+          <p className="text-lg text-gray-600 mb-8">
             See how the marketplace finds and executes pre-solved reasoning workflows
           </p>
 
-          <div className="grid md:grid-cols-3 gap-4">
-            {DEMO_SCENARIOS.map((scenario) => (
-              <button
+          <div className="grid md:grid-cols-3 gap-6">
+            {DEMO_SCENARIOS.map((scenario, index) => (
+              <motion.button
                 key={scenario.id}
                 onClick={() => searchWorkflows(scenario)}
-                className="p-6 bg-white rounded-lg border-2 border-gray-200 hover:border-primary-500 hover:shadow-lg transition-all text-left"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.05, y: -5 }}
+                whileTap={{ scale: 0.98 }}
+                className="p-8 card-glass hover:shadow-2xl transition-all text-left group"
               >
-                <div className="flex items-start justify-between mb-2">
-                  <Sparkles className="w-6 h-6 text-primary-500" />
+                <div className="flex items-start justify-between mb-4">
+                  <div className="p-3 bg-gradient-to-br from-primary-500 to-purple-600 rounded-xl shadow-lg group-hover:scale-110 transition-transform">
+                    <Sparkles className="w-6 h-6 text-white" />
+                  </div>
                 </div>
-                <h3 className="font-semibold text-gray-900 mb-2">{scenario.label}</h3>
-                <p className="text-sm text-gray-600">Click to search marketplace</p>
-              </button>
+                <h3 className="font-black text-xl text-gray-900 mb-3 group-hover:text-primary-600 transition-colors">{scenario.label}</h3>
+                <p className="text-sm text-gray-600 font-medium">Click to search marketplace</p>
+              </motion.button>
             ))}
           </div>
-        </div>
+        </motion.div>
       )}
 
       {/* Step: Searching */}

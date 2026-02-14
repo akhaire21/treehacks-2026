@@ -264,7 +264,7 @@ def list_workflows():
 if __name__ == '__main__':
     print("🚀 Agent Workflow Marketplace API starting...")
     print(f"📦 Loaded {len(matcher.workflows)} workflows")
-    print("🔗 API available at http://localhost:5000")
+    print("🔗 API available at http://localhost:5001")
     print("\nEndpoints:")
     print("  POST /api/search     - Search workflows")
     print("  POST /api/purchase   - Purchase workflow")
@@ -273,4 +273,4 @@ if __name__ == '__main__':
     print("  GET  /api/workflows  - List all workflows")
     print("  GET  /health         - Health check")
 
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    app.run(debug=True, host='0.0.0.0', port=5001)
