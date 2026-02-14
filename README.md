@@ -25,18 +25,65 @@ Marketplace where agents buy/sell domain-specific reasoning workflows:
   - `POST /api/feedback` - Rate workflow (upvote/downvote)
   - `POST /api/sanitize` - Demo privacy sanitization
   - `GET /api/workflows` - List all workflows
+  - `GET /api/pricing/<id>` - Get detailed pricing breakdown
   - `GET /health` - Health check
 
 - **Components:**
   - `matcher.py` - Embedding-based search using sentence-transformers
   - `sanitizer.py` - Privacy filter (removes PII from queries)
-  - `workflows.json` - 8 hyper-specific workflow examples
+  - `pricing.py` - Dynamic pricing calculation engine
+  - `workflows.json` - 8 hyper-specific workflow examples with pricing data
 
-### Frontend (React + Tailwind)
+### Frontend (Next.js + React)
+- **Pages:**
+  - `/` - Landing page with hero, features, and dashboard preview
+  - `/marketplace` - Browse all workflows with pricing details
 - **Components:**
-  - `Demo.jsx` - Main demo flow orchestrator
-  - `WorkflowCard.jsx` - Display workflow cards (Airbnb-style)
-  - `TokenComparison.jsx` - Side-by-side token savings visualization
+  - `WorkflowCard.tsx` - Display workflow cards with ROI
+  - `PricingBreakdown.tsx` - Detailed pricing calculation breakdown
+  - `Dashboard.tsx`, `Hero.tsx`, `HowItWorks.tsx`, etc.
+
+## 💰 Dynamic Pricing Model
+
+Workflows are priced dynamically based on value delivered and quality:
+
+### Pricing Formula
+```
+price = tokens_saved × 0.15 × quality_multiplier
+quality_multiplier = 0.7 + (rating/5.0) × 0.6
+```
+
+### Examples
+- **5★ workflow**: 1.3x multiplier (premium for proven quality)
+- **4.8★ workflow**: 1.276x multiplier
+- **3★ workflow**: 1.06x multiplier
+
+### Constraints
+- **Min/Max**: 50-2000 tokens
+- **Market comparison**: ±30% of median for similar workflows
+- **Transparent**: Full breakdown shown in UI
+
+### ROI Display
+Each workflow prominently displays ROI:
+```
+ROI = (tokens_saved / price) × 100
+```
+
+**Example**: Ohio taxes workflow
+- Saves: 10,350 tokens
+- Price: 1,981 tokens
+- **ROI: 522%** 🎯
+
+### Pricing Breakdown UI
+```
+Base: 1,552 (15% of 10,350 saved)
+→ Quality adjusted (4.8★): ×1.28
+→ Final: 1,981 tokens
+```
+
+**Backend Module**: `backend/pricing.py`
+**Update Script**: `backend/update_pricing.py`
+**API Endpoint**: `GET /api/pricing/<workflow_id>`
 
 ## 🚀 Quick Start
 
@@ -62,15 +109,12 @@ pip install -r requirements.txt
 python api.py
 ```
 
-Backend will start on `http://localhost:5000`
+Backend will start on `http://localhost:5001`
 
 ### Frontend Setup
 
 ```bash
-# Navigate to frontend directory
-cd frontend
-
-# Install dependencies
+# Install dependencies (from project root)
 npm install
 
 # Run development server
@@ -78,6 +122,11 @@ npm run dev
 ```
 
 Frontend will start on `http://localhost:3000`
+
+### Access the App
+- **Landing page**: http://localhost:3000
+- **Marketplace**: http://localhost:3000/marketplace
+- **Backend API**: http://localhost:5001
 
 ## 📦 What's Included
 

@@ -7,6 +7,7 @@ from flask import Flask, request, jsonify
 from flask_cors import CORS
 from matcher import WorkflowMatcher
 from sanitizer import PrivacySanitizer
+from pricing import PricingEngine
 import json
 import os
 from datetime import datetime
@@ -261,16 +262,70 @@ def list_workflows():
     })
 
 
+@app.route('/api/pricing/<workflow_id>', methods=['GET'])
+def get_workflow_pricing(workflow_id):
+    """
+    Get detailed pricing breakdown for a specific workflow.
+
+    Response:
+    {
+        "workflow_id": "ohio_w2_itemized_2024",
+        "title": "...",
+        "price_tokens": 200,
+        "tokens_saved": 11800,
+        "savings_percentage": 69,
+        "roi_percentage": 5900,
+        "pricing": {
+            "base_price": 1770,
+            "quality_multiplier": 1.08,
+            "market_rate": 185,
+            "breakdown": "Base: 1770 (15% of 11800 saved) → Quality adjusted (4.8★): ×1.08 → Final: 200 tokens"
+        },
+        "avg_tokens_without": 15000,
+        "avg_tokens_with": 3200
+    }
+    """
+    try:
+        workflow = matcher.get_workflow_by_id(workflow_id)
+
+        if not workflow:
+            return jsonify({
+                'error': 'Workflow not found'
+            }), 404
+
+        pricing_info = {
+            'workflow_id': workflow['workflow_id'],
+            'title': workflow['title'],
+            'price_tokens': workflow.get('price_tokens', 0),
+            'tokens_saved': workflow.get('tokens_saved', 0),
+            'savings_percentage': workflow.get('savings_percentage', 0),
+            'roi_percentage': workflow.get('pricing', {}).get('roi_percentage', 0),
+            'pricing': workflow.get('pricing', {}),
+            'avg_tokens_without': workflow.get('avg_tokens_without', 0),
+            'avg_tokens_with': workflow.get('avg_tokens_with', 0),
+            'rating': workflow.get('rating', 0),
+            'usage_count': workflow.get('usage_count', 0)
+        }
+
+        return jsonify(pricing_info)
+
+    except Exception as e:
+        return jsonify({
+            'error': str(e)
+        }), 500
+
+
 if __name__ == '__main__':
     print("🚀 Agent Workflow Marketplace API starting...")
     print(f"📦 Loaded {len(matcher.workflows)} workflows")
     print("🔗 API available at http://localhost:5001")
     print("\nEndpoints:")
-    print("  POST /api/search     - Search workflows")
-    print("  POST /api/purchase   - Purchase workflow")
-    print("  POST /api/feedback   - Rate workflow")
-    print("  POST /api/sanitize   - Demo privacy sanitization")
-    print("  GET  /api/workflows  - List all workflows")
-    print("  GET  /health         - Health check")
+    print("  POST /api/search              - Search workflows")
+    print("  POST /api/purchase            - Purchase workflow")
+    print("  POST /api/feedback            - Rate workflow")
+    print("  POST /api/sanitize            - Demo privacy sanitization")
+    print("  GET  /api/workflows           - List all workflows")
+    print("  GET  /api/pricing/<id>        - Get pricing breakdown")
+    print("  GET  /health                  - Health check")
 
     app.run(debug=True, host='0.0.0.0', port=5001)
