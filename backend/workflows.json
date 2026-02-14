@@ -1,0 +1,1344 @@
+{
+  "workflows": [
+    {
+      "workflow_id": "ohio_w2_itemized_2024",
+      "title": "Ohio 2024 IT-1040 (W2, Itemized, Married)",
+      "task_type": "tax_filing",
+      "state": "ohio",
+      "year": 2024,
+      "description": "Complete Ohio state income tax filing for W2 employees with itemized deductions filing married jointly. Handles local tax jurisdiction, Ohio-specific deductions, and credit calculations.",
+      "token_cost": 200,
+      "execution_tokens": 800,
+      "rating": 4.8,
+      "usage_count": 47,
+      "tags": ["tax", "ohio", "w2", "itemized", "married"],
+      "requirements": ["W2 forms", "itemized deduction records", "local tax jurisdiction", "federal return"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Ohio requires local tax jurisdiction code - agents often miss this critical detail",
+          "action": "web_search",
+          "query": "Ohio local tax jurisdiction code for {user_city}",
+          "extract": "jurisdiction_code",
+          "validation": "Must be 4-digit code",
+          "edge_case": "If city has multiple jurisdictions, use primary residence address"
+        },
+        {
+          "step": 2,
+          "thought": "Calculate Ohio AGI - differs from federal due to state-specific adjustments",
+          "action": "calculate",
+          "formula": "ohio_agi = federal_agi - state_pension_contributions - ohio_529_contributions",
+          "ohio_specific": "Ohio does NOT have the $10k SALT cap that federal has. Can deduct full property tax.",
+          "validation": "ohio_agi should be within 5% of federal_agi unless significant pension contributions"
+        },
+        {
+          "step": 3,
+          "thought": "Itemized deductions calculation for Ohio",
+          "action": "calculate",
+          "inputs": ["{mortgage_interest}", "{property_tax}", "{charitable_contributions}"],
+          "formula": "ohio_itemized = mortgage_interest + property_tax + charitable + medical_over_threshold",
+          "threshold": "Medical expenses only deductible if > 7.5% of AGI",
+          "ohio_note": "Ohio allows full property tax deduction (no federal SALT cap applies)"
+        },
+        {
+          "step": 4,
+          "thought": "Compare itemized vs standard deduction",
+          "action": "compare",
+          "standard_deduction_2024": 9050,
+          "decision": "Use itemized if total > $9,050 (married filing jointly)",
+          "edge_case": "Some taxpayers benefit from itemizing on state even if taking standard federally"
+        },
+        {
+          "step": 5,
+          "thought": "Calculate Ohio tax liability using graduated brackets",
+          "action": "calculate",
+          "brackets_2024": {
+            "0-26050": "0%",
+            "26051-100000": "2.765%",
+            "100001-115300": "3.226%",
+            "115301+": "3.688%"
+          },
+          "formula": "Apply graduated rates to ohio_taxable_income",
+          "validation": "Tax should be roughly 2-3.5% of Ohio AGI for most filers"
+        },
+        {
+          "step": 6,
+          "thought": "Apply Ohio tax credits",
+          "action": "check_credits",
+          "available_credits": [
+            "Joint filing credit ($650 if married filing jointly)",
+            "Dependent care credit",
+            "Retirement income credit (if 65+)",
+            "Ohio resident credit (if paid tax to another state)"
+          ],
+          "automatic": "Joint filing credit is automatic for MFJ status"
+        },
+        {
+          "step": 7,
+          "thought": "Calculate local tax (RITA/CCA)",
+          "action": "calculate",
+          "local_rate": "Varies by jurisdiction (typically 1-3%)",
+          "formula": "local_tax = ohio_agi * local_tax_rate",
+          "withholding": "Credit for local tax withheld on W2 box 19",
+          "edge_case": "If worked in different jurisdiction than residence, may need to file multiple local returns"
+        },
+        {
+          "step": 8,
+          "thought": "Verify W2 box entries match calculations",
+          "action": "validate",
+          "checks": [
+            "W2 box 1 (federal wages) matches federal return",
+            "W2 box 16 (state wages) matches Ohio return",
+            "W2 box 17 (state tax withheld) is credited",
+            "W2 box 19 (local tax withheld) is credited"
+          ],
+          "common_error": "Agents sometimes forget to credit box 19 local withholding"
+        },
+        {
+          "step": 9,
+          "thought": "Determine refund or amount owed",
+          "action": "calculate",
+          "formula": "refund = (ohio_tax_withheld + local_tax_withheld) - (ohio_tax_liability + local_tax_liability)",
+          "decision": "If positive: refund. If negative: payment due",
+          "ohio_note": "Ohio allows direct deposit for refunds (provide routing/account)"
+        },
+        {
+          "step": 10,
+          "thought": "Generate IT-1040 form with all schedules",
+          "action": "fill_form",
+          "form": "IT-1040",
+          "required_schedules": ["Schedule A (itemized deductions)", "IT-1040 page 2 (credits)"],
+          "signature": "Both spouses must sign for MFJ",
+          "filing_options": ["Mail", "Ohio e-file", "Free file alliance software"]
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Taxpayer moved mid-year",
+          "handling": "File part-year resident return, prorate income by days in Ohio",
+          "form": "IT-1040 with part-year checkbox"
+        },
+        {
+          "scenario": "Worked remotely for out-of-state employer",
+          "handling": "Ohio taxes all income earned while Ohio resident, even if employer is elsewhere",
+          "credit": "May get credit for tax paid to employer's state"
+        },
+        {
+          "scenario": "Self-employment income in addition to W2",
+          "handling": "Add Schedule C income to Ohio return, calculate additional local tax",
+          "note": "This workflow assumes W2 only - refer to self-employed workflow"
+        }
+      ],
+      "domain_knowledge": [
+        "Ohio has NO state-level earned income tax credit (unlike federal)",
+        "Ohio taxes retirement income but has senior exemption if 65+",
+        "Local taxes (RITA/CCA) are separate filing, due April 15 same as state",
+        "Ohio does not recognize federal SALT cap - can deduct full property tax",
+        "State-issued refund bonds can be cashed at Ohio banks"
+      ],
+      "estimated_time_saved": "Saves 45 minutes of research on Ohio-specific rules",
+      "token_comparison": {
+        "from_scratch": 3200,
+        "with_workflow": 1000,
+        "savings_percent": 69
+      }
+    },
+    {
+      "workflow_id": "california_w2_standard_2024",
+      "title": "California 2024 Form 540 (W2, Standard Deduction)",
+      "task_type": "tax_filing",
+      "state": "california",
+      "year": 2024,
+      "description": "California state income tax filing for W2 employees taking standard deduction. Handles CA-specific income adjustments, Mental Health Services Tax, and SDI credits.",
+      "token_cost": 180,
+      "execution_tokens": 750,
+      "rating": 4.9,
+      "usage_count": 89,
+      "tags": ["tax", "california", "w2", "standard_deduction"],
+      "requirements": ["W2 forms", "federal return", "California residency dates"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "California requires all worldwide income for residents",
+          "action": "gather_income",
+          "inputs": ["{w2_wages}", "{interest}", "{dividends}", "{capital_gains}"],
+          "ca_specific": "California taxes all income, including out-of-state sources, for residents"
+        },
+        {
+          "step": 2,
+          "thought": "Calculate California adjustments to federal AGI",
+          "action": "calculate",
+          "formula": "ca_agi = federal_agi + state_tax_refund - ca_lottery_winnings",
+          "ca_difference": "California does NOT allow deduction for state/local taxes (they add back federal deduction)",
+          "validation": "CA AGI typically higher than federal AGI due to addbacks"
+        },
+        {
+          "step": 3,
+          "thought": "Apply standard deduction for California",
+          "action": "apply_deduction",
+          "standard_deduction_2024": {
+            "single": 5363,
+            "married_jointly": 10726,
+            "head_of_household": 10726
+          },
+          "note": "California standard deduction is higher than federal"
+        },
+        {
+          "step": 4,
+          "thought": "Calculate California tax using graduated brackets",
+          "action": "calculate_tax",
+          "brackets_2024": {
+            "0-10412": "1%",
+            "10413-24684": "2%",
+            "24685-38959": "4%",
+            "38960-54081": "6%",
+            "54082-68350": "8%",
+            "68351-349137": "9.3%",
+            "349138-418961": "10.3%",
+            "418962-698271": "11.3%",
+            "698272+": "12.3%"
+          },
+          "note": "California has some of highest state tax rates in US"
+        },
+        {
+          "step": 5,
+          "thought": "Check Mental Health Services Tax applicability",
+          "action": "check_surcharge",
+          "threshold": "Additional 1% tax on income over $1 million",
+          "applies_if": "california_taxable_income > 1000000",
+          "calculation": "mhst = (ca_taxable_income - 1000000) * 0.01"
+        },
+        {
+          "step": 6,
+          "thought": "Credit for SDI/VPDI contributions from W2",
+          "action": "apply_credit",
+          "source": "W2 box 14 (SDI withheld)",
+          "ca_specific": "California State Disability Insurance (SDI) is creditable",
+          "common_error": "Agents often forget to claim SDI credit, losing taxpayer money"
+        },
+        {
+          "step": 7,
+          "thought": "Calculate withholding credit and final liability",
+          "action": "calculate",
+          "formula": "refund = ca_withholding + sdi_credit - ca_tax_liability - mhst",
+          "validation": "Check W2 box 17 for California withholding",
+          "note": "California withholding is often lower than liability (underpayment common)"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Stock options or RSUs vested",
+          "handling": "California has complex rules for multi-state RSUs - may need Schedule CA",
+          "note": "This workflow assumes simple W2 only"
+        },
+        {
+          "scenario": "Moved to/from California mid-year",
+          "handling": "File Schedule CA (540NR) for part-year residents, prorate deductions",
+          "complexity": "Significant - consider separate workflow"
+        }
+      ],
+      "domain_knowledge": [
+        "California does NOT conform to many federal tax changes (e.g., TCJA provisions)",
+        "California taxes capital gains as ordinary income (no preferential rate)",
+        "SDI contributions are deductible on federal but credited on California",
+        "California has Renter's Credit ($60-120) if eligible",
+        "FTB (Franchise Tax Board) is notoriously aggressive on audits"
+      ],
+      "estimated_time_saved": "Saves 30 minutes on California-specific adjustments",
+      "token_comparison": {
+        "from_scratch": 2800,
+        "with_workflow": 930,
+        "savings_percent": 67
+      }
+    },
+    {
+      "workflow_id": "tokyo_family_trip_5day",
+      "title": "Tokyo 5-Day Family Trip (Kids 3-8, Stroller Accessible)",
+      "task_type": "travel_planning",
+      "location": "tokyo_japan",
+      "duration_days": 5,
+      "description": "Complete Tokyo itinerary for families with young children requiring stroller accessibility. Includes kid-friendly attractions, restaurants with high chairs, hotels near metro, and timing for naps.",
+      "token_cost": 220,
+      "execution_tokens": 900,
+      "rating": 4.7,
+      "usage_count": 34,
+      "tags": ["travel", "tokyo", "family", "kids", "stroller", "japan"],
+      "requirements": ["Travel dates", "kids ages", "dietary restrictions", "accommodation budget"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Tokyo metro is stroller-friendly but not all stations have elevators",
+          "action": "select_hotel",
+          "criteria": [
+            "Within 5 min walk of metro station WITH elevator",
+            "Family room (can fit 4)",
+            "Near Yamanote line for easy access"
+          ],
+          "recommended_areas": ["Shinjuku", "Shibuya", "Ueno"],
+          "avoid": "Asakusa (older stations, fewer elevators)",
+          "kid_specific": "Hotel with coin laundry (essential for kids' accidents)"
+        },
+        {
+          "step": 2,
+          "thought": "Day 1: Easy day after flight, stay near hotel",
+          "action": "plan_itinerary",
+          "morning": {
+            "activity": "Hotel rest, light breakfast",
+            "timing": "Allow for jet lag adjustment",
+            "tip": "Don't plan anything before 10am on Day 1"
+          },
+          "afternoon": {
+            "activity": "Yoyogi Park + Meiji Shrine",
+            "stroller": "Fully accessible, paved paths",
+            "kid_appeal": "Wide open spaces to run, koi pond, free admission",
+            "duration": "2 hours max with toddlers"
+          },
+          "evening": {
+            "restaurant": "Family-friendly izakaya near hotel",
+            "must_have": "Tatami room (kids can play on floor), high chairs",
+            "food": "Order karaage (fried chicken), edamame, rice balls - kid-safe options"
+          }
+        },
+        {
+          "step": 3,
+          "thought": "Day 2: Ueno area - museums and zoo",
+          "action": "plan_itinerary",
+          "morning": {
+            "activity": "Ueno Zoo",
+            "opens": "9:30am (arrive at opening to beat crowds)",
+            "stroller": "Fully accessible, paved throughout",
+            "kid_highlights": "Giant pandas, petting zoo section",
+            "tip": "Bring snacks - limited kid food options inside",
+            "duration": "2-3 hours"
+          },
+          "lunch": {
+            "location": "Ameyoko market area",
+            "recommendation": "Grab fresh fruit, onigiri from market stalls",
+            "backup": "Ueno Station has family restaurants with picture menus"
+          },
+          "afternoon": {
+            "activity": "National Museum of Nature and Science",
+            "kid_friendly": "Interactive dinosaur exhibits, Japan Gallery has samurai armor",
+            "stroller_parking": "Available at entrance (museum is stroller-accessible)",
+            "nap_strategy": "Kids can nap in stroller during quieter exhibits"
+          }
+        },
+        {
+          "step": 4,
+          "thought": "Day 3: Tokyo Disney Resort (if desired) OR Odaiba",
+          "action": "choose_option",
+          "option_a": {
+            "activity": "Tokyo DisneySea",
+            "why": "More unique than Disneyland, stroller rental available",
+            "booking": "Reserve tickets 2 months advance",
+            "full_day": "Plan 10am-6pm, skip evening (exhausting for little kids)",
+            "stroller": "Rental ¥1000/day at entrance"
+          },
+          "option_b": {
+            "activity": "Odaiba - TeamLab Borderless + Beach",
+            "morning": "TeamLab Planets (wading installation - bring change of clothes)",
+            "stroller_note": "Must check stroller, kids walk through barefoot",
+            "afternoon": "Odaiba Beach Park (free, stroller-accessible boardwalk)",
+            "kid_appeal": "Actual beach in Tokyo! Playground area, views of Rainbow Bridge"
+          },
+          "recommendation": "Option B if kids under 5, Option A if kids 6+"
+        },
+        {
+          "step": 5,
+          "thought": "Day 4: Asakusa + Sumida Aquarium",
+          "action": "plan_itinerary",
+          "morning": {
+            "activity": "Sensoji Temple + Nakamise Shopping Street",
+            "timing": "Go by 8am to avoid massive crowds",
+            "stroller": "Accessible but crowded after 10am",
+            "kid_activity": "Let kids pick out snacks from shops (senbei, ningyo-yaki)"
+          },
+          "lunch": {
+            "location": "Near Sensoji",
+            "recommendation": "Tempura restaurant with tatami room",
+            "kid_safe": "Udon noodles, plain rice, tempura vegetables"
+          },
+          "afternoon": {
+            "activity": "Sumida Aquarium (Tokyo Skytree)",
+            "kid_friendly": "Small aquarium, perfect for toddler attention span (1 hour)",
+            "stroller": "Fully accessible",
+            "photo_op": "Penguins, jellyfish tank",
+            "skip": "Skytree observatory if kids are tired (long lines)"
+          }
+        },
+        {
+          "step": 6,
+          "thought": "Day 5: Flexible/backup day",
+          "action": "plan_options",
+          "option_a": {
+            "activity": "Ghibli Museum (if reserved)",
+            "booking": "Must reserve 3 months in advance",
+            "kid_appeal": "Totoro, Catbus play area",
+            "age": "Best for kids 4+",
+            "stroller": "Must check at entrance"
+          },
+          "option_b": {
+            "activity": "Chill day at hotel pool/nearby park",
+            "why": "Kids may be exhausted by Day 5",
+            "shopping": "Parents take turns browsing while other watches kids at park"
+          },
+          "afternoon": {
+            "activity": "Last-minute souvenir shopping in Shibuya",
+            "kid_management": "Don Quijote has snacks to keep kids occupied while shopping",
+            "timing": "Early dinner (5pm) before flight next day"
+          }
+        },
+        {
+          "step": 7,
+          "thought": "Essential logistics throughout trip",
+          "action": "ongoing_management",
+          "transportation": {
+            "jr_pass": "Not worth it for Tokyo-only trip",
+            "suica_card": "Buy for each adult (kids under 6 free on metro)",
+            "stroller_on_metro": "Use elevators, fold if train is crowded, avoid rush hour (7-9am, 5-7pm)"
+          },
+          "diaper_changes": {
+            "where": "Every metro station has family restroom with changing table",
+            "backup": "Convenience stores (7-Eleven, FamilyMart) have restrooms",
+            "supplies": "Buy diapers at Akachan Honpo (baby store chain)"
+          },
+          "food_strategy": {
+            "breakfast": "Convenience store (onigiri, yogurt, fruit)",
+            "snacks": "Always carry: crackers, fruit pouches, water",
+            "dinner": "Family restaurants chains: Saizeriya, Gusto (picture menus, kids' meals)",
+            "emergency": "McDonald's/KFC are everywhere and familiar for picky kids"
+          }
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Rainy day",
+          "backup_activities": [
+            "Sunshine City Aquarium (Ikebukuro - fully indoor)",
+            "Tokyo Station Character Street (shopping for Pokemon/Ghibli goods)",
+            "Kidzania Tokyo (role-play theme park, reserve in advance)"
+          ]
+        },
+        {
+          "scenario": "Child gets sick",
+          "handling": "Hotels can arrange English-speaking doctor, bring basic meds from home",
+          "pharmacy": "Matsumoto Kiyoshi drugstores everywhere - bring photos of med names"
+        },
+        {
+          "scenario": "Dietary restrictions (allergies)",
+          "solution": "Print allergy cards in Japanese (Google 'japan allergy cards'), show at restaurants",
+          "safe_bets": "Plain rice, edamame, grilled fish always safe"
+        }
+      ],
+      "domain_knowledge": [
+        "Tokyo metro is generally stroller-friendly but avoid rush hour at all costs",
+        "Japanese are extremely accommodating to families - don't hesitate to ask for help",
+        "Convenience stores are lifesavers: restrooms, ATMs, cheap food, snacks",
+        "Many restaurants have 'family seating' with tatami rooms - request when booking",
+        "Kids under 6 ride metro free (don't need to buy ticket)",
+        "Coin lockers at every station - store stroller while exploring"
+      ],
+      "estimated_time_saved": "Saves 3+ hours of research on stroller accessibility in Tokyo",
+      "token_comparison": {
+        "from_scratch": 4200,
+        "with_workflow": 1120,
+        "savings_percent": 73
+      }
+    },
+    {
+      "workflow_id": "stripe_invoice_parser_multicurrency",
+      "title": "Stripe Invoice Parser (Multi-Currency, Line Items)",
+      "task_type": "data_parsing",
+      "platform": "stripe",
+      "description": "Parse Stripe invoices extracting customer details, line items, currency conversion, taxes, and payment status. Handles multi-currency invoices and subscription vs one-time charges.",
+      "token_cost": 150,
+      "execution_tokens": 600,
+      "rating": 4.9,
+      "usage_count": 156,
+      "tags": ["stripe", "invoice", "parsing", "finance", "currency"],
+      "requirements": ["Stripe invoice PDF or JSON", "base currency for conversion"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Extract invoice metadata",
+          "action": "parse_header",
+          "fields": [
+            "invoice_number",
+            "invoice_date",
+            "due_date",
+            "payment_status",
+            "customer_id",
+            "customer_name"
+          ],
+          "validation": "Invoice number format: in_xxxxxxxxxxxxx (starts with 'in_')",
+          "edge_case": "Some invoices may not have due_date if auto-charging"
+        },
+        {
+          "step": 2,
+          "thought": "Identify invoice currency and exchange rate if needed",
+          "action": "check_currency",
+          "invoice_currency": "Extract from 'Amount Due' section",
+          "base_currency": "{user_base_currency}",
+          "if_different": "Fetch exchange rate for invoice_date from Stripe API or external source",
+          "validation": "Stripe uses 3-letter ISO currency codes (USD, EUR, GBP, etc.)"
+        },
+        {
+          "step": 3,
+          "thought": "Parse line items with proper categorization",
+          "action": "extract_line_items",
+          "for_each_line": {
+            "fields": [
+              "description",
+              "quantity",
+              "unit_price",
+              "amount",
+              "period_start",
+              "period_end"
+            ],
+            "categorize": {
+              "subscription": "If has period_start and period_end",
+              "one_time": "If no period (one-time charge/credit)",
+              "usage": "If quantity varies (usage-based billing)"
+            }
+          },
+          "stripe_specific": "Subscription line items include service period (e.g., 'Jan 1 - Jan 31')",
+          "common_error": "Agents miss proration line items (appear as separate entries)"
+        },
+        {
+          "step": 4,
+          "thought": "Calculate subtotal and identify discounts/credits",
+          "action": "calculate",
+          "subtotal": "Sum of all positive line items",
+          "discounts": "Extract discount codes and amounts (shown as negative line items)",
+          "credits": "Account balance credits (also negative)",
+          "formula": "subtotal_after_discounts = subtotal - discounts - credits",
+          "validation": "Subtotal should match 'Subtotal' section of invoice"
+        },
+        {
+          "step": 5,
+          "thought": "Parse tax breakdown",
+          "action": "extract_taxes",
+          "tax_fields": [
+            "tax_name (e.g., 'Sales Tax', 'VAT')",
+            "tax_rate",
+            "tax_amount"
+          ],
+          "multi_tax": "Stripe supports multiple tax rates on single invoice",
+          "stripe_note": "Tax is calculated post-discount (not on original subtotal)",
+          "validation": "tax_amount = (subtotal_after_discounts) * tax_rate"
+        },
+        {
+          "step": 6,
+          "thought": "Calculate total and verify against invoice",
+          "action": "calculate_total",
+          "formula": "total_due = subtotal_after_discounts + tax_amount",
+          "validation": "Must match 'Amount Due' on invoice",
+          "tolerance": "Allow ±$0.01 for rounding differences",
+          "if_mismatch": "Flag as requiring manual review"
+        },
+        {
+          "step": 7,
+          "thought": "Extract payment information",
+          "action": "parse_payment",
+          "fields": [
+            "payment_method (last 4 digits of card, bank account, etc.)",
+            "payment_date",
+            "amount_paid",
+            "payment_status (paid/pending/failed)"
+          ],
+          "status_logic": {
+            "paid": "payment_date exists and amount_paid = total_due",
+            "pending": "payment_date in future or auto-charge scheduled",
+            "failed": "payment attempt failed, shows error message",
+            "draft": "invoice not yet finalized"
+          }
+        },
+        {
+          "step": 8,
+          "thought": "Handle currency conversion if needed",
+          "action": "convert_currency",
+          "if_applicable": "invoice_currency != base_currency",
+          "method": "Use exchange rate from invoice_date",
+          "convert_fields": [
+            "subtotal",
+            "discounts",
+            "tax_amount",
+            "total_due",
+            "each line item amount"
+          ],
+          "output": "Return both original currency and converted amounts",
+          "note": "Store exchange rate used for audit trail"
+        },
+        {
+          "step": 9,
+          "thought": "Structure output as normalized JSON",
+          "action": "format_output",
+          "schema": {
+            "invoice": {
+              "invoice_number": "string",
+              "date": "ISO 8601",
+              "customer": {},
+              "line_items": [],
+              "subtotal": {},
+              "discounts": [],
+              "tax": {},
+              "total": {},
+              "payment": {},
+              "currency_conversion": {}
+            }
+          },
+          "validation": "All currency amounts include currency code and numeric value"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Prorated charges (mid-cycle subscription changes)",
+          "handling": "Appears as separate line items with partial period",
+          "example": "'Jan 1-Jan 15 (Prorated)' and 'Jan 15-Jan 31 (New Plan)'",
+          "validation": "Sum of prorated periods should equal full billing period"
+        },
+        {
+          "scenario": "Negative invoices (credits exceed charges)",
+          "handling": "Total can be negative if credits/refunds exceed new charges",
+          "payment_status": "Marked as 'paid' with $0 charged, credit remains on account"
+        },
+        {
+          "scenario": "Invoices with multiple subscriptions",
+          "handling": "Group line items by subscription_id",
+          "presentation": "Show subtotal per subscription in output"
+        },
+        {
+          "scenario": "Usage-based billing with variable quantities",
+          "handling": "Extract quantity and unit price separately",
+          "validation": "amount = quantity * unit_price (allowing for rounding)"
+        }
+      ],
+      "domain_knowledge": [
+        "Stripe invoices can have status: draft, open, paid, void, uncollectible",
+        "Discounts are applied before tax calculation (unlike some other platforms)",
+        "Subscription invoices auto-finalize and charge (unless payment fails)",
+        "Account credits always apply automatically to new invoices",
+        "Multi-currency invoices require Stripe Atlas or Advanced features",
+        "Invoice PDFs differ slightly from API response - PDF is customer-facing"
+      ],
+      "estimated_time_saved": "Saves 25 minutes parsing Stripe's complex invoice format",
+      "token_comparison": {
+        "from_scratch": 2200,
+        "with_workflow": 750,
+        "savings_percent": 66
+      }
+    },
+    {
+      "workflow_id": "zillow_columbus_homes_search",
+      "title": "Zillow Columbus OH Home Search (3bed+, <$400k, School Rating >7)",
+      "task_type": "real_estate_search",
+      "location": "columbus_oh",
+      "description": "Search Zillow for homes in Columbus OH metro meeting specific criteria: 3+ bedrooms, under $400k, school district rating above 7, with detailed analysis of each property.",
+      "token_cost": 190,
+      "execution_tokens": 850,
+      "rating": 4.6,
+      "usage_count": 28,
+      "tags": ["real_estate", "zillow", "columbus", "home_search", "schools"],
+      "requirements": ["Budget", "bedroom count", "school rating requirement", "move-in timeline"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Set search filters on Zillow",
+          "action": "configure_search",
+          "filters": {
+            "location": "Columbus, OH 43201-43240 (metro zip codes)",
+            "price_max": 400000,
+            "bedrooms_min": 3,
+            "property_type": ["Single Family", "Townhome"],
+            "status": ["For Sale", "Accepting Backup Offers"]
+          },
+          "exclude": ["Foreclosures", "Auction", "Short Sale"],
+          "sort_by": "Days on market (newest first)"
+        },
+        {
+          "step": 2,
+          "thought": "For each listing, verify school district ratings",
+          "action": "check_schools",
+          "method": "Zillow shows school info on listing page",
+          "requirement": "Elementary, middle, AND high school all rated 7+ on GreatSchools",
+          "columbus_specific_good_districts": [
+            "Dublin City Schools (often 9-10 rated)",
+            "Upper Arlington (strong across board)",
+            "Worthington Schools",
+            "Bexley City Schools"
+          ],
+          "avoid_if_schools_matter": "Columbus City Schools (mixed ratings, check individual schools)",
+          "edge_case": "Some homes on district borders - verify exact address in school finder"
+        },
+        {
+          "step": 3,
+          "thought": "Analyze property details and flags",
+          "action": "evaluate_listing",
+          "check_items": [
+            "Year built (avoid pre-1950s without major updates)",
+            "Square footage (min 1500 for 3bed)",
+            "Lot size",
+            "Days on market (>60 days may indicate issues or overpricing)",
+            "Recent price reductions (indicates seller motivation)",
+            "HOA fees if applicable"
+          ],
+          "red_flags": [
+            "No interior photos (skip these)",
+            "'Sold as-is' (likely major repairs needed)",
+            "Flood zone property",
+            "Adjacent to commercial/industrial zones"
+          ]
+        },
+        {
+          "step": 4,
+          "thought": "Calculate true monthly cost including taxes/insurance",
+          "action": "calculate_ownership_cost",
+          "formula": "monthly_cost = mortgage + property_tax + insurance + hoa + maintenance_reserve",
+          "assumptions": {
+            "down_payment": 20,
+            "interest_rate": "{current_rate}",
+            "property_tax_rate": "1.5-2% annually in Columbus area",
+            "insurance": "$100-150/month",
+            "maintenance": "1% of home value annually"
+          },
+          "validation": "Monthly cost should stay under 28% of gross monthly income",
+          "columbus_note": "Property taxes vary widely by suburb (Dublin highest, commercial areas lower)"
+        },
+        {
+          "step": 5,
+          "thought": "Research neighborhood safety and amenities",
+          "action": "neighborhood_analysis",
+          "check": [
+            "Crime statistics (SpotCrime or local PD)",
+            "Walkability score (if buyer wants walkable area)",
+            "Distance to downtown Columbus (for commute)",
+            "Nearby parks/recreation",
+            "Shopping and grocery access"
+          ],
+          "columbus_neighborhoods_analysis": {
+            "German Village": "High walkability, pricey, excellent restaurants",
+            "Clintonville": "Family-friendly, good schools, tree-lined streets",
+            "Dublin": "Suburban, excellent schools, more expensive",
+            "Hilliard": "Good value, newer builds, expanding",
+            "Grove City": "Affordable, growing, further from downtown"
+          }
+        },
+        {
+          "step": 6,
+          "thought": "Check property history and comparables",
+          "action": "analyze_value",
+          "zillow_features": [
+            "Zestimate (Zillow's estimated value)",
+            "Price history (previous sales)",
+            "Tax assessment value"
+          ],
+          "compare": "View 'comparable properties' section - are similar homes selling for less?",
+          "strategy": "If listed >5% over Zestimate and similar to comps, plan to negotiate",
+          "columbus_market": "Hot market 2024, homes under $400k go fast, be ready to act quickly"
+        },
+        {
+          "step": 7,
+          "thought": "Shortlist top 5-10 properties for viewing",
+          "action": "create_shortlist",
+          "criteria_weighted": {
+            "school_ratings": "High priority (eliminates listings)",
+            "price": "Must be under $400k",
+            "condition": "Prefer move-in ready over fixer-upper",
+            "location": "Balance school quality with commute time",
+            "future_value": "Check if area is appreciating"
+          },
+          "output": "Table comparing shortlisted homes across all criteria",
+          "next_step": "Schedule showings for top picks ASAP (competitive market)"
+        },
+        {
+          "step": 8,
+          "thought": "Prepare for making offer",
+          "action": "offer_strategy",
+          "columbus_market_2024": "Moderately competitive, homes under $350k get multiple offers",
+          "strategy": {
+            "hot_property": "Offer at or slightly above asking, waive minor contingencies",
+            "slow_mover": "60+ days on market - start 5-10% below asking",
+            "price_reduced": "Seller motivated - offer 3-5% below current list",
+            "perfect_condition": "Expect bidding war - have max offer ready"
+          },
+          "include_in_offer": [
+            "Pre-approval letter (required to be competitive)",
+            "Earnest money deposit (1-2% of offer)",
+            "Home inspection contingency (don't waive this)",
+            "Appraisal contingency",
+            "Close date flexibility (attractive to seller)"
+          ]
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Home on border of good/bad school district",
+          "handling": "Use school district finder tool with exact address, don't assume",
+          "note": "Streets apart can be in different districts"
+        },
+        {
+          "scenario": "Teardown listed at inflated price",
+          "handling": "If structure is beyond repair, value is land only - check lot comps",
+          "columbus_context": "Rare under $400k, but exists in expanding suburbs"
+        },
+        {
+          "scenario": "New construction in budget",
+          "handling": "Often don't show on Zillow - check builder websites (Fischer, Epcon, MI Homes)",
+          "pros": "Warranty, modern features, choose finishes",
+          "cons": "HOA fees, small lots, longer to build equity"
+        }
+      ],
+      "domain_knowledge": [
+        "Columbus market is less expensive than coastal cities but appreciating steadily",
+        "School ratings are TOP priority for families - filter aggressively",
+        "Property taxes vary 2-3x across suburbs - factor into budget",
+        "Winter (Jan-Feb) is slowest market - better negotiating power",
+        "Highway access (I-270, I-71) is crucial for commuting",
+        "Columbus is growing rapidly - areas near new development appreciate faster"
+      ],
+      "estimated_time_saved": "Saves 2+ hours filtering and analyzing Columbus listings",
+      "token_comparison": {
+        "from_scratch": 3000,
+        "with_workflow": 1040,
+        "savings_percent": 65
+      }
+    },
+    {
+      "workflow_id": "linkedin_b2b_cold_outreach",
+      "title": "LinkedIn B2B Cold Outreach (Polite, Relationship-Preserving)",
+      "task_type": "outreach",
+      "platform": "linkedin",
+      "description": "Craft and send personalized B2B cold outreach messages on LinkedIn that maintain relationships, avoid spam, and generate responses. Focused on SaaS/enterprise sales.",
+      "token_cost": 140,
+      "execution_tokens": 580,
+      "rating": 4.8,
+      "usage_count": 92,
+      "tags": ["linkedin", "b2b", "sales", "outreach", "cold_email"],
+      "requirements": ["Target prospect info", "your product/service", "value proposition"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Research prospect before reaching out",
+          "action": "gather_context",
+          "profile_review": [
+            "Current role and company",
+            "Previous experience (for commonalities)",
+            "Recent posts or activity (engagement opportunities)",
+            "Mutual connections",
+            "Company news or funding"
+          ],
+          "time_investment": "3-5 minutes per prospect (worth it for response rate)",
+          "never": "Send generic template without customization - instantly flagged as spam"
+        },
+        {
+          "step": 2,
+          "thought": "Decide: Connection request or InMail",
+          "action": "choose_method",
+          "connection_request": {
+            "when": "You have mutual connections or shared experience/interests",
+            "include_note": "Always include personalized note (300 char limit)",
+            "acceptance_rate": "Higher with note, but note not required for close networks"
+          },
+          "inmail": {
+            "when": "No mutual connections, senior executive, or urgent",
+            "cost": "Uses InMail credit (if you have LinkedIn Premium/Sales Nav)",
+            "advantage": "Goes to inbox even if not connected, higher visibility"
+          },
+          "recommendation": "Try connection request first (free), InMail if declined or urgent"
+        },
+        {
+          "step": 3,
+          "thought": "Craft connection request note (if applicable)",
+          "action": "write_connection_note",
+          "structure": "Hi [Name], [Specific observation/commonality]. [Reason for connecting]. [No ask yet!]",
+          "example": "Hi Sarah, saw your post about ML model optimization. I work on inference performance at [Company]. Would love to connect and learn from your experience.",
+          "rules": [
+            "300 characters max - be concise",
+            "Reference something specific about them (post, company, role)",
+            "NO sales pitch in connection request",
+            "Show genuine interest, not transaction",
+            "Mention mutual connection if exists"
+          ],
+          "tone": "Professional but warm, colleague-to-colleague, not vendor-to-buyer"
+        },
+        {
+          "step": 4,
+          "thought": "After connection accepted, wait 2-3 days before outreach",
+          "action": "timing_strategy",
+          "never": "Send sales pitch immediately after connecting - feels manipulative",
+          "best_practice": "Engage with their content first (like/comment on post) to build rapport",
+          "timing": "Wait 2-3 days, then send initial message",
+          "exception": "If they messaged you first, reply immediately and naturally transition"
+        },
+        {
+          "step": 5,
+          "thought": "Craft first outreach message (the actual pitch)",
+          "action": "write_message",
+          "structure": {
+            "line_1": "Thanks for connecting! [Brief personal note]",
+            "line_2": "I noticed [specific challenge/opportunity at their company]",
+            "line_3": "We've helped [similar company] achieve [specific result]",
+            "line_4": "Would you be open to a brief call to explore if there's a fit?",
+            "line_5": "No pressure if timing isn't right - happy to stay connected regardless."
+          },
+          "example": "Thanks for connecting, Sarah! I saw [Company] recently raised Series B - congrats! We work with ML teams at [similar companies] to reduce inference costs by ~40% through optimization. Would you be open to a 15-min call to explore if there's potential fit? Totally understand if timing isn't right - appreciate the connection either way.",
+          "key_elements": [
+            "Acknowledge connection",
+            "Show you researched them/their company",
+            "Specific value prop with proof point",
+            "Low-pressure ask (15 min, not 'demo' or 'sales call')",
+            "Give them an out (relationship-preserving)"
+          ]
+        },
+        {
+          "step": 6,
+          "thought": "Handle responses (or non-responses)",
+          "action": "follow_up_strategy",
+          "if_interested": "Reply promptly (within 4 hours), suggest specific times for call using Calendly",
+          "if_not_now": "'Totally understand - would it be okay if I check back in [3 months/Q3]?' - stay top of mind",
+          "if_no_response": {
+            "wait": "7 days",
+            "follow_up_once": "Bump with additional value - share relevant article/resource, not just 'checking in'",
+            "if_still_no_response": "Drop it. Don't burn the relationship with multiple follows."
+          },
+          "never": "Send more than 2 messages without response - becomes harassment"
+        },
+        {
+          "step": 7,
+          "thought": "Nurture relationship even if not ready to buy",
+          "action": "long_game_strategy",
+          "engage_with_content": "Like/comment on their posts occasionally (not every post - creepy)",
+          "share_value": "If you see relevant article/opportunity, share it (no ask attached)",
+          "quarterly_touchpoint": "Check in every 3-6 months with genuine value add",
+          "outcome": "When they ARE ready to buy (or change jobs to company that needs you), you're top of mind",
+          "b2b_truth": "Enterprise deals take 6-18 months - patience pays off"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Reaching out to senior executive (VP+)",
+          "approach": "Extra personalization required, mention peer/boss if mutual connection",
+          "note": "Executives get 100+ pitches/week - yours must stand out through relevance",
+          "consider": "InMail or warm intro from mutual connection instead of cold connection"
+        },
+        {
+          "scenario": "Prospect recently changed jobs",
+          "opportunity": "Perfect timing! Congrats message + 'As you build your stack at [new company]...'",
+          "timing": "Reach out 2-4 weeks after job change (settled in but not overwhelmed yet)"
+        },
+        {
+          "scenario": "They viewed your profile but didn't respond",
+          "meaning": "They're interested but busy, or evaluating you",
+          "action": "Wait 3 days, send follow-up: 'Saw you checked out my profile - happy to answer any questions!'",
+          "tone": "Light, non-pushy, acknowledges the profile view"
+        }
+      ],
+      "domain_knowledge": [
+        "LinkedIn response rate for cold outreach averages 8-15% (personalized vs <2% generic)",
+        "Tuesday-Thursday 10am-2pm ET has highest response rate",
+        "Messages under 150 words get 50% more responses than longer ones",
+        "Mentioning mutual connection increases response rate by 3x",
+        "Video messages (LinkedIn feature) get 4x response rate but feel gimmicky - use sparingly",
+        "'Can I pick your brain' is overused and vague - be specific about the ask",
+        "Asking for 15-min call converts better than 'demo' or 'presentation' (less commitment)",
+        "The phrase 'I wanted to reach out' is filler - start with value immediately"
+      ],
+      "estimated_time_saved": "Saves 30 minutes crafting message + avoids relationship damage from bad outreach",
+      "token_comparison": {
+        "from_scratch": 1800,
+        "with_workflow": 720,
+        "savings_percent": 60
+      }
+    },
+    {
+      "workflow_id": "nebraska_selfemployed_quarterly_2024",
+      "title": "Nebraska 2024 Self-Employed Taxes (Quarterly Estimates)",
+      "task_type": "tax_filing",
+      "state": "nebraska",
+      "year": 2024,
+      "description": "Complete Nebraska state tax filing for self-employed individuals with quarterly estimated tax payment calculations. Handles Schedule C income, self-employment tax, and Nebraska-specific deductions.",
+      "token_cost": 210,
+      "execution_tokens": 820,
+      "rating": 4.7,
+      "usage_count": 19,
+      "tags": ["tax", "nebraska", "self_employed", "quarterly", "schedule_c"],
+      "requirements": ["Schedule C income/expenses", "federal return", "prior year tax liability", "quarterly payment records"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Calculate net self-employment income from Schedule C",
+          "action": "calculate",
+          "formula": "net_income = gross_receipts - business_expenses",
+          "required_records": ["1099-NEC forms", "business expense receipts", "mileage logs", "home office calculations"],
+          "validation": "Net income should match federal Schedule C line 31"
+        },
+        {
+          "step": 2,
+          "thought": "Calculate federal self-employment tax (required for Nebraska calculation)",
+          "action": "calculate",
+          "formula": "se_tax = net_income * 0.9235 * 0.153",
+          "breakdown": {
+            "social_security": "12.4% on first $168,600 (2024 limit)",
+            "medicare": "2.9% on all income",
+            "additional_medicare": "0.9% on income > $200k (single) / $250k (married)"
+          },
+          "deduction": "Can deduct 50% of SE tax from income"
+        },
+        {
+          "step": 3,
+          "thought": "Calculate Nebraska adjusted gross income",
+          "action": "calculate",
+          "formula": "ne_agi = federal_agi + ne_addbacks - ne_subtractions",
+          "ne_specific_addbacks": [
+            "State income tax refund (if deducted federally)",
+            "Interest from non-Nebraska state/local bonds"
+          ],
+          "ne_specific_subtractions": [
+            "Social Security benefits (Nebraska doesn't tax these)",
+            "Military retirement pay",
+            "Up to $10,000 for 529 contributions"
+          ],
+          "validation": "Nebraska AGI typically close to federal AGI for self-employed"
+        },
+        {
+          "step": 4,
+          "thought": "Calculate Nebraska tax liability using graduated brackets",
+          "action": "calculate_tax",
+          "brackets_2024": {
+            "0-3700": "2.46%",
+            "3701-22170": "3.51%",
+            "22171-35730": "5.01%",
+            "35731+": "5.84%"
+          },
+          "formula": "Apply graduated rates to Nebraska taxable income",
+          "note": "Nebraska has relatively low state tax compared to coastal states"
+        },
+        {
+          "step": 5,
+          "thought": "Calculate quarterly estimated tax payments (critical for self-employed)",
+          "action": "calculate_quarterly",
+          "requirement": "Must pay quarterly if expect to owe $500+ in state tax",
+          "formula": "quarterly_payment = (estimated_annual_tax - withholding) / 4",
+          "due_dates": {
+            "Q1": "April 15, 2024",
+            "Q2": "June 15, 2024",
+            "Q3": "September 15, 2024",
+            "Q4": "January 15, 2025"
+          },
+          "safe_harbor": "Pay 100% of prior year tax (110% if AGI > $150k) to avoid penalty",
+          "common_error": "Self-employed often underpay Q1-Q3, then owe large amount in Q4"
+        },
+        {
+          "step": 6,
+          "thought": "Calculate underpayment penalty if quarterly payments missed",
+          "action": "check_penalty",
+          "triggers_penalty": "Owed $500+ and didn't pay 90% through withholding/estimates",
+          "penalty_rate": "Variable (tied to federal short-term rate + 3%)",
+          "calculation": "Penalty calculated per quarter based on shortfall",
+          "avoid": "Use safe harbor method or annualized income method if income varies"
+        },
+        {
+          "step": 7,
+          "thought": "Identify Nebraska-specific deductions and credits",
+          "action": "apply_deductions_credits",
+          "available": [
+            "Property tax credit (if homeowner, income-based)",
+            "Dependent care credit (20% of federal credit)",
+            "Beginning Farmer Tax Credit",
+            "Angel Investment Tax Credit (if invested in NE startups)"
+          ],
+          "self_employed_specific": "Health insurance premiums deductible (if not eligible for spouse's plan)"
+        },
+        {
+          "step": 8,
+          "thought": "Plan for next year's estimated taxes",
+          "action": "project_future",
+          "method": "Use current year income as baseline",
+          "adjustments": [
+            "Expected business growth/decline",
+            "Major purchases (equipment depreciation)",
+            "Changes in deductions (new employees, office space, etc.)"
+          ],
+          "recommendation": "Pay 110% of current year tax in quarterly estimates to be safe",
+          "tool": "Set up reminders for quarterly due dates (easy to forget)"
+        },
+        {
+          "step": 9,
+          "thought": "File Nebraska Form 1040N with required schedules",
+          "action": "file_return",
+          "form": "Nebraska Form 1040N",
+          "required_schedules": [
+            "Federal Schedule C (attach copy)",
+            "Schedule I (Nebraska additions/subtractions)",
+            "Form 1040N-ES (quarterly estimate vouchers for next year)"
+          ],
+          "filing_method": "Nebraska e-file or mail to Department of Revenue",
+          "payment": "Can pay online even if filing by mail"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Variable income throughout year (common for freelancers)",
+          "handling": "Use annualized income method to calculate quarterly estimates based on actual income each quarter",
+          "benefit": "Avoid underpayment penalty if income comes late in year",
+          "form": "Nebraska Form 2210N to claim annualized income exception"
+        },
+        {
+          "scenario": "Multiple states (worked in NE but live elsewhere, or vice versa)",
+          "handling": "Nebraska taxes residents on all income; nonresidents only on Nebraska-source income",
+          "credit": "Get credit for taxes paid to other state",
+          "complexity": "May need to file in multiple states"
+        },
+        {
+          "scenario": "First year self-employed (no prior year tax to use for safe harbor)",
+          "handling": "Estimate quarterly payments based on projected annual income",
+          "conservative_approach": "Overestimate to avoid penalty, get refund later",
+          "note": "No penalty for underpayment in first year of self-employment (some leniency)"
+        },
+        {
+          "scenario": "Also have W2 income (side gigs + employment)",
+          "handling": "Combine W2 wages with Schedule C income for AGI",
+          "withholding": "W2 withholding counts toward quarterly requirement",
+          "strategy": "Can increase W2 withholding to cover self-employment tax (easier than quarterlies)"
+        }
+      ],
+      "domain_knowledge": [
+        "Nebraska does NOT tax Social Security benefits (unlike federal)",
+        "Self-employment tax is 15.3% federally but deductible on Nebraska return",
+        "Quarterly estimates are pay-as-you-go system - can't wait until year-end",
+        "Nebraska allows net operating loss carryforward (up to 20 years)",
+        "Mileage rate follows federal ($0.67/mile for 2024)",
+        "Home office deduction: simplified ($5/sq ft, max 300 sq ft) or actual expenses",
+        "Nebraska has reciprocity with Iowa - special rules if living near border"
+      ],
+      "estimated_time_saved": "Saves 50 minutes calculating quarterly estimates and Nebraska-specific SE rules",
+      "token_comparison": {
+        "from_scratch": 3400,
+        "with_workflow": 1030,
+        "savings_percent": 70
+      }
+    },
+    {
+      "workflow_id": "pdf_medical_records_parser",
+      "title": "PDF Medical Records Parser (Extract Vitals, Medications, Diagnoses)",
+      "task_type": "data_parsing",
+      "format": "pdf",
+      "domain": "healthcare",
+      "description": "Extract structured data from medical record PDFs including patient vitals, current medications, diagnoses, lab results, and visit history. Handles various EMR formats (Epic, Cerner, Allscripts).",
+      "token_cost": 170,
+      "execution_tokens": 680,
+      "rating": 4.6,
+      "usage_count": 63,
+      "tags": ["medical", "pdf", "parsing", "healthcare", "emr"],
+      "requirements": ["Medical record PDF", "target data fields", "date range if filtering"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Identify EMR system format (layouts differ)",
+          "action": "detect_format",
+          "common_systems": {
+            "Epic": "Most common, distinct header with patient banner",
+            "Cerner": "Different layout, diagnosis codes prominent",
+            "Allscripts": "Older system, more text-heavy",
+            "Quest Diagnostics": "Lab-specific format",
+            "Custom": "Smaller practices, highly variable"
+          },
+          "detection": "Look for system name in header/footer or distinctive formatting",
+          "note": "Format affects extraction approach - Epic is most standardized"
+        },
+        {
+          "step": 2,
+          "thought": "Extract patient demographics",
+          "action": "parse_header",
+          "fields": [
+            "Patient name",
+            "Date of birth",
+            "MRN (Medical Record Number)",
+            "Gender",
+            "Address",
+            "Phone"
+          ],
+          "location": "Typically in header/banner at top of each page",
+          "validation": "DOB format usually MM/DD/YYYY, MRN is alphanumeric",
+          "privacy_note": "This is PHI - handle securely, don't log"
+        },
+        {
+          "step": 3,
+          "thought": "Extract vital signs from recent visits",
+          "action": "parse_vitals",
+          "target_fields": {
+            "blood_pressure": "Format: 120/80 mmHg",
+            "heart_rate": "Format: 72 bpm or 72 beats/min",
+            "temperature": "Format: 98.6 F or 37.0 C",
+            "weight": "Format: 150 lbs or 68 kg",
+            "height": "Format: 5'8\" or 68 in or 173 cm",
+            "bmi": "Format: 22.5 or calculated from height/weight",
+            "respiratory_rate": "Format: 16 breaths/min",
+            "oxygen_saturation": "Format: 98% or SpO2 98%"
+          },
+          "location": "Usually in 'Vitals' section or table near visit summary",
+          "date_association": "Tag each vital with visit date",
+          "edge_case": "Some vitals may be missing for certain visits"
+        },
+        {
+          "step": 4,
+          "thought": "Extract current medications list",
+          "action": "parse_medications",
+          "for_each_medication": {
+            "drug_name": "Generic and/or brand name",
+            "dosage": "e.g., 10 mg, 5 ml",
+            "frequency": "e.g., twice daily, every 8 hours, as needed",
+            "route": "oral, topical, injection, etc.",
+            "prescribing_physician": "Often listed",
+            "start_date": "When prescribed",
+            "status": "Active, discontinued, completed"
+          },
+          "section_heading": "Look for 'Medications', 'Current Medications', 'Active Prescriptions'",
+          "format": "Usually bulleted list or table",
+          "note": "Distinguish between current and historical meds - focus on 'Active' status"
+        },
+        {
+          "step": 5,
+          "thought": "Extract diagnoses and problem list",
+          "action": "parse_diagnoses",
+          "fields": [
+            "Diagnosis name (condition)",
+            "ICD-10 code (e.g., E11.9 for Type 2 Diabetes)",
+            "Status (active, resolved, chronic)",
+            "Onset date",
+            "Treating physician"
+          ],
+          "section_heading": "Look for 'Problem List', 'Diagnoses', 'Active Problems'",
+          "chronic_conditions": "Flag conditions marked as 'chronic' or long-standing",
+          "validation": "ICD-10 codes are alphanumeric (letter + 2 digits + optional decimal + more digits)",
+          "priority": "Extract all active diagnoses first, historical if requested"
+        },
+        {
+          "step": 6,
+          "thought": "Extract lab results if present",
+          "action": "parse_labs",
+          "for_each_test": {
+            "test_name": "e.g., Complete Blood Count, Hemoglobin A1c",
+            "result_value": "Numeric value with units",
+            "reference_range": "Normal range for comparison",
+            "flag": "High/Low/Normal/Critical",
+            "test_date": "When lab was drawn",
+            "ordering_physician": "Who ordered the test"
+          },
+          "section": "Look for 'Lab Results', 'Laboratory', 'Diagnostic Tests'",
+          "format": "Usually table with test name, value, range, flag",
+          "note": "Flags (H for high, L for low) are important clinical indicators"
+        },
+        {
+          "step": 7,
+          "thought": "Extract allergies and adverse reactions",
+          "action": "parse_allergies",
+          "fields": [
+            "Allergen (medication, food, environmental)",
+            "Reaction (rash, anaphylaxis, nausea, etc.)",
+            "Severity (mild, moderate, severe)",
+            "Date reported"
+          ],
+          "section": "Look for 'Allergies', 'Adverse Reactions', 'Drug Allergies'",
+          "critical": "This is safety-critical information",
+          "common_entry": "'NKDA' or 'No Known Drug Allergies'"
+        },
+        {
+          "step": 8,
+          "thought": "Extract visit history and encounter dates",
+          "action": "parse_visits",
+          "for_each_visit": {
+            "visit_date": "Date of encounter",
+            "visit_type": "Office visit, ER, hospital admission, telehealth",
+            "chief_complaint": "Reason for visit",
+            "treating_provider": "Doctor/NP who saw patient",
+            "location": "Facility/clinic name",
+            "duration": "If applicable (hospital admissions)"
+          },
+          "section": "Look for 'Visit History', 'Encounters', 'Chart Summary'",
+          "chronological": "List visits in reverse chronological order (most recent first)"
+        },
+        {
+          "step": 9,
+          "thought": "Structure output as clean JSON",
+          "action": "format_output",
+          "schema": {
+            "patient": {
+              "demographics": {},
+              "vitals": [],
+              "medications": [],
+              "diagnoses": [],
+              "lab_results": [],
+              "allergies": [],
+              "visit_history": []
+            },
+            "metadata": {
+              "emr_system": "string",
+              "extraction_date": "ISO 8601",
+              "document_pages": "number",
+              "date_range": "string"
+            }
+          },
+          "validation": "All dates in ISO 8601 format, all measurements with units",
+          "missing_data": "Mark as null if field not found, don't omit"
+        },
+        {
+          "step": 10,
+          "thought": "Validate extracted data for completeness",
+          "action": "quality_check",
+          "checks": [
+            "All required fields present (name, DOB, MRN)",
+            "Dates are valid and in reasonable range",
+            "Medications have dosage and frequency",
+            "Lab values have units",
+            "No obvious OCR errors (e.g., '0' vs 'O', '1' vs 'l')"
+          ],
+          "flag_for_review": "Items with low confidence or ambiguous values",
+          "note": "Medical data requires high accuracy - err on side of flagging for human review"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Scanned PDF with poor quality (OCR challenges)",
+          "handling": "Use OCR preprocessing (deskew, enhance contrast) before extraction",
+          "tools": "Tesseract OCR, Adobe Acrobat OCR",
+          "flag": "Low confidence extractions should be flagged for manual review"
+        },
+        {
+          "scenario": "Multi-page records spanning years",
+          "handling": "Extract all data but group by date/visit",
+          "strategy": "Focus on most recent data if user specifies (e.g., 'last 12 months')",
+          "note": "Long records may have outdated info - check 'Active' status"
+        },
+        {
+          "scenario": "Handwritten notes or annotations",
+          "handling": "Typed text is extractable, handwritten requires specialized OCR",
+          "limitation": "Handwritten physician notes often not machine-readable",
+          "workaround": "Extract what's typed, flag handwritten sections"
+        },
+        {
+          "scenario": "Protected/encrypted PDFs",
+          "handling": "Requires password or decryption before parsing",
+          "security": "Patient authorization required to access PHI",
+          "compliance": "Ensure HIPAA compliance in handling"
+        }
+      ],
+      "domain_knowledge": [
+        "Medical records are Protected Health Information (PHI) under HIPAA",
+        "Epic is the dominant EMR (~30% market share) - prioritize Epic format support",
+        "ICD-10 codes are standardized globally - use for diagnosis classification",
+        "Vitals often missing from telehealth visits (patient self-reports unreliable)",
+        "Medication lists should distinguish 'Active' vs 'Historical' - critical for safety",
+        "Lab reference ranges vary by lab - always include the specific range from the report",
+        "Allergies section is mandatory in EMRs but often just says 'NKDA'",
+        "'Chief complaint' in quotes is often patient's own words"
+      ],
+      "estimated_time_saved": "Saves 20-30 minutes manually transcribing medical records",
+      "token_comparison": {
+        "from_scratch": 2400,
+        "with_workflow": 850,
+        "savings_percent": 65
+      }
+    }
+  ]
+}
