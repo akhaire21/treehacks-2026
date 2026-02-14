@@ -11,8 +11,19 @@
       "execution_tokens": 800,
       "rating": 4.8,
       "usage_count": 47,
-      "tags": ["tax", "ohio", "w2", "itemized", "married"],
-      "requirements": ["W2 forms", "itemized deduction records", "local tax jurisdiction", "federal return"],
+      "tags": [
+        "tax",
+        "ohio",
+        "w2",
+        "itemized",
+        "married"
+      ],
+      "requirements": [
+        "W2 forms",
+        "itemized deduction records",
+        "local tax jurisdiction",
+        "federal return"
+      ],
       "steps": [
         {
           "step": 1,
@@ -35,7 +46,11 @@
           "step": 3,
           "thought": "Itemized deductions calculation for Ohio",
           "action": "calculate",
-          "inputs": ["{mortgage_interest}", "{property_tax}", "{charitable_contributions}"],
+          "inputs": [
+            "{mortgage_interest}",
+            "{property_tax}",
+            "{charitable_contributions}"
+          ],
           "formula": "ohio_itemized = mortgage_interest + property_tax + charitable + medical_over_threshold",
           "threshold": "Medical expenses only deductible if > 7.5% of AGI",
           "ohio_note": "Ohio allows full property tax deduction (no federal SALT cap applies)"
@@ -107,9 +122,16 @@
           "thought": "Generate IT-1040 form with all schedules",
           "action": "fill_form",
           "form": "IT-1040",
-          "required_schedules": ["Schedule A (itemized deductions)", "IT-1040 page 2 (credits)"],
+          "required_schedules": [
+            "Schedule A (itemized deductions)",
+            "IT-1040 page 2 (credits)"
+          ],
           "signature": "Both spouses must sign for MFJ",
-          "filing_options": ["Mail", "Ohio e-file", "Free file alliance software"]
+          "filing_options": [
+            "Mail",
+            "Ohio e-file",
+            "Free file alliance software"
+          ]
         }
       ],
       "edge_cases": [
@@ -141,6 +163,18 @@
         "from_scratch": 3200,
         "with_workflow": 1000,
         "savings_percent": 69
+      },
+      "avg_tokens_without": 15000,
+      "avg_tokens_with": 4650,
+      "tokens_saved": 10350,
+      "savings_percentage": 69,
+      "price_tokens": 1981,
+      "pricing": {
+        "base_price": 1981,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 522.5,
+        "breakdown": "Base: 1552 (15% of 10,350 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 1981 tokens"
       }
     },
     {
@@ -154,14 +188,28 @@
       "execution_tokens": 750,
       "rating": 4.9,
       "usage_count": 89,
-      "tags": ["tax", "california", "w2", "standard_deduction"],
-      "requirements": ["W2 forms", "federal return", "California residency dates"],
+      "tags": [
+        "tax",
+        "california",
+        "w2",
+        "standard_deduction"
+      ],
+      "requirements": [
+        "W2 forms",
+        "federal return",
+        "California residency dates"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "California requires all worldwide income for residents",
           "action": "gather_income",
-          "inputs": ["{w2_wages}", "{interest}", "{dividends}", "{capital_gains}"],
+          "inputs": [
+            "{w2_wages}",
+            "{interest}",
+            "{dividends}",
+            "{capital_gains}"
+          ],
           "ca_specific": "California taxes all income, including out-of-state sources, for residents"
         },
         {
@@ -249,6 +297,18 @@
         "from_scratch": 2800,
         "with_workflow": 930,
         "savings_percent": 67
+      },
+      "avg_tokens_without": 14500,
+      "avg_tokens_with": 4785,
+      "tokens_saved": 9715,
+      "savings_percentage": 67,
+      "price_tokens": 1877,
+      "pricing": {
+        "base_price": 1877,
+        "quality_multiplier": 1.288,
+        "market_rate": 1981,
+        "roi_percentage": 517.6,
+        "breakdown": "Base: 1457 (15% of 9,715 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 1877 tokens"
       }
     },
     {
@@ -262,8 +322,20 @@
       "execution_tokens": 900,
       "rating": 4.7,
       "usage_count": 34,
-      "tags": ["travel", "tokyo", "family", "kids", "stroller", "japan"],
-      "requirements": ["Travel dates", "kids ages", "dietary restrictions", "accommodation budget"],
+      "tags": [
+        "travel",
+        "tokyo",
+        "family",
+        "kids",
+        "stroller",
+        "japan"
+      ],
+      "requirements": [
+        "Travel dates",
+        "kids ages",
+        "dietary restrictions",
+        "accommodation budget"
+      ],
       "steps": [
         {
           "step": 1,
@@ -274,7 +346,11 @@
             "Family room (can fit 4)",
             "Near Yamanote line for easy access"
           ],
-          "recommended_areas": ["Shinjuku", "Shibuya", "Ueno"],
+          "recommended_areas": [
+            "Shinjuku",
+            "Shibuya",
+            "Ueno"
+          ],
           "avoid": "Asakusa (older stations, fewer elevators)",
           "kid_specific": "Hotel with coin laundry (essential for kids' accidents)"
         },
@@ -332,7 +408,7 @@
             "why": "More unique than Disneyland, stroller rental available",
             "booking": "Reserve tickets 2 months advance",
             "full_day": "Plan 10am-6pm, skip evening (exhausting for little kids)",
-            "stroller": "Rental ¥1000/day at entrance"
+            "stroller": "Rental \u00a51000/day at entrance"
           },
           "option_b": {
             "activity": "Odaiba - TeamLab Borderless + Beach",
@@ -443,6 +519,18 @@
         "from_scratch": 4200,
         "with_workflow": 1120,
         "savings_percent": 73
+      },
+      "avg_tokens_without": 18000,
+      "avg_tokens_with": 4860,
+      "tokens_saved": 13140,
+      "savings_percentage": 73,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2491,
+        "quality_multiplier": 1.264,
+        "market_rate": null,
+        "roi_percentage": 657.0,
+        "breakdown": "Base: 1971 (15% of 13,140 saved) \u2192 Quality adjusted (4.7\u2605): \u00d71.26 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -455,8 +543,17 @@
       "execution_tokens": 600,
       "rating": 4.9,
       "usage_count": 156,
-      "tags": ["stripe", "invoice", "parsing", "finance", "currency"],
-      "requirements": ["Stripe invoice PDF or JSON", "base currency for conversion"],
+      "tags": [
+        "stripe",
+        "invoice",
+        "parsing",
+        "finance",
+        "currency"
+      ],
+      "requirements": [
+        "Stripe invoice PDF or JSON",
+        "base currency for conversion"
+      ],
       "steps": [
         {
           "step": 1,
@@ -533,7 +630,7 @@
           "action": "calculate_total",
           "formula": "total_due = subtotal_after_discounts + tax_amount",
           "validation": "Must match 'Amount Due' on invoice",
-          "tolerance": "Allow ±$0.01 for rounding differences",
+          "tolerance": "Allow \u00b1$0.01 for rounding differences",
           "if_mismatch": "Flag as requiring manual review"
         },
         {
@@ -626,6 +723,18 @@
         "from_scratch": 2200,
         "with_workflow": 750,
         "savings_percent": 66
+      },
+      "avg_tokens_without": 12000,
+      "avg_tokens_with": 4080,
+      "tokens_saved": 7920,
+      "savings_percentage": 66,
+      "price_tokens": 1530,
+      "pricing": {
+        "base_price": 1530,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 517.6,
+        "breakdown": "Base: 1188 (15% of 7,920 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 1530 tokens"
       }
     },
     {
@@ -638,8 +747,19 @@
       "execution_tokens": 850,
       "rating": 4.6,
       "usage_count": 28,
-      "tags": ["real_estate", "zillow", "columbus", "home_search", "schools"],
-      "requirements": ["Budget", "bedroom count", "school rating requirement", "move-in timeline"],
+      "tags": [
+        "real_estate",
+        "zillow",
+        "columbus",
+        "home_search",
+        "schools"
+      ],
+      "requirements": [
+        "Budget",
+        "bedroom count",
+        "school rating requirement",
+        "move-in timeline"
+      ],
       "steps": [
         {
           "step": 1,
@@ -649,10 +769,20 @@
             "location": "Columbus, OH 43201-43240 (metro zip codes)",
             "price_max": 400000,
             "bedrooms_min": 3,
-            "property_type": ["Single Family", "Townhome"],
-            "status": ["For Sale", "Accepting Backup Offers"]
+            "property_type": [
+              "Single Family",
+              "Townhome"
+            ],
+            "status": [
+              "For Sale",
+              "Accepting Backup Offers"
+            ]
           },
-          "exclude": ["Foreclosures", "Auction", "Short Sale"],
+          "exclude": [
+            "Foreclosures",
+            "Auction",
+            "Short Sale"
+          ],
           "sort_by": "Days on market (newest first)"
         },
         {
@@ -801,6 +931,18 @@
         "from_scratch": 3000,
         "with_workflow": 1040,
         "savings_percent": 65
+      },
+      "avg_tokens_without": 13500,
+      "avg_tokens_with": 4725,
+      "tokens_saved": 8775,
+      "savings_percentage": 65,
+      "price_tokens": 1648,
+      "pricing": {
+        "base_price": 1648,
+        "quality_multiplier": 1.252,
+        "market_rate": null,
+        "roi_percentage": 532.5,
+        "breakdown": "Base: 1316 (15% of 8,775 saved) \u2192 Quality adjusted (4.6\u2605): \u00d71.25 \u2192 Final: 1648 tokens"
       }
     },
     {
@@ -813,8 +955,18 @@
       "execution_tokens": 580,
       "rating": 4.8,
       "usage_count": 92,
-      "tags": ["linkedin", "b2b", "sales", "outreach", "cold_email"],
-      "requirements": ["Target prospect info", "your product/service", "value proposition"],
+      "tags": [
+        "linkedin",
+        "b2b",
+        "sales",
+        "outreach",
+        "cold_email"
+      ],
+      "requirements": [
+        "Target prospect info",
+        "your product/service",
+        "value proposition"
+      ],
       "steps": [
         {
           "step": 1,
@@ -948,6 +1100,18 @@
         "from_scratch": 1800,
         "with_workflow": 720,
         "savings_percent": 60
+      },
+      "avg_tokens_without": 11000,
+      "avg_tokens_with": 4400,
+      "tokens_saved": 6600,
+      "savings_percentage": 60,
+      "price_tokens": 1263,
+      "pricing": {
+        "base_price": 1263,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 522.6,
+        "breakdown": "Base: 990 (15% of 6,600 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 1263 tokens"
       }
     },
     {
@@ -961,15 +1125,31 @@
       "execution_tokens": 820,
       "rating": 4.7,
       "usage_count": 19,
-      "tags": ["tax", "nebraska", "self_employed", "quarterly", "schedule_c"],
-      "requirements": ["Schedule C income/expenses", "federal return", "prior year tax liability", "quarterly payment records"],
+      "tags": [
+        "tax",
+        "nebraska",
+        "self_employed",
+        "quarterly",
+        "schedule_c"
+      ],
+      "requirements": [
+        "Schedule C income/expenses",
+        "federal return",
+        "prior year tax liability",
+        "quarterly payment records"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "Calculate net self-employment income from Schedule C",
           "action": "calculate",
           "formula": "net_income = gross_receipts - business_expenses",
-          "required_records": ["1099-NEC forms", "business expense receipts", "mileage logs", "home office calculations"],
+          "required_records": [
+            "1099-NEC forms",
+            "business expense receipts",
+            "mileage logs",
+            "home office calculations"
+          ],
           "validation": "Net income should match federal Schedule C line 31"
         },
         {
@@ -1116,6 +1296,18 @@
         "from_scratch": 3400,
         "with_workflow": 1030,
         "savings_percent": 70
+      },
+      "avg_tokens_without": 16000,
+      "avg_tokens_with": 4800,
+      "tokens_saved": 11200,
+      "savings_percentage": 70,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2124,
+        "quality_multiplier": 1.264,
+        "market_rate": 1929.0,
+        "roi_percentage": 560.0,
+        "breakdown": "Base: 1680 (15% of 11,200 saved) \u2192 Quality adjusted (4.7\u2605): \u00d71.26 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -1129,8 +1321,18 @@
       "execution_tokens": 680,
       "rating": 4.6,
       "usage_count": 63,
-      "tags": ["medical", "pdf", "parsing", "healthcare", "emr"],
-      "requirements": ["Medical record PDF", "target data fields", "date range if filtering"],
+      "tags": [
+        "medical",
+        "pdf",
+        "parsing",
+        "healthcare",
+        "emr"
+      ],
+      "requirements": [
+        "Medical record PDF",
+        "target data fields",
+        "date range if filtering"
+      ],
       "steps": [
         {
           "step": 1,
@@ -1338,6 +1540,18 @@
         "from_scratch": 2400,
         "with_workflow": 850,
         "savings_percent": 65
+      },
+      "avg_tokens_without": 13000,
+      "avg_tokens_with": 4550,
+      "tokens_saved": 8450,
+      "savings_percentage": 65,
+      "price_tokens": 1587,
+      "pricing": {
+        "base_price": 1587,
+        "quality_multiplier": 1.252,
+        "market_rate": 1530,
+        "roi_percentage": 532.5,
+        "breakdown": "Base: 1267 (15% of 8,450 saved) \u2192 Quality adjusted (4.6\u2605): \u00d71.25 \u2192 Final: 1587 tokens"
       }
     }
   ]

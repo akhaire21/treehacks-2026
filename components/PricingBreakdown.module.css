@@ -1,0 +1,371 @@
+/* Compact pricing display */
+.pricingCompact {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.priceTag {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+}
+
+.priceValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #0066ff;
+}
+
+.priceLabel {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.roiBadge {
+  display: flex;
+  align-items: baseline;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+  border-radius: 1rem;
+  color: white;
+}
+
+.roiValue {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.roiLabel {
+  font-size: 0.75rem;
+  opacity: 0.9;
+}
+
+/* Full pricing breakdown */
+.pricingBreakdown {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 800px;
+}
+
+.pricingHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.pricingTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin: 0;
+}
+
+.roiHighlight {
+  text-align: right;
+}
+
+.roiMain {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.roiNumber {
+  font-size: 2.5rem;
+  font-weight: 800;
+  background: linear-gradient(135deg, #00c853 0%, #00e676 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.roiText {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #00c853;
+}
+
+.roiSubtext {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.pricingGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.pricingCard {
+  background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.cardLabel {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.cardValue {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.cardValueSuccess {
+  color: #00c853;
+}
+
+.cardSubtext {
+  font-size: 0.875rem;
+  color: #888;
+}
+
+.tokenIcon {
+  font-size: 1.25rem;
+  color: #0066ff;
+}
+
+/* Comparison section */
+.comparisonSection {
+  background: #f8f9fa;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.comparisonTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 1rem;
+}
+
+.comparisonBars {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.comparisonItem {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.comparisonLabel {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.875rem;
+  color: #666;
+}
+
+.comparisonValue {
+  font-weight: 600;
+  color: #1a1a1a;
+}
+
+.comparisonBar {
+  height: 8px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.comparisonBarFill {
+  height: 100%;
+  background: #0066ff;
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.comparisonBarSuccess {
+  background: linear-gradient(90deg, #00c853 0%, #00e676 100%);
+}
+
+/* Details toggle */
+.detailsToggle {
+  width: 100%;
+  padding: 0.75rem;
+  background: transparent;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #0066ff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.detailsToggle:hover {
+  background: #f8f9fa;
+  border-color: #0066ff;
+}
+
+/* Calculation details */
+.calculationDetails {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.detailsTitle {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: #1a1a1a;
+  margin-bottom: 1.5rem;
+}
+
+.calculationStep {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.stepNumber {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #0066ff;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 0.875rem;
+}
+
+.stepContent {
+  flex: 1;
+}
+
+.stepTitle {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #1a1a1a;
+  margin-bottom: 0.5rem;
+}
+
+.stepFormula {
+  font-family: 'Monaco', 'Courier New', monospace;
+  font-size: 0.875rem;
+  color: #0066ff;
+  background: #f0f7ff;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  margin-bottom: 0.5rem;
+}
+
+.stepExplanation {
+  font-size: 0.875rem;
+  color: #666;
+  font-style: italic;
+}
+
+.finalPrice {
+  font-size: 1.25rem;
+  font-weight: 700;
+  background: linear-gradient(135deg, #0066ff 0%, #00a3ff 100%);
+  color: white;
+  padding: 0.75rem 1rem;
+}
+
+.breakdownSummary {
+  background: #f8f9fa;
+  border-radius: 6px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.summaryTitle {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.summaryText {
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  line-height: 1.6;
+}
+
+/* Value proposition */
+.valueProposition {
+  display: flex;
+  gap: 1rem;
+  background: linear-gradient(135deg, #e8f5e9 0%, #f1f8f4 100%);
+  border: 1px solid #c8e6c9;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1.5rem;
+}
+
+.valueIcon {
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #00c853;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+}
+
+.valueText {
+  flex: 1;
+  font-size: 0.875rem;
+  color: #1a1a1a;
+  line-height: 1.6;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+  .pricingBreakdown {
+    padding: 1.5rem;
+  }
+
+  .pricingHeader {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .roiHighlight {
+    text-align: left;
+  }
+
+  .pricingGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .roiNumber {
+    font-size: 2rem;
+  }
+}
