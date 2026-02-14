@@ -6,9 +6,9 @@ Does NOT create artificial tree structures - uses the unified Workflow model dir
 """
 
 import json
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Tuple
 
-from models import Workflow
+from models import Workflow, WorkflowNodeDoc
 
 
 def load_workflows_from_json(workflows_path: str) -> List[Workflow]:
@@ -125,6 +125,91 @@ def prepare_for_indexing(workflow: Workflow, full_text: str, embedding: List[flo
     doc["_id"] = workflow.workflow_id
 
     return doc
+
+
+def extract_nodes_from_workflow(workflow: Workflow) -> List[WorkflowNodeDoc]:
+    """
+    Extract indexable nodes (subtasks/steps) from a workflow.
+
+    This enables tree-aware recursive search (Step 9 in algorithm).
+    Each step becomes a searchable node with its own embedding.
+
+    Args:
+        workflow: Workflow object
+
+    Returns:
+        List of WorkflowNodeDoc objects ready for indexing
+    """
+    nodes = []
+
+    # Extract steps as nodes
+    if workflow.steps:
+        for i, step in enumerate(workflow.steps):
+            # Create text representation for this step
+            step_text_parts = []
+
+            if step.get("thought"):
+                step_text_parts.append(f"Thought: {step['thought']}")
+
+            if step.get("action"):
+                step_text_parts.append(f"Action: {step['action']}")
+
+            if step.get("context"):
+                step_text_parts.append(f"Context: {step['context']}")
+
+            step_text = " | ".join(step_text_parts)
+
+            # Create node
+            node = WorkflowNodeDoc(
+                node_id=f"{workflow.workflow_id}_step_{step.get('step', i)}",
+                workflow_id=workflow.workflow_id,
+                node_type="step",
+                title=step.get("thought", f"Step {step.get('step', i)}"),
+                text=step_text,
+                capability=None,  # Could be inferred from action
+                parent_node_id=workflow.workflow_id,  # Direct parent is workflow
+                ordinal=step.get("step", i),
+                embedding=None  # Will be generated during indexing
+            )
+
+            nodes.append(node)
+
+    return nodes
+
+
+def prepare_nodes_for_indexing(
+    nodes: List[WorkflowNodeDoc],
+    embedding_service
+) -> List[Dict[str, Any]]:
+    """
+    Prepare workflow nodes for Elasticsearch indexing.
+
+    Generates embeddings for each node and converts to ES documents.
+
+    Args:
+        nodes: List of WorkflowNodeDoc objects
+        embedding_service: EmbeddingService instance
+
+    Returns:
+        List of dictionaries ready for indexing
+    """
+    docs = []
+
+    for node in nodes:
+        # Generate embedding for node text
+        embedding = embedding_service.embed(
+            node.text,
+            task="retrieval.passage"
+        )
+        node.embedding = embedding
+
+        # Convert to ES document
+        doc = node.to_es_document()
+        doc["_id"] = node.node_id
+
+        docs.append(doc)
+
+    return docs
 
 
 def validate_workflow_consistency(workflow: Workflow) -> List[str]:

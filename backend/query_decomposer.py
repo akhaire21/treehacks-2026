@@ -22,7 +22,10 @@ from dataclasses import dataclass
 import time
 
 from config import Config, get_claude_service, get_elasticsearch_service, get_embedding_service
-from workflow_loader import load_workflows_from_json, workflow_to_text, prepare_for_indexing, validate_workflow_consistency
+from workflow_loader import (
+    load_workflows_from_json, workflow_to_text, prepare_for_indexing,
+    validate_workflow_consistency, extract_nodes_from_workflow, prepare_nodes_for_indexing
+)
 from models import Workflow, SearchResult, Subtask, SearchPlan
 
 
@@ -60,25 +63,25 @@ class RecursiveQueryDecomposer:
 
     def load_and_index_workflows(self, workflows_path: str):
         """
-        Load workflows from JSON and index into Elasticsearch.
-
-        Uses simplified workflow_loader that preserves workflows as-is without
-        creating artificial tree structures for steps.
+        Load workflows from JSON and index into TWO Elasticsearch indices:
+        1. Assets index (whole workflows)
+        2. Nodes index (subtasks/steps for tree-aware search)
 
         Args:
             workflows_path: Path to workflows.json
         """
         print(f"\n{'='*60}")
         print(f"Loading and indexing workflows from {workflows_path}")
+        print(f"TWO-INDEX APPROACH: Assets + Nodes")
         print(f"{'='*60}\n")
 
         # Step 1: Load workflows directly
-        print("[1/4] Loading workflows from JSON...")
+        print("[1/6] Loading workflows from JSON...")
         workflows = load_workflows_from_json(workflows_path)
         print(f"  ✓ Loaded {len(workflows)} workflows")
 
         # Step 2: Validate consistency
-        print("\n[2/4] Validating workflow consistency...")
+        print("\n[2/6] Validating workflow consistency...")
         total_errors = 0
         for workflow in workflows:
             errors = validate_workflow_consistency(workflow)
@@ -93,33 +96,60 @@ class RecursiveQueryDecomposer:
         else:
             print(f"  ⚠ Found {total_errors} validation errors")
 
-        # Step 3: Generate embeddings
-        print("\n[3/4] Generating embeddings for all workflows...")
-        documents = []
+        # Step 3: Generate embeddings for workflows (assets)
+        print("\n[3/6] Generating embeddings for workflows...")
+        workflow_documents = []
 
         for i, workflow in enumerate(workflows):
             # Create text representation
             full_text = workflow_to_text(workflow)
 
             # Generate embedding
-            embedding = self.embedding_service.embed(full_text)
+            embedding = self.embedding_service.embed(full_text, task="retrieval.passage")
 
             # Prepare document for indexing
             doc = prepare_for_indexing(workflow, full_text, embedding)
 
-            documents.append(doc)
+            workflow_documents.append(doc)
 
             if (i + 1) % 10 == 0:
                 print(f"  Generated {i + 1}/{len(workflows)} embeddings...")
 
-        print(f"  ✓ Generated embeddings for all {len(documents)} workflows")
+        print(f"  ✓ Generated embeddings for all {len(workflow_documents)} workflows")
 
-        # Step 4: Bulk index into Elasticsearch
-        print("\n[4/4] Indexing into Elasticsearch...")
-        self.es_service.index_bulk(documents)
+        # Step 4: Extract and generate embeddings for nodes
+        print("\n[4/6] Extracting and embedding workflow nodes...")
+        all_nodes = []
+
+        for workflow in workflows:
+            nodes = extract_nodes_from_workflow(workflow)
+            all_nodes.extend(nodes)
+
+        print(f"  ✓ Extracted {len(all_nodes)} nodes from workflows")
+
+        # Generate embeddings for nodes
+        node_documents = prepare_nodes_for_indexing(all_nodes, self.embedding_service)
+        print(f"  ✓ Generated embeddings for all {len(node_documents)} nodes")
+
+        # Step 5: Bulk index workflows into assets index
+        print("\n[5/6] Indexing workflows into assets index...")
+        self.es_service.index_bulk(workflow_documents)
+
+        # Step 6: Bulk index nodes into nodes index
+        print("\n[6/6] Indexing nodes into nodes index...")
+        if node_documents:
+            # Use index_node for each node
+            for node_doc in node_documents:
+                node_id = node_doc.pop("_id")
+                self.es_service.index_node(node_id, node_doc)
+            print(f"  ✓ Indexed {len(node_documents)} nodes")
+        else:
+            print(f"  ⚠ No nodes to index (workflows have no steps)")
 
         print(f"\n{'='*60}")
-        print(f"✓ Indexing complete! Indexed {len(documents)} workflows")
+        print(f"✓ Indexing complete!")
+        print(f"  Assets: {len(workflow_documents)} workflows")
+        print(f"  Nodes: {len(node_documents)} steps/subtasks")
         print(f"{'='*60}\n")
 
 
@@ -254,8 +284,8 @@ class RecursiveQueryDecomposer:
         Returns:
             List of SearchResult objects with Workflow models
         """
-        # Generate embedding
-        query_embedding = self.embedding_service.embed(query)
+        # Generate embedding (use retrieval.query for search queries)
+        query_embedding = self.embedding_service.embed(query, task="retrieval.query")
 
         # Hybrid search (returns list of dicts from Elasticsearch)
         results = self.es_service.hybrid_search(
@@ -308,7 +338,8 @@ class RecursiveQueryDecomposer:
             if subtask.task_type and subtask.task_type != "general":
                 filters["task_type"] = subtask.task_type
 
-            embedding = self.embedding_service.embed(subtask_query)
+            # Use retrieval.query for search queries
+            embedding = self.embedding_service.embed(subtask_query, task="retrieval.query")
             results = self.es_service.hybrid_search(
                 query_embedding=embedding,
                 query_text=subtask_query,
@@ -344,7 +375,7 @@ class RecursiveQueryDecomposer:
             matched_subtasks.append(subtask)
 
         # Score composite plan
-        # Simple scoring: average of individual scores weighted by subtask importance
+        # FIXED: Include coverage ratio in scoring (critical correctness fix!)
         weighted_scores = []
         for subtask, workflow in zip(matched_subtasks, best_workflows):
             workflow_score = self.claude_service.score_plan_quality(
@@ -354,9 +385,16 @@ class RecursiveQueryDecomposer:
             weighted_score = workflow_score * subtask.weight
             weighted_scores.append(weighted_score)
 
-        # Overall score: weighted average
+        # Weighted average quality
         total_weight = sum(st.weight for st in matched_subtasks)
-        overall_score = sum(weighted_scores) / total_weight if total_weight > 0 else 0.0
+        avg_quality = sum(weighted_scores) / total_weight if total_weight > 0 else 0.0
+
+        # Coverage ratio (penalize missing subtasks!)
+        coverage_ratio = len(matched_subtasks) / len(subtasks) if subtasks else 0.0
+
+        # Overall score = coverage * quality
+        # This prevents accepting "1/6 subtasks perfectly matched" as good
+        overall_score = coverage_ratio * avg_quality
 
         return CompositePlan(
             workflows=best_workflows,
@@ -374,6 +412,9 @@ class RecursiveQueryDecomposer:
         """
         Recursively split worst-matching subtask.
 
+        TREE-AWARE: First tries to search within workflow's indexed nodes.
+        Falls back to LLM decomposition if no nodes exist.
+
         Args:
             original_task: Original task
             composite_plan: Current composite plan
@@ -382,24 +423,125 @@ class RecursiveQueryDecomposer:
         Returns:
             Improved CompositePlan or None
         """
+        from models import WorkflowNodeDoc
+
         # Find worst-matching subtask
         worst_idx = -1
         worst_score = 1.0
+        worst_workflow = None
 
         for i, (subtask, workflow) in enumerate(zip(composite_plan.subtasks, composite_plan.workflows)):
             score = self.claude_service.score_plan_quality(subtask.text, workflow)
             if score < worst_score:
                 worst_score = score
                 worst_idx = i
+                worst_workflow = workflow
 
         if worst_idx == -1:
             return None
 
         worst_subtask = composite_plan.subtasks[worst_idx]
         print(f"  Worst subtask: {worst_subtask.text} (score={worst_score:.3f})")
+        print(f"  Matched to workflow: {worst_workflow.title}")
 
-        # Recursively search worst subtask
-        print(f"  Recursively splitting...")
+        # ═══════════════════════════════════════════════════════════════════
+        # TREE-AWARE STEP 9: Search workflow's indexed nodes
+        # ═══════════════════════════════════════════════════════════════════
+        print(f"  → Checking if workflow has indexed nodes...")
+
+        try:
+            # Generate query embedding
+            query_embedding = self.embedding_service.embed(
+                worst_subtask.text,
+                task="retrieval.query"
+            )
+
+            # Search nodes within this workflow
+            # Note: We index "step" nodes, not "subtask" nodes
+            node_hits = self.es_service.search_nodes(
+                workflow_id=worst_workflow.workflow_id,
+                query_text=worst_subtask.text,
+                query_embedding=query_embedding,
+                node_type="step",  # Search steps (what we actually index)
+                top_k=3
+            )
+
+            if node_hits:
+                print(f"  ✓ Found {len(node_hits)} matching nodes in workflow")
+
+                # Convert to WorkflowNodeDoc objects
+                node_docs = [WorkflowNodeDoc.from_es_hit(hit) for hit in node_hits]
+                best_node = node_docs[0]
+
+                print(f"  ✓ Best matching node: {best_node.title} (score={best_node.score:.3f})")
+
+                # Use node to refine query and find better workflow
+                refined_query = f"{worst_subtask.text}\nSpecifically: {best_node.text}"
+                print(f"  → Searching with refined query from node...")
+
+                # Search for workflows with refined query
+                refined_embedding = self.embedding_service.embed(
+                    refined_query,
+                    task="retrieval.query"
+                )
+                refined_results = self.es_service.hybrid_search(
+                    query_embedding=refined_embedding,
+                    query_text=refined_query,
+                    top_k=3
+                )
+
+                if refined_results:
+                    # Filter to workflows and convert
+                    workflow_hits = [r for r in refined_results if r.get("_source", {}).get("node_type") == "workflow"]
+                    if workflow_hits:
+                        better_workflow = Workflow.from_es_hit(workflow_hits[0])
+
+                        # Check if it's actually better
+                        new_score = self.claude_service.score_plan_quality(
+                            worst_subtask.text,
+                            better_workflow
+                        )
+
+                        print(f"  → Refined search score: {new_score:.3f} (was {worst_score:.3f})")
+
+                        if new_score > worst_score:
+                            print(f"  ✓ Found better workflow via tree-aware search!")
+
+                            # Replace with better workflow
+                            improved_workflows = composite_plan.workflows.copy()
+                            improved_workflows[worst_idx] = better_workflow
+
+                            # Recompute score with coverage
+                            weighted_scores = []
+                            for subtask, workflow in zip(composite_plan.subtasks, improved_workflows):
+                                workflow_score = self.claude_service.score_plan_quality(
+                                    subtask.text,
+                                    workflow
+                                )
+                                weighted_score = workflow_score * subtask.weight
+                                weighted_scores.append(weighted_score)
+
+                            total_weight = sum(st.weight for st in composite_plan.subtasks)
+                            avg_quality = sum(weighted_scores) / total_weight if total_weight > 0 else 0.0
+                            coverage_ratio = 1.0  # Coverage unchanged
+                            new_overall_score = coverage_ratio * avg_quality
+
+                            return CompositePlan(
+                                workflows=improved_workflows,
+                                subtasks=composite_plan.subtasks,
+                                overall_score=new_overall_score,
+                                coverage=composite_plan.coverage
+                            )
+
+        except Exception as e:
+            print(f"  ⚠ Node search failed: {e}")
+            print(f"  → Falling back to LLM decomposition")
+
+        # ═══════════════════════════════════════════════════════════════════
+        # FALLBACK: No indexed nodes or node search didn't help
+        # Use original recursive decomposition via LLM
+        # ═══════════════════════════════════════════════════════════════════
+        print(f"  → No indexed nodes or refinement didn't improve. Using LLM decomposition...")
         recursive_plan = self.search(
             task_description=worst_subtask.text,
             top_k=3,
@@ -413,7 +555,7 @@ class RecursiveQueryDecomposer:
         improved_workflows = composite_plan.workflows.copy()
         improved_workflows[worst_idx] = recursive_plan.workflows[0]
 
-        # Recompute score
+        # Recompute score with coverage
         weighted_scores = []
         for subtask, workflow in zip(composite_plan.subtasks, improved_workflows):
             workflow_score = self.claude_service.score_plan_quality(
@@ -424,7 +566,9 @@ class RecursiveQueryDecomposer:
             weighted_scores.append(weighted_score)
 
         total_weight = sum(st.weight for st in composite_plan.subtasks)
-        new_overall_score = sum(weighted_scores) / total_weight if total_weight > 0 else 0.0
+        avg_quality = sum(weighted_scores) / total_weight if total_weight > 0 else 0.0
+        coverage_ratio = 1.0  # Coverage unchanged
+        new_overall_score = coverage_ratio * avg_quality
 
         return CompositePlan(
             workflows=improved_workflows,
