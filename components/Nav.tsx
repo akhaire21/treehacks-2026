@@ -1,6 +1,7 @@
 'use client'
 
 import styles from './Nav.module.css'
+import UserInfo from './auth/UserInfo'
 
 export default function Nav() {
   return (
@@ -15,9 +16,7 @@ export default function Nav() {
         <a href="https://docs.mark.ai" target="_blank" rel="noopener noreferrer">
           Docs
         </a>
-        <a href="#" className={styles.navCta}>
-          Get Started
-        </a>
+        <UserInfo />
       </div>
     </nav>
   )

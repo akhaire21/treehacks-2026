@@ -1,4 +1,8 @@
+
+
+
 import styles from './Hero.module.css'
+import Link from 'next/link'
 
 export default function Hero() {
   return (
@@ -18,7 +22,7 @@ export default function Hero() {
         artifacts from a marketplace of specialized AI — autonomously.
       </p>
       <div className={styles.heroActions}>
-        <button className={styles.btnPrimary}>Create Account</button>
+        <Link href="/auth/signup" className={styles.btnPrimary}>Create Account</Link>
         <button className={styles.btnSecondary}>Read the Docs →</button>
       </div>
       <div className={styles.heroCode}>
