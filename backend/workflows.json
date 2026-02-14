@@ -1339,6 +1339,474 @@
         "with_workflow": 850,
         "savings_percent": 65
       }
+    },
+    {
+      "workflow_id": "smart_grocery_optimizer",
+      "title": "AI Grocery Shopping Optimizer (Budget + Nutrition + Preferences)",
+      "task_type": "shopping",
+      "category": "grocery",
+      "description": "Generative AI-powered grocery shopping workflow that builds an optimized cart based on dietary goals, budget, household size, and store availability. Compares prices across retailers, suggests substitutions, and minimizes food waste.",
+      "token_cost": 160,
+      "execution_tokens": 700,
+      "rating": 4.9,
+      "usage_count": 203,
+      "tags": ["shopping", "grocery", "budget", "nutrition", "commerce", "ai_shopping"],
+      "requirements": ["Budget", "household size", "dietary preferences", "preferred stores"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Understand household needs to build optimal cart",
+          "action": "gather_preferences",
+          "inputs": {
+            "household_size": "{num_people}",
+            "budget_weekly": "{budget}",
+            "dietary": "{diet_type}",
+            "allergies": "{allergies}",
+            "preferred_stores": "{stores}"
+          },
+          "defaults": {
+            "meals_per_day": 3,
+            "snacks": true,
+            "cooking_skill": "intermediate"
+          }
+        },
+        {
+          "step": 2,
+          "thought": "Generate a meal plan optimized for nutrition and budget",
+          "action": "plan_meals",
+          "strategy": "Maximize ingredient overlap across meals to reduce waste and cost",
+          "considerations": [
+            "Seasonal produce is cheaper and fresher",
+            "Buy protein in bulk if freezer space available",
+            "Plan leftover-friendly meals (cook once, eat twice)",
+            "Include 1-2 no-cook meals for busy nights"
+          ],
+          "output": "7-day meal plan with ingredient quantities"
+        },
+        {
+          "step": 3,
+          "thought": "Build consolidated shopping list from meal plan",
+          "action": "build_list",
+          "method": "Aggregate ingredients, round up to store quantities",
+          "categorize_by": ["produce", "protein", "dairy", "pantry", "frozen", "snacks"],
+          "smart_quantities": "If recipe needs 100ml cream but smallest is 250ml, plan second use"
+        },
+        {
+          "step": 4,
+          "thought": "Compare prices across available retailers",
+          "action": "price_compare",
+          "method": "Check each item across {stores} for best price",
+          "consider": [
+            "Store brand vs name brand (usually 20-40% cheaper, same quality)",
+            "Bulk pricing if it makes sense for household size",
+            "Current sales/coupons",
+            "Delivery fees vs in-store pickup"
+          ],
+          "output": "Optimal store(s) to shop and estimated total"
+        },
+        {
+          "step": 5,
+          "thought": "Suggest smart substitutions for expensive items",
+          "action": "find_substitutes",
+          "rules": [
+            "If name brand is >30% more than store brand, suggest store brand",
+            "If fresh herb is expensive, suggest dried (1/3 ratio)",
+            "If organic premium is >50%, suggest conventional",
+            "Suggest frozen over fresh for out-of-season produce"
+          ],
+          "preserve": "Never substitute allergens or core dietary requirements"
+        },
+        {
+          "step": 6,
+          "thought": "Optimize cart for minimal waste",
+          "action": "reduce_waste",
+          "strategies": [
+            "Use perishables early in the week, pantry items later",
+            "Freeze extra bread, protein, and ripe bananas",
+            "Batch-prep vegetables on day 1 (wash, chop, store)",
+            "Buy whole chicken vs parts (cheaper, use bones for stock)"
+          ]
+        },
+        {
+          "step": 7,
+          "thought": "Generate final optimized shopping cart with savings summary",
+          "action": "generate_cart",
+          "output": {
+            "items": "Categorized list with quantities and prices",
+            "total_cost": "Estimated total",
+            "savings_vs_unoptimized": "How much saved vs buying without optimization",
+            "nutrition_score": "Estimated nutritional balance",
+            "waste_score": "Projected food waste rating"
+          }
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Very tight budget (<$50/week for family of 4)",
+          "handling": "Switch to rice/beans/eggs base, maximize bulk buying, use food bank resources"
+        },
+        {
+          "scenario": "Multiple dietary restrictions in household",
+          "handling": "Build shared base ingredients, customize per person at meal level"
+        }
+      ],
+      "domain_knowledge": [
+        "Average US family of 4 spends $250-350/week on groceries",
+        "Store brands save 20-40% with identical nutritional value",
+        "Shopping with a list reduces impulse purchases by 65%",
+        "Seasonal produce is 30-50% cheaper than out-of-season",
+        "Meal prepping reduces weekly food waste by 40%"
+      ],
+      "estimated_time_saved": "Saves 2+ hours meal planning + price comparison",
+      "token_comparison": {
+        "from_scratch": 3200,
+        "with_workflow": 860,
+        "savings_percent": 73
+      }
+    },
+    {
+      "workflow_id": "electronics_purchase_advisor",
+      "title": "Electronics Purchase Advisor (Compare, Score, Decide)",
+      "task_type": "product_comparison",
+      "category": "electronics",
+      "description": "AI-powered product comparison workflow for electronics purchases. Analyzes specs, reviews, price history, and personal needs to recommend the best product. Handles smartphones, laptops, headphones, TVs, and more.",
+      "token_cost": 175,
+      "execution_tokens": 720,
+      "rating": 4.8,
+      "usage_count": 147,
+      "tags": ["shopping", "electronics", "comparison", "commerce", "product_research"],
+      "requirements": ["Product category", "budget range", "must-have features", "use cases"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Understand exactly what the user needs the product for",
+          "action": "needs_analysis",
+          "questions": [
+            "What is the primary use case? (work, gaming, casual, creative)",
+            "What is your budget range?",
+            "Are there must-have features? (battery life, camera, screen size)",
+            "Do you have brand preferences or anti-preferences?",
+            "When do you need it? (now vs can wait for sales)"
+          ]
+        },
+        {
+          "step": 2,
+          "thought": "Identify top candidates matching requirements",
+          "action": "candidate_selection",
+          "method": "Filter products by must-haves, then rank by value within budget",
+          "sources": ["manufacturer specs", "expert reviews (Wirecutter, RTINGS, Tom's Hardware)", "user reviews"],
+          "target": "Narrow to 3-5 top candidates"
+        },
+        {
+          "step": 3,
+          "thought": "Deep compare specs across candidates",
+          "action": "spec_comparison",
+          "build_table": true,
+          "common_specs_by_category": {
+            "smartphone": ["processor", "RAM", "storage", "camera", "battery", "display", "5G"],
+            "laptop": ["CPU", "GPU", "RAM", "storage", "display", "battery_hours", "weight", "ports"],
+            "headphones": ["driver_size", "ANC", "battery", "codec_support", "comfort", "water_resistance"],
+            "tv": ["panel_type", "resolution", "HDR", "refresh_rate", "ports", "smart_platform"]
+          },
+          "highlight": "Areas where one product clearly wins over others"
+        },
+        {
+          "step": 4,
+          "thought": "Analyze review sentiment for real-world performance",
+          "action": "review_analysis",
+          "aggregate": ["Amazon", "BestBuy", "Reddit", "YouTube reviews"],
+          "extract": [
+            "Most praised features",
+            "Most common complaints",
+            "Durability reports (6+ month reviews)",
+            "Customer service experiences"
+          ],
+          "weight": "Prioritize verified purchases and detailed technical reviews"
+        },
+        {
+          "step": 5,
+          "thought": "Check price history and predict best time to buy",
+          "action": "price_analysis",
+          "check": [
+            "Current price across retailers (Amazon, BestBuy, direct, Costco)",
+            "Price history over last 90 days (CamelCamelCamel, Honey)",
+            "Upcoming sales events (Black Friday, Prime Day, back-to-school)",
+            "Refurbished/open-box options and warranty coverage"
+          ],
+          "decision": "Buy now if at/near historical low, wait if sale event within 30 days"
+        },
+        {
+          "step": 6,
+          "thought": "Calculate total cost of ownership (not just sticker price)",
+          "action": "tco_analysis",
+          "include": [
+            "Purchase price",
+            "Required accessories (case, charger, subscription)",
+            "Extended warranty cost (worth it for >$500 items)",
+            "Estimated trade-in value after 2-3 years",
+            "Repair costs (iFixit repairability score)"
+          ],
+          "formula": "true_cost = price + accessories + warranty - trade_in_value"
+        },
+        {
+          "step": 7,
+          "thought": "Generate final recommendation with reasoning",
+          "action": "recommend",
+          "output": {
+            "top_pick": "Best overall match for user's needs",
+            "budget_pick": "Best value if trying to save money",
+            "premium_pick": "Best if willing to spend more",
+            "reasoning": "Why each was chosen with trade-off analysis",
+            "where_to_buy": "Best retailer for each (price + return policy)"
+          }
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "User's needs don't match budget",
+          "handling": "Explain trade-offs honestly, suggest saving longer or considering refurbished"
+        },
+        {
+          "scenario": "New model releasing soon",
+          "handling": "Inform user, suggest waiting if release within 30 days (current model may drop in price too)"
+        }
+      ],
+      "domain_knowledge": [
+        "Best time to buy electronics: Black Friday, Prime Day, end-of-model-year",
+        "Refurbished from manufacturer is often 90% quality at 60% price",
+        "Review scores below 4.0 on major retailers are genuine red flags",
+        "Processor benchmarks matter more than clock speed for real-world performance",
+        "Extended warranties: worth it for laptops/phones, skip for TVs/headphones",
+        "Open-box Best Buy items come with full warranty at 15-20% discount"
+      ],
+      "estimated_time_saved": "Saves 3+ hours of research and comparison shopping",
+      "token_comparison": {
+        "from_scratch": 3600,
+        "with_workflow": 895,
+        "savings_percent": 75
+      }
+    },
+    {
+      "workflow_id": "fashion_personal_shopper",
+      "title": "AI Personal Shopper (Style Profile + Budget + Occasion)",
+      "task_type": "shopping",
+      "category": "fashion",
+      "description": "Generative AI personal shopper that builds outfit recommendations based on style profile, body type, occasion, budget, and sustainability preferences. Handles wardrobe gap analysis and capsule wardrobe building.",
+      "token_cost": 185,
+      "execution_tokens": 780,
+      "rating": 4.7,
+      "usage_count": 98,
+      "tags": ["shopping", "fashion", "personal_shopper", "style", "commerce", "outfits"],
+      "requirements": ["Occasion", "budget", "style preferences", "sizes"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Build style profile from preferences and existing wardrobe",
+          "action": "profile_creation",
+          "gather": [
+            "Preferred styles (classic, streetwear, minimalist, bohemian, etc.)",
+            "Color preferences and skin tone",
+            "Body type and fit preferences (relaxed, slim, oversized)",
+            "Favorite brands and price range",
+            "Sustainability importance (1-10)"
+          ]
+        },
+        {
+          "step": 2,
+          "thought": "Identify wardrobe gaps based on occasion needs",
+          "action": "gap_analysis",
+          "occasions": "{user_occasions}",
+          "essentials_by_occasion": {
+            "work_professional": ["blazer", "dress_pants", "button_down", "dress_shoes"],
+            "casual_weekend": ["jeans", "sneakers", "t_shirts", "light_jacket"],
+            "date_night": ["statement_piece", "accessories", "dress_shoes"],
+            "formal_event": ["suit_or_gown", "dress_shoes", "clutch", "jewelry"]
+          },
+          "output": "List of items to acquire, prioritized by frequency of need"
+        },
+        {
+          "step": 3,
+          "thought": "Search retailers for matching items within budget",
+          "action": "shop_search",
+          "retailers_by_tier": {
+            "budget": ["H&M", "Zara", "Uniqlo", "Target"],
+            "mid_range": ["J.Crew", "Banana Republic", "COS", "Everlane"],
+            "premium": ["Nordstrom", "SSENSE", "Net-a-Porter", "Mr Porter"],
+            "sustainable": ["Patagonia", "Reformation", "Allbirds", "Eileen Fisher"]
+          },
+          "filter_by": "Size availability, return policy, shipping speed"
+        },
+        {
+          "step": 4,
+          "thought": "Build complete outfits, not just individual pieces",
+          "action": "outfit_assembly",
+          "rules": [
+            "Each new piece should work with 3+ existing items",
+            "Include mix of statement and basic pieces",
+            "Ensure color coordination within outfit",
+            "Consider layering options for versatility",
+            "Cost-per-wear: prioritize items you'll wear 20+ times"
+          ]
+        },
+        {
+          "step": 5,
+          "thought": "Apply deals, loyalty programs, and timing strategy",
+          "action": "optimize_purchase",
+          "strategies": [
+            "Check for active promo codes (Honey, RetailMeNot)",
+            "Use cashback apps (Rakuten, credit card portal)",
+            "Stack discounts: student/military + sale + promo code",
+            "Sign up for email list for 10-15% first-timer discount",
+            "Consider buy-now-pay-later for large purchases (0% APR only)"
+          ]
+        },
+        {
+          "step": 6,
+          "thought": "Generate final shopping cart with outfit previews",
+          "action": "present_recommendations",
+          "output": {
+            "outfits": "Complete outfit combinations with images",
+            "shopping_list": "Prioritized list with links and prices",
+            "total_cost": "Before and after discounts",
+            "cost_per_wear_analysis": "Value estimate for each piece",
+            "sustainability_score": "Environmental impact rating"
+          }
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Size varies across brands",
+          "handling": "Check brand-specific size charts, prioritize retailers with free returns"
+        },
+        {
+          "scenario": "Sustainable options exceed budget",
+          "handling": "Suggest secondhand luxury (ThredUp, The RealReal) as middle ground"
+        }
+      ],
+      "domain_knowledge": [
+        "Cost-per-wear is the best metric: $100 jacket worn 100 times > $30 jacket worn 5 times",
+        "End-of-season sales (Jan/Jul) offer 50-70% off current styles",
+        "Capsule wardrobe of 30-40 pieces covers most lifestyle needs",
+        "Neutral basics have highest versatility per dollar",
+        "Free returns policy is essential for online clothing purchases"
+      ],
+      "estimated_time_saved": "Saves 4+ hours browsing and outfit coordination",
+      "token_comparison": {
+        "from_scratch": 3800,
+        "with_workflow": 965,
+        "savings_percent": 75
+      }
+    },
+    {
+      "workflow_id": "subscription_audit_optimizer",
+      "title": "Subscription Audit & Optimizer (Find Waste, Negotiate, Switch)",
+      "task_type": "financial_optimization",
+      "category": "subscriptions",
+      "description": "AI agent that audits all recurring subscriptions, identifies waste, negotiates better rates, finds free alternatives, and optimizes the subscription stack. Covers streaming, software, gym, insurance, and more.",
+      "token_cost": 155,
+      "execution_tokens": 650,
+      "rating": 4.9,
+      "usage_count": 178,
+      "tags": ["finance", "subscriptions", "optimization", "savings", "commerce", "audit"],
+      "requirements": ["List of current subscriptions with costs", "usage patterns"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Catalog all active subscriptions",
+          "action": "audit_subscriptions",
+          "gather": [
+            "Bank/credit card statements for recurring charges",
+            "App store subscriptions (Apple/Google)",
+            "Email search for 'subscription', 'renewal', 'billing'"
+          ],
+          "categorize": ["streaming", "software", "fitness", "news", "food_delivery", "storage", "insurance", "memberships"]
+        },
+        {
+          "step": 2,
+          "thought": "Analyze usage patterns for each subscription",
+          "action": "usage_analysis",
+          "for_each_subscription": {
+            "last_used": "When was this last actively used?",
+            "frequency": "Daily, weekly, monthly, or rarely?",
+            "essential": "Would you notice if it disappeared?",
+            "overlap": "Does another subscription offer the same thing?"
+          },
+          "flag_waste": "Unused (>30 days) or rarely used (<2x/month) subscriptions"
+        },
+        {
+          "step": 3,
+          "thought": "Identify overlapping services",
+          "action": "find_overlaps",
+          "common_overlaps": [
+            "Multiple streaming (Netflix + Hulu + Disney+ + HBO) - pick 2 max",
+            "Multiple cloud storage (iCloud + Google Drive + Dropbox) - consolidate",
+            "Multiple music (Spotify + Apple Music) - choose one",
+            "Multiple news (NYT + WSJ + WaPo) - use library access instead"
+          ],
+          "recommendation": "Rotate streaming services quarterly instead of maintaining all"
+        },
+        {
+          "step": 4,
+          "thought": "Find free or cheaper alternatives",
+          "action": "find_alternatives",
+          "common_swaps": {
+            "password_manager": "Bitwarden (free) vs 1Password/LastPass ($36/yr)",
+            "email": "ProtonMail free tier vs paid email service",
+            "office_suite": "LibreOffice/Google Docs vs Microsoft 365",
+            "vpn": "ProtonVPN free tier vs paid VPN",
+            "cloud_storage": "Use employer/school's free allocation"
+          }
+        },
+        {
+          "step": 5,
+          "thought": "Negotiate better rates for kept subscriptions",
+          "action": "negotiation_scripts",
+          "method": "Call retention departments with prepared scripts",
+          "scripts": {
+            "streaming": "I'm considering canceling because of the recent price increase. Are there any promotional rates available for loyal customers?",
+            "phone_plan": "I've been with you for X years. I've seen better rates at [competitor]. Can you match or beat that?",
+            "insurance": "I'd like to review my policy. I've been claim-free for X years — is there a loyalty discount available?",
+            "gym": "I'm thinking of switching to [cheaper gym]. Can you offer a reduced rate to keep me?"
+          },
+          "success_rate": "40-60% of retention calls result in a discount"
+        },
+        {
+          "step": 6,
+          "thought": "Generate savings report with action items",
+          "action": "generate_report",
+          "output": {
+            "current_monthly_spend": "Total across all subscriptions",
+            "recommended_cancellations": "With estimated monthly savings",
+            "recommended_downgrades": "Premium to basic tier swaps",
+            "negotiation_targets": "Scripts and expected savings",
+            "projected_annual_savings": "Total saved after all optimizations"
+          }
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Subscription is bundled (Apple One, Amazon Prime)",
+          "handling": "Calculate individual cost vs bundle — sometimes bundle is cheaper even if you don't use everything"
+        },
+        {
+          "scenario": "Annual vs monthly pricing dilemma",
+          "handling": "Only commit to annual if sure you'll use all 12 months. Test with monthly first."
+        }
+      ],
+      "domain_knowledge": [
+        "Average American has 12 paid subscriptions totaling $219/month",
+        "84% of people underestimate their subscription spending by 2-3x",
+        "Canceling and re-subscribing often triggers 'win-back' offers at 40-50% off",
+        "Student/military/senior discounts are available for most services but rarely advertised",
+        "Many subscriptions continue charging after free trial — set calendar reminders",
+        "Library cards provide free access to many digital services (Libby, Kanopy, NYT)"
+      ],
+      "estimated_time_saved": "Saves 3+ hours auditing and negotiating",
+      "token_comparison": {
+        "from_scratch": 2800,
+        "with_workflow": 805,
+        "savings_percent": 71
+      }
     }
   ]
 }

@@ -1,276 +1,388 @@
 """
-Main Flask API for Agent Workflow Marketplace.
-Provides search, purchase, and rating endpoints.
+Main Flask API for the Agent Workflow Marketplace.
+
+Endpoints:
+  ── Core Marketplace ──
+  GET  /health                   Health check
+  GET  /api/workflows            List all workflows
+  POST /api/search               Hybrid search (Elastic kNN + BM25)
+  POST /api/purchase             Purchase a workflow
+  POST /api/feedback             Rate a workflow
+
+  ── Privacy ──
+  POST /api/sanitize             Demo PII sanitization
+
+  ── Claude Agent ──
+  POST /api/agent/chat           Multi-turn agent conversation
+  GET  /api/agent/session        Get session state
+  POST /api/agent/reset          Reset agent session
+
+  ── Commerce ──
+  GET  /api/commerce/balance     Get user balance
+  POST /api/commerce/deposit     Add credits
+  POST /api/commerce/cart/add    Add workflow to cart
+  POST /api/commerce/cart/remove Remove from cart
+  GET  /api/commerce/cart        View cart
+  POST /api/commerce/checkout    Checkout cart
+  GET  /api/commerce/transactions Transaction history
+  GET  /api/commerce/stats       Marketplace statistics
+
+Tech stack: Flask, Elasticsearch, JINA embeddings, Claude Agent SDK
 """
+
+import os
+import json
+from datetime import datetime
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-from matcher import WorkflowMatcher
+from dotenv import load_dotenv
+
+# Load .env
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
+
 from sanitizer import PrivacySanitizer
-import json
-import os
-from datetime import datetime
+from commerce import CommerceEngine
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend requests
+# ---------------------------------------------------------------------------
+# Try to initialize Elasticsearch + JINA (graceful fallback if keys missing)
+# ---------------------------------------------------------------------------
+elastic_client = None
+try:
+    cloud_id = os.getenv("ELASTIC_CLOUD_ID", "")
+    api_key = os.getenv("ELASTIC_API_KEY", "")
+    jina_key = os.getenv("JINA_API_KEY", "")
 
+    if cloud_id and api_key and jina_key:
+        from elastic_client import ElasticClient, JinaEmbedder
+
+        embedder = JinaEmbedder(api_key=jina_key)
+        elastic_client = ElasticClient(
+            cloud_id=cloud_id, api_key=api_key, jina_embedder=embedder
+        )
+        print("[api] Elasticsearch + JINA connected")
+    else:
+        print("[api] Elastic/JINA keys not set — running in-memory fallback mode")
+except Exception as e:
+    print(f"[api] Elasticsearch init failed ({e}) — using in-memory fallback")
+
+# ---------------------------------------------------------------------------
 # Initialize services
-matcher = WorkflowMatcher()
-sanitizer = PrivacySanitizer()
+# ---------------------------------------------------------------------------
+from matcher import WorkflowMatcher
 
-# Load workflows on startup
-WORKFLOWS_PATH = os.path.join(os.path.dirname(__file__), 'workflows.json')
+matcher = WorkflowMatcher(elastic_client=elastic_client)
+sanitizer = PrivacySanitizer()
+commerce = CommerceEngine()
+
+# Load workflows from disk (always, for fallback + listing)
+WORKFLOWS_PATH = os.path.join(os.path.dirname(__file__), "workflows.json")
 matcher.load_workflows(WORKFLOWS_PATH)
 
+# ---------------------------------------------------------------------------
+# Initialize Claude Agent
+# ---------------------------------------------------------------------------
+agent_instance = None
+try:
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if anthropic_key:
+        from agent import MarketplaceAgent
 
-@app.route('/health', methods=['GET'])
+        agent_instance = MarketplaceAgent(
+            elastic_client=elastic_client,
+            sanitizer=sanitizer,
+            anthropic_api_key=anthropic_key,
+        )
+        print("[api] Claude Agent initialized")
+    else:
+        print("[api] ANTHROPIC_API_KEY not set — agent endpoints disabled")
+except Exception as e:
+    print(f"[api] Agent init failed ({e}) — agent endpoints disabled")
+
+# ---------------------------------------------------------------------------
+# Flask app
+# ---------------------------------------------------------------------------
+app = Flask(__name__)
+CORS(app)
+
+
+# ===== HEALTH =====
+
+@app.route("/health", methods=["GET"])
 def health_check():
-    """Health check endpoint."""
     return jsonify({
-        'status': 'healthy',
-        'timestamp': datetime.now().isoformat(),
-        'workflows_loaded': len(matcher.workflows)
+        "status": "healthy",
+        "timestamp": datetime.now().isoformat(),
+        "workflows_loaded": len(matcher.workflows),
+        "elasticsearch": elastic_client is not None,
+        "agent_enabled": agent_instance is not None,
     })
 
 
-@app.route('/api/search', methods=['POST'])
+# ===== CORE MARKETPLACE =====
+
+@app.route("/api/workflows", methods=["GET"])
+def list_workflows():
+    workflows = matcher.get_all_workflows()
+    return jsonify({"workflows": workflows, "count": len(workflows)})
+
+
+@app.route("/api/search", methods=["POST"])
 def search_workflows():
     """
-    Search for matching workflows.
+    Hybrid search: Elasticsearch kNN (JINA vectors) + BM25.
+    Falls back to in-memory if Elastic not configured.
 
-    Request body:
-    {
-        "task_type": "tax_filing",
-        "state": "ohio",
-        "year": 2024,
-        "income_bracket": "80k-100k",  // Already bucketed by client
-        "deduction_type": "itemized",
-        "filing_status": "married_jointly"
-    }
-
-    Response:
-    {
-        "results": [
-            {
-                "workflow_id": "ohio_w2_itemized_2024",
-                "title": "Ohio 2024 IT-1040 (W2, Itemized, Married)",
-                "description": "...",
-                "token_cost": 200,
-                "rating": 4.8,
-                "usage_count": 47,
-                "similarity_score": 0.93,
-                "match_percentage": 93
-            },
-            ...
-        ],
-        "count": 3
-    }
+    Body: { "task_type": "...", "state": "...", ... }
     """
     try:
         query = request.json
+        if not query:
+            return jsonify({"error": "Request body required"}), 400
 
-        if not query or 'task_type' not in query:
-            return jsonify({
-                'error': 'Missing required field: task_type'
-            }), 400
-
-        # Search workflows
         results = matcher.search(query, top_k=10)
-
-        return jsonify({
-            'results': results,
-            'count': len(results),
-            'query': query
-        })
-
+        return jsonify({"results": results, "count": len(results), "query": query})
     except Exception as e:
-        return jsonify({
-            'error': str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/purchase', methods=['POST'])
+@app.route("/api/purchase", methods=["POST"])
 def purchase_workflow():
-    """
-    Purchase a workflow and return execution template.
-
-    Request body:
-    {
-        "workflow_id": "ohio_w2_itemized_2024"
-    }
-
-    Response:
-    {
-        "workflow": {
-            "workflow_id": "ohio_w2_itemized_2024",
-            "title": "...",
-            "steps": [...],  // Full workflow with placeholders
-            "token_cost": 200,
-            "purchased_at": "2024-02-14T10:30:00"
-        },
-        "success": true
-    }
-    """
+    """Purchase a workflow. Deducts tokens, returns full execution template."""
     try:
-        data = request.json
+        data = request.json or {}
+        workflow_id = data.get("workflow_id")
+        user_id = data.get("user_id", "default_user")
 
-        if not data or 'workflow_id' not in data:
-            return jsonify({
-                'error': 'Missing required field: workflow_id'
-            }), 400
+        if not workflow_id:
+            return jsonify({"error": "Missing workflow_id"}), 400
 
-        workflow_id = data['workflow_id']
         workflow = matcher.get_workflow_by_id(workflow_id)
-
         if not workflow:
-            return jsonify({
-                'error': 'Workflow not found'
-            }), 404
+            return jsonify({"error": "Workflow not found"}), 404
 
-        # Increment usage count (in real app, would persist to DB)
-        workflow['usage_count'] = workflow.get('usage_count', 0) + 1
+        # Process purchase through commerce engine
+        receipt = commerce.purchase_workflow(user_id, workflow)
+        if not receipt["success"]:
+            return jsonify(receipt), 402  # Payment Required
 
-        # Return full workflow with execution details
         return jsonify({
-            'workflow': workflow,
-            'purchased_at': datetime.now().isoformat(),
-            'success': True
+            "workflow": workflow,
+            "receipt": receipt,
+            "purchased_at": datetime.now().isoformat(),
+            "success": True,
         })
-
     except Exception as e:
-        return jsonify({
-            'error': str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/feedback', methods=['POST'])
+@app.route("/api/feedback", methods=["POST"])
 def rate_workflow():
-    """
-    Rate a workflow (upvote/downvote or star rating).
-
-    Request body:
-    {
-        "workflow_id": "ohio_w2_itemized_2024",
-        "rating": 5,  // 1-5 stars, or
-        "vote": "up"  // "up" or "down"
-    }
-
-    Response:
-    {
-        "workflow_id": "ohio_w2_itemized_2024",
-        "new_rating": 4.9,
-        "new_usage_count": 48,
-        "success": true
-    }
-    """
+    """Rate a workflow (1-5 stars or up/down vote)."""
     try:
-        data = request.json
+        data = request.json or {}
+        workflow_id = data.get("workflow_id")
+        if not workflow_id:
+            return jsonify({"error": "Missing workflow_id"}), 400
 
-        if not data or 'workflow_id' not in data:
-            return jsonify({
-                'error': 'Missing required field: workflow_id'
-            }), 400
-
-        workflow_id = data['workflow_id']
         workflow = matcher.get_workflow_by_id(workflow_id)
-
         if not workflow:
-            return jsonify({
-                'error': 'Workflow not found'
-            }), 404
+            return jsonify({"error": "Workflow not found"}), 404
 
-        # Update rating (simplified - in real app would track all ratings)
-        if 'rating' in data:
-            new_rating_value = data['rating']
-            current_rating = workflow.get('rating', 5.0)
-            # Simple averaging (would be more sophisticated in production)
-            workflow['rating'] = round((current_rating + new_rating_value) / 2, 1)
+        if "rating" in data:
+            new_val = data["rating"]
+            old = workflow.get("rating", 5.0)
+            workflow["rating"] = round((old + new_val) / 2, 1)
+        elif "vote" in data:
+            if data["vote"] == "up":
+                workflow["rating"] = min(5.0, workflow.get("rating", 5.0) + 0.1)
+            elif data["vote"] == "down":
+                workflow["rating"] = max(1.0, workflow.get("rating", 5.0) - 0.1)
 
-        elif 'vote' in data:
-            vote = data['vote']
-            if vote == 'up':
-                workflow['rating'] = min(5.0, workflow.get('rating', 5.0) + 0.1)
-            elif vote == 'down':
-                workflow['rating'] = max(1.0, workflow.get('rating', 5.0) - 0.1)
+        # Persist to Elastic if available
+        if elastic_client:
+            try:
+                elastic_client.update_field(workflow_id, "rating", workflow["rating"])
+            except Exception:
+                pass
 
         return jsonify({
-            'workflow_id': workflow_id,
-            'new_rating': workflow['rating'],
-            'new_usage_count': workflow.get('usage_count', 0),
-            'success': True
+            "workflow_id": workflow_id,
+            "new_rating": workflow["rating"],
+            "new_usage_count": workflow.get("usage_count", 0),
+            "success": True,
         })
-
     except Exception as e:
-        return jsonify({
-            'error': str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/sanitize', methods=['POST'])
+# ===== PRIVACY =====
+
+@app.route("/api/sanitize", methods=["POST"])
 def sanitize_query():
-    """
-    Demonstrate privacy sanitization (for UI demo).
-
-    Request body:
-    {
-        "raw_query": {
-            "task_type": "tax_filing",
-            "name": "John Smith",
-            "ssn": "123-45-6789",
-            "exact_income": 87432.18
-        }
-    }
-
-    Response:
-    {
-        "public_query": {...},  // Sanitized
-        "private_data": {...},  // What stays local
-        "sanitization_summary": {...}
-    }
-    """
+    """Demonstrate the two-layer privacy architecture."""
     try:
-        data = request.json
+        data = request.json or {}
+        raw_query = data.get("raw_query", {})
+        if not raw_query:
+            return jsonify({"error": "Missing raw_query"}), 400
 
-        if not data or 'raw_query' not in data:
-            return jsonify({
-                'error': 'Missing required field: raw_query'
-            }), 400
-
-        raw_query = data['raw_query']
         public_query, private_data = sanitizer.sanitize_query(raw_query)
         summary = sanitizer.get_sanitization_summary(raw_query, public_query)
 
         return jsonify({
-            'public_query': public_query,
-            'private_data': private_data,
-            'sanitization_summary': summary
+            "public_query": public_query,
+            "private_data": private_data,
+            "sanitization_summary": summary,
         })
-
     except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ===== CLAUDE AGENT =====
+
+@app.route("/api/agent/chat", methods=["POST"])
+def agent_chat():
+    """
+    Multi-turn conversation with the Claude-powered agent.
+    The agent autonomously searches, evaluates, purchases, and executes workflows.
+
+    Body: { "message": "Help me file my Ohio taxes" }
+    """
+    if not agent_instance:
         return jsonify({
-            'error': str(e)
-        }), 500
+            "error": "Agent not configured. Set ANTHROPIC_API_KEY in .env",
+        }), 503
+
+    try:
+        data = request.json or {}
+        message = data.get("message", "")
+        if not message:
+            return jsonify({"error": "Missing message"}), 400
+
+        result = agent_instance.chat(message)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 
-@app.route('/api/workflows', methods=['GET'])
-def list_workflows():
-    """Get all available workflows (for browsing)."""
+@app.route("/api/agent/session", methods=["GET"])
+def agent_session():
+    """Get current agent session state."""
+    if not agent_instance:
+        return jsonify({"error": "Agent not configured"}), 503
+    return jsonify(agent_instance.get_session_summary())
+
+
+@app.route("/api/agent/reset", methods=["POST"])
+def agent_reset():
+    """Reset the agent session (new conversation)."""
+    if not agent_instance:
+        return jsonify({"error": "Agent not configured"}), 503
+    agent_instance.reset_session()
+    return jsonify({"success": True, "message": "Session reset"})
+
+
+# ===== COMMERCE =====
+
+@app.route("/api/commerce/balance", methods=["GET"])
+def get_balance():
+    user_id = request.args.get("user_id", "default_user")
+    return jsonify({"user_id": user_id, "balance": commerce.get_balance(user_id)})
+
+
+@app.route("/api/commerce/deposit", methods=["POST"])
+def deposit_credits():
+    data = request.json or {}
+    user_id = data.get("user_id", "default_user")
+    amount = data.get("amount", 0)
+    if amount <= 0:
+        return jsonify({"error": "Amount must be positive"}), 400
+    return jsonify(commerce.deposit(user_id, amount))
+
+
+@app.route("/api/commerce/cart", methods=["GET"])
+def view_cart():
+    user_id = request.args.get("user_id", "default_user")
+    cart = commerce.get_cart(user_id)
+    return jsonify(cart.to_dict())
+
+
+@app.route("/api/commerce/cart/add", methods=["POST"])
+def add_to_cart():
+    data = request.json or {}
+    user_id = data.get("user_id", "default_user")
+    workflow_id = data.get("workflow_id")
+    if not workflow_id:
+        return jsonify({"error": "Missing workflow_id"}), 400
+
+    workflow = matcher.get_workflow_by_id(workflow_id)
+    if not workflow:
+        return jsonify({"error": "Workflow not found"}), 404
+
+    return jsonify(commerce.add_to_cart(user_id, workflow))
+
+
+@app.route("/api/commerce/cart/remove", methods=["POST"])
+def remove_from_cart():
+    data = request.json or {}
+    user_id = data.get("user_id", "default_user")
+    workflow_id = data.get("workflow_id")
+    if not workflow_id:
+        return jsonify({"error": "Missing workflow_id"}), 400
+    return jsonify(commerce.remove_from_cart(user_id, workflow_id))
+
+
+@app.route("/api/commerce/checkout", methods=["POST"])
+def checkout():
+    """Checkout all items in the shopping cart."""
+    data = request.json or {}
+    user_id = data.get("user_id", "default_user")
+    return jsonify(commerce.checkout_cart(user_id))
+
+
+@app.route("/api/commerce/transactions", methods=["GET"])
+def get_transactions():
+    user_id = request.args.get("user_id")
+    limit = int(request.args.get("limit", 50))
     return jsonify({
-        'workflows': matcher.workflows,
-        'count': len(matcher.workflows)
+        "transactions": commerce.get_transactions(user_id, limit),
     })
 
 
-if __name__ == '__main__':
-    print("🚀 Agent Workflow Marketplace API starting...")
-    print(f"📦 Loaded {len(matcher.workflows)} workflows")
-    print("🔗 API available at http://localhost:5001")
-    print("\nEndpoints:")
-    print("  POST /api/search     - Search workflows")
-    print("  POST /api/purchase   - Purchase workflow")
-    print("  POST /api/feedback   - Rate workflow")
-    print("  POST /api/sanitize   - Demo privacy sanitization")
-    print("  GET  /api/workflows  - List all workflows")
-    print("  GET  /health         - Health check")
+@app.route("/api/commerce/stats", methods=["GET"])
+def marketplace_stats():
+    return jsonify(commerce.get_marketplace_stats())
 
-    app.run(debug=True, host='0.0.0.0', port=5001)
+
+# ===== START =====
+
+if __name__ == "__main__":
+    port = int(os.getenv("FLASK_PORT", 5001))
+    debug = os.getenv("FLASK_DEBUG", "true").lower() == "true"
+
+    print()
+    print("=" * 60)
+    print("  Agent Workflow Marketplace API")
+    print("=" * 60)
+    print(f"  Workflows loaded : {len(matcher.workflows)}")
+    print(f"  Elasticsearch    : {'connected' if elastic_client else 'off (in-memory fallback)'}")
+    print(f"  Claude Agent     : {'ready' if agent_instance else 'disabled (no API key)'}")
+    print(f"  JINA Embeddings  : {'active' if elastic_client else 'off'}")
+    print(f"  Commerce Engine  : active")
+    print(f"  Server           : http://localhost:{port}")
+    print()
+    print("  Endpoints:")
+    print("    POST /api/search          Search workflows (hybrid kNN + BM25)")
+    print("    POST /api/purchase        Purchase workflow")
+    print("    POST /api/feedback        Rate workflow")
+    print("    POST /api/sanitize        Privacy sanitization demo")
+    print("    POST /api/agent/chat      Claude multi-turn agent")
+    print("    GET  /api/agent/session   Agent session state")
+    print("    POST /api/agent/reset     Reset agent")
+    print("    GET  /api/commerce/*      Commerce endpoints")
+    print("    GET  /api/workflows       List all workflows")
+    print("    GET  /health              Health check")
+    print("=" * 60)
+
+    app.run(debug=debug, host="0.0.0.0", port=port)

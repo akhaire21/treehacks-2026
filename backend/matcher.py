@@ -1,153 +1,142 @@
 """
-Workflow matching engine using embedding-based similarity search.
-Combines hard filters (exact match on task_type, state) with semantic similarity.
+Workflow matching engine backed by Elasticsearch + JINA embeddings.
+
+Provides two modes:
+  1. Elastic mode  — hybrid kNN + BM25 search via Elastic Cloud (production)
+  2. Fallback mode — in-memory numpy cosine similarity (no Elastic needed)
+
+The fallback lets the API start instantly for development / demo even when
+Elastic Cloud / JINA keys are missing.
 """
 
-from sentence_transformers import SentenceTransformer
-from sklearn.metrics.pairwise import cosine_similarity
-import numpy as np
-from typing import List, Dict, Any
+import os
 import json
+import numpy as np
+from typing import List, Dict, Any, Optional
 
 
 class WorkflowMatcher:
-    """Matches user queries to workflows using hybrid search (filters + embeddings)."""
+    """
+    Matches user queries to workflows.
+    Delegates to ElasticClient when available, else uses in-memory fallback.
+    """
 
-    def __init__(self, model_name: str = 'all-MiniLM-L6-v2'):
-        """Initialize with sentence transformer model."""
-        print(f"Loading embedding model: {model_name}")
-        self.model = SentenceTransformer(model_name)
-        self.workflows = []
-        self.workflow_embeddings = None
+    def __init__(self, elastic_client=None):
+        self.elastic = elastic_client
+        self.workflows: List[Dict[str, Any]] = []
+        self._use_elastic = elastic_client is not None
+        print(f"[matcher] mode={'elastic' if self._use_elastic else 'in-memory'}")
+
+    # ------------------------------------------------------------------
+    # Loading
+    # ------------------------------------------------------------------
 
     def load_workflows(self, workflows_path: str):
-        """Load workflows from JSON file and pre-compute embeddings."""
-        with open(workflows_path, 'r') as f:
+        """Load workflows from JSON file."""
+        with open(workflows_path, "r") as f:
             data = json.load(f)
-            self.workflows = data['workflows']
+            self.workflows = data["workflows"]
+        print(f"[matcher] loaded {len(self.workflows)} workflows from disk")
 
-        print(f"Loaded {len(self.workflows)} workflows")
-
-        # Pre-compute embeddings for all workflows
-        workflow_texts = [self._workflow_to_text(wf) for wf in self.workflows]
-        self.workflow_embeddings = self.model.encode(workflow_texts)
-        print("Computed workflow embeddings")
+    # ------------------------------------------------------------------
+    # Search
+    # ------------------------------------------------------------------
 
     def search(self, query: Dict[str, Any], top_k: int = 10) -> List[Dict[str, Any]]:
         """
-        Search for matching workflows using hybrid approach:
-        1. Hard filters (task_type, state, year)
-        2. Embedding similarity ranking
-
-        Args:
-            query: User query dict with task_type, state, and other attributes
-            top_k: Number of results to return
-
-        Returns:
-            List of matching workflows with similarity scores
+        Search for matching workflows.
+        Uses Elasticsearch hybrid search when available, otherwise in-memory.
         """
-        # Step 1: Hard filter
-        candidates = self._apply_hard_filters(query)
+        if self._use_elastic:
+            return self._elastic_search(query, top_k)
+        return self._memory_search(query, top_k)
 
+    # -- Elasticsearch path --
+
+    def _elastic_search(self, query: Dict[str, Any], top_k: int) -> List[Dict[str, Any]]:
+        query_text = self._query_to_text(query)
+        filters = {}
+        for f in ("task_type", "state", "year", "location", "platform", "domain"):
+            if f in query:
+                filters[f] = query[f]
+        return self.elastic.hybrid_search(query_text, filters=filters, top_k=top_k)
+
+    # -- In-memory fallback (no Elastic / JINA needed) --
+
+    def _memory_search(self, query: Dict[str, Any], top_k: int) -> List[Dict[str, Any]]:
+        candidates = self._apply_hard_filters(query)
         if not candidates:
             return []
 
-        # Step 2: Compute query embedding
-        query_text = self._query_to_text(query)
-        query_embedding = self.model.encode([query_text])[0]
+        query_text = self._query_to_text(query).lower()
+        query_tokens = set(query_text.split())
 
-        # Step 3: Compute similarities for candidates
         results = []
-        for workflow, idx in candidates:
-            workflow_emb = self.workflow_embeddings[idx]
-            similarity = cosine_similarity(
-                query_embedding.reshape(1, -1),
-                workflow_emb.reshape(1, -1)
-            )[0][0]
+        for wf in candidates:
+            wf_text = self._workflow_to_text(wf).lower()
+            wf_tokens = set(wf_text.split())
+            # Jaccard-ish similarity
+            intersection = query_tokens & wf_tokens
+            union = query_tokens | wf_tokens
+            score = len(intersection) / max(len(union), 1)
 
-            result = workflow.copy()
-            result['similarity_score'] = float(similarity)
-            result['match_percentage'] = int(similarity * 100)
+            result = {k: v for k, v in wf.items()}
+            result["similarity_score"] = round(score, 4)
+            result["match_percentage"] = min(100, int(score * 120))  # slight boost
             results.append(result)
 
-        # Step 4: Sort by similarity and return top K
-        results.sort(key=lambda x: x['similarity_score'], reverse=True)
+        results.sort(key=lambda x: x["similarity_score"], reverse=True)
         return results[:top_k]
 
-    def _apply_hard_filters(self, query: Dict[str, Any]) -> List[tuple]:
-        """Apply exact match filters on critical fields."""
+    # ------------------------------------------------------------------
+    # Helpers
+    # ------------------------------------------------------------------
+
+    def _apply_hard_filters(self, query: Dict[str, Any]) -> List[Dict[str, Any]]:
         candidates = []
-
-        required_fields = ['task_type']
-        for field in required_fields:
-            if field not in query:
-                return []
-
-        for idx, workflow in enumerate(self.workflows):
-            # Must match task type
-            if workflow.get('task_type') != query.get('task_type'):
+        for wf in self.workflows:
+            if "task_type" in query and wf.get("task_type") != query["task_type"]:
                 continue
-
-            # If state specified, must match (if workflow has state)
-            if 'state' in query and 'state' in workflow:
-                if workflow['state'] != query['state']:
-                    continue
-
-            # If year specified, must match (if workflow has year)
-            if 'year' in query and 'year' in workflow:
-                if workflow['year'] != query['year']:
-                    continue
-
-            candidates.append((workflow, idx))
-
+            if "state" in query and "state" in wf and wf["state"] != query["state"]:
+                continue
+            if "year" in query and "year" in wf and wf["year"] != query["year"]:
+                continue
+            candidates.append(wf)
         return candidates
 
-    def _workflow_to_text(self, workflow: Dict[str, Any]) -> str:
-        """Convert workflow to text representation for embedding."""
+    def _workflow_to_text(self, wf: Dict[str, Any]) -> str:
         parts = [
-            f"Task: {workflow.get('task_type', '')}",
-            f"Description: {workflow.get('description', '')}",
-            f"State: {workflow.get('state', '')}",
-            f"Tags: {', '.join(workflow.get('tags', []))}",
+            f"Task: {wf.get('task_type', '')}",
+            f"Title: {wf.get('title', '')}",
+            f"Description: {wf.get('description', '')}",
+            f"Tags: {', '.join(wf.get('tags', []))}",
         ]
-
-        # Add key requirements
-        if 'requirements' in workflow:
-            parts.append(f"Requirements: {', '.join(workflow['requirements'])}")
-
+        if wf.get("requirements"):
+            parts.append(f"Requirements: {', '.join(wf['requirements'])}")
         return " | ".join(parts)
 
     def _query_to_text(self, query: Dict[str, Any]) -> str:
-        """Convert query to text representation for embedding."""
         parts = []
-
-        # Core fields
-        if 'task_type' in query:
-            parts.append(f"Task: {query['task_type']}")
-        if 'state' in query:
-            parts.append(f"State: {query['state']}")
-        if 'year' in query:
-            parts.append(f"Year: {query['year']}")
-
-        # Additional context
         for key, value in query.items():
-            if key not in ['task_type', 'state', 'year']:
-                parts.append(f"{key}: {value}")
-
+            parts.append(f"{key}: {value}")
         return " | ".join(parts)
 
-    def get_workflow_by_id(self, workflow_id: str) -> Dict[str, Any]:
-        """Retrieve specific workflow by ID."""
-        for workflow in self.workflows:
-            if workflow['workflow_id'] == workflow_id:
-                return workflow
+    def get_workflow_by_id(self, workflow_id: str) -> Optional[Dict[str, Any]]:
+        # Try Elastic first
+        if self._use_elastic:
+            wf = self.elastic.get_by_id(workflow_id)
+            if wf:
+                return wf
+        # Fallback to in-memory
+        for wf in self.workflows:
+            if wf["workflow_id"] == workflow_id:
+                return wf
         return None
 
-
-# Example usage for testing
-if __name__ == "__main__":
-    matcher = WorkflowMatcher()
-
-    # For testing, we'll create this after workflows.json exists
-    print("WorkflowMatcher module loaded successfully")
-    print("Run with workflows.json to test: matcher.load_workflows('workflows.json')")
+    def get_all_workflows(self) -> List[Dict[str, Any]]:
+        if self._use_elastic:
+            try:
+                return self.elastic.get_all()
+            except Exception:
+                pass
+        return self.workflows
