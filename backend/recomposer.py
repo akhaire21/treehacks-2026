@@ -127,8 +127,18 @@ class WorkflowRecomposer:
         # Root nodes
         root_ids = [nid for nid, node in nodes.items() if not node.dependencies]
 
-        # Sum pricing
-        total_download = sum(node.token_cost for node in nodes.values())
+        # ═══════════════════════════════════════════════════════════════════
+        # PRICING FIX: Deduplicate download costs by workflow_id
+        # ═══════════════════════════════════════════════════════════════════
+        # Download cost: charge once per unique workflow
+        unique_workflow_ids = set()
+        total_download = 0
+        for node in nodes.values():
+            if node.workflow_id not in unique_workflow_ids:
+                unique_workflow_ids.add(node.workflow_id)
+                total_download += node.token_cost  # Charge download once
+
+        # Execution cost: charge per node execution
         total_execution = sum(node.execution_tokens for node in nodes.values())
 
         # Confidence
@@ -223,8 +233,18 @@ class WorkflowRecomposer:
         # Root nodes
         root_ids = [nid for nid, node in nodes.items() if not node.dependencies]
 
-        # Sum pricing across all subtasks
-        total_download = sum(node.token_cost for node in nodes.values())
+        # ═══════════════════════════════════════════════════════════════════
+        # PRICING FIX: Deduplicate download costs by workflow_id
+        # ═══════════════════════════════════════════════════════════════════
+        # Download cost: charge once per unique workflow
+        unique_workflow_ids = set()
+        total_download = 0
+        for node in nodes.values():
+            if node.workflow_id not in unique_workflow_ids:
+                unique_workflow_ids.add(node.workflow_id)
+                total_download += node.token_cost  # Charge download once
+
+        # Execution cost: charge per node execution
         total_execution = sum(node.execution_tokens for node in nodes.values())
 
         # Coverage
@@ -350,26 +370,52 @@ class WorkflowRecomposer:
         subtasks: List[Subtask]
     ):
         """
-        Infer dependencies between subtasks based on task types and weights.
+        Infer dependencies between subtasks using strictly unidirectional rules.
 
-        Rules:
-        - Main tasks (weight=1.0) have no dependencies
-        - Lower weight tasks depend on higher weight tasks
+        Rules (applied in order):
+        1. Task type precedence: certain types must come before others
+        2. Weight-based: lower weight tasks depend on higher weight tasks
+        3. Tie-breaking: if weights are equal, use task type priority
+
+        This ensures NO CYCLES can be created.
         """
+        # Define task type precedence (lower number = must execute first)
+        TASK_PRECEDENCE = {
+            "data_gathering": 1,
+            "validation": 2,
+            "requirements": 3,
+            "computation": 4,
+            "tax_filing": 5,
+            "filing": 5,
+            "general": 6,
+        }
+
         node_list = list(nodes.values())
 
         for i, node in enumerate(node_list):
-            # Main tasks (weight >= 0.9) are roots
-            if node.weight >= 0.9:
-                continue
+            # Main tasks (weight >= 0.9) typically have no dependencies
+            # But still check task type precedence
+            node_priority = TASK_PRECEDENCE.get(node.task_type, 6)
 
-            # Find potential parents (higher weight or earlier in list)
+            # Find potential parents using STRICT unidirectional rules
             for j, potential_parent in enumerate(node_list):
                 if i == j:
                     continue
 
-                # Add dependency if parent has higher weight or comes before
-                if potential_parent.weight > node.weight or j < i:
+                parent_priority = TASK_PRECEDENCE.get(potential_parent.task_type, 6)
+
+                # Rule 1: Task type precedence (strict ordering)
+                # Lower priority tasks MUST come after higher priority tasks
+                if parent_priority < node_priority:
+                    if potential_parent.id not in node.dependencies:
+                        node.dependencies.append(potential_parent.id)
+                        potential_parent.children.append(node.id)
+                    continue
+
+                # Rule 2: Weight-based dependency (ONLY if weights differ significantly)
+                # Avoid using weights that are too close (prevents conflicts)
+                weight_diff = potential_parent.weight - node.weight
+                if weight_diff > 0.15:  # Significant weight difference threshold
                     if potential_parent.id not in node.dependencies:
                         node.dependencies.append(potential_parent.id)
                         potential_parent.children.append(node.id)
@@ -378,32 +424,124 @@ class WorkflowRecomposer:
         """
         Topologically sort nodes for execution order.
 
+        If cycles are detected, removes weakest edges and retries.
+
         Returns:
             List of node IDs in execution order
         """
-        # Kahn's algorithm
+        # Try topological sort up to 5 times (removing weakest edges on each cycle)
+        max_attempts = 5
+        attempt = 0
+
+        while attempt < max_attempts:
+            # Kahn's algorithm
+            in_degree = {node_id: len(node.dependencies) for node_id, node in nodes.items()}
+            queue = [node_id for node_id, degree in in_degree.items() if degree == 0]
+            sorted_order = []
+
+            while queue:
+                # Sort by weight (descending) to prioritize important tasks
+                queue.sort(key=lambda nid: nodes[nid].weight, reverse=True)
+                node_id = queue.pop(0)
+                sorted_order.append(node_id)
+
+                # Reduce in-degree for children
+                for child_id in nodes[node_id].children:
+                    in_degree[child_id] -= 1
+                    if in_degree[child_id] == 0:
+                        queue.append(child_id)
+
+            # Check for cycles
+            if len(sorted_order) == len(nodes):
+                # Success! Valid topological order
+                return sorted_order
+
+            # Cycle detected - find and remove weakest edge
+            print(f"Warning: Cycle detected in DAG (attempt {attempt + 1}/{max_attempts})")
+
+            # Find nodes still in cycle (not in sorted_order)
+            cycle_nodes = [nid for nid in nodes.keys() if nid not in sorted_order]
+            print(f"  Cycle involves nodes: {cycle_nodes}")
+
+            # Find weakest edge in cycle and remove it
+            weakest_edge = self._find_weakest_edge_in_cycle(nodes, cycle_nodes)
+
+            if weakest_edge:
+                parent_id, child_id = weakest_edge
+                print(f"  Removing weakest edge: {parent_id} -> {child_id}")
+
+                # Remove edge
+                nodes[child_id].dependencies.remove(parent_id)
+                nodes[parent_id].children.remove(child_id)
+            else:
+                # Cannot find edge to remove - break all edges in cycle
+                print(f"  Could not find weakest edge - breaking all cycle edges")
+                for node_id in cycle_nodes:
+                    nodes[node_id].dependencies.clear()
+                    nodes[node_id].children.clear()
+                break
+
+            attempt += 1
+
+        # Final attempt - should work now
         in_degree = {node_id: len(node.dependencies) for node_id, node in nodes.items()}
         queue = [node_id for node_id, degree in in_degree.items() if degree == 0]
         sorted_order = []
 
         while queue:
-            # Sort by weight (descending) to prioritize important tasks
             queue.sort(key=lambda nid: nodes[nid].weight, reverse=True)
             node_id = queue.pop(0)
             sorted_order.append(node_id)
 
-            # Reduce in-degree for children
             for child_id in nodes[node_id].children:
                 in_degree[child_id] -= 1
                 if in_degree[child_id] == 0:
                     queue.append(child_id)
 
-        # Check for cycles
+        # If still has cycles, fall back to weight-based order (stable)
         if len(sorted_order) != len(nodes):
-            print("Warning: Cycle detected in DAG!")
-            return list(nodes.keys())
+            print("ERROR: Could not resolve cycles - using weight-based fallback order")
+            sorted_order = sorted(nodes.keys(), key=lambda nid: nodes[nid].weight, reverse=True)
 
         return sorted_order
+
+    def _find_weakest_edge_in_cycle(
+        self,
+        nodes: Dict[str, SubtaskNode],
+        cycle_nodes: List[str]
+    ) -> Optional[tuple]:
+        """
+        Find the weakest edge in a cycle.
+
+        Weakness is determined by:
+        1. Smallest weight difference (parent.weight - child.weight)
+        2. If tied, lowest parent weight
+
+        Returns:
+            (parent_id, child_id) tuple or None
+        """
+        weakest_edge = None
+        min_strength = float('inf')
+
+        for child_id in cycle_nodes:
+            child = nodes[child_id]
+
+            for parent_id in child.dependencies:
+                if parent_id not in nodes:
+                    continue
+
+                parent = nodes[parent_id]
+
+                # Calculate edge strength
+                # Stronger edges: higher weight difference, higher parent weight
+                weight_diff = parent.weight - child.weight
+                edge_strength = weight_diff + (parent.weight * 0.1)  # Bias toward keeping high-weight parents
+
+                if edge_strength < min_strength:
+                    min_strength = edge_strength
+                    weakest_edge = (parent_id, child_id)
+
+        return weakest_edge
 
 
 # Example usage

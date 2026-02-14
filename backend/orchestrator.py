@@ -13,22 +13,18 @@ Phase 1: ESTIMATE (GET /api/estimate)
 │    └─ Remove PII (names, SSN, exact income)                                  │
 │    └─ Keep metadata (state, year, form types)                                │
 │                                                                               │
-│ 2. Decompose into Subtasks (LLM)                                             │
-│    └─ Break complex query into 2-8 subtasks                                  │
-│    └─ Each subtask: text, task_type, weight, rationale                       │
-│                                                                               │
-│ 3. Search for Workflows (Elasticsearch + Recursive Algorithm)                │
+│ 2. Search for Workflows (Elasticsearch + Recursive Algorithm)                │
 │    └─ Hybrid search: semantic (embeddings) + keyword (text)                  │
-│    └─ Recursive decomposition if needed                                      │
-│    └─ Returns: List[SearchResult] with Workflow objects                      │
+│    └─ Recursive decomposition if needed (decomposer owns this!)              │
+│    └─ Returns: SearchPlan with workflows and subtasks (single source!)       │
 │                                                                               │
-│ 4. Recompose into Multiple Execution DAGs                                    │
+│ 3. Recompose into Multiple Execution DAGs                                    │
 │    └─ Generate 3-5 solution candidates                                       │
 │    └─ Each DAG: different workflow combinations                              │
 │    └─ Match subtasks to workflows, infer dependencies                        │
 │    └─ Calculate aggregate pricing and confidence                             │
 │                                                                               │
-│ 5. Return Solution Summaries                                                 │
+│ 4. Return Solution Summaries                                                 │
 │    └─ Multiple solutions ranked by confidence and cost                       │
 │    └─ Summary only (NO workflow details yet)                                 │
 │    └─ Cache full DAGs for purchase                                           │
@@ -149,24 +145,9 @@ class MarketplaceOrchestrator:
         print(f"  ✓ Sanitized (removed {len(private_data)} private fields)")
         print(f"  Public query: {sanitized_query_text}")
 
-        # STEP 2: Decompose into subtasks using LLM
-        print("\n[2/5] Decomposing query into subtasks...")
-        subtasks_dicts = self.claude_service.decompose_task(
-            sanitized_query_text,
-            min_subtasks=2,
-            max_subtasks=8,
-            context=sanitized_context
-        )
-
-        # Convert dicts to Subtask objects
-        subtasks = [Subtask.from_dict(st) for st in subtasks_dicts]
-
-        print(f"  ✓ Decomposed into {len(subtasks)} subtasks:")
-        for i, st in enumerate(subtasks):
-            print(f"    {i+1}. {st.text} (weight={st.weight}, type={st.task_type})")
-
-        # STEP 3: Search for workflows using recursive algorithm
-        print("\n[3/5] Searching for workflows...")
+        # STEP 2: Search for workflows using recursive algorithm
+        # NOTE: Decomposition happens inside decomposer if needed (single source of truth)
+        print("\n[2/4] Searching for workflows...")
         search_plan = self.decomposer.search(
             task_description=sanitized_query_text,
             top_k=top_k,
@@ -177,18 +158,39 @@ class MarketplaceOrchestrator:
         if search_plan.is_composite:
             print(f"  ✓ Composite plan coverage: {search_plan.coverage}")
 
-        # STEP 4: Recompose into multiple execution DAG solutions
-        print("\n[4/5] Recomposing into execution DAG solutions...")
+        # ═══════════════════════════════════════════════════════════════════
+        # CRITICAL: Extract subtasks from search_plan (SINGLE SOURCE OF TRUTH!)
+        # ═══════════════════════════════════════════════════════════════════
+        # The decomposer owns decomposition. We use its subtasks everywhere:
+        # 1. In recomposer to build DAGs
+        # 2. In API response to show user
+        # This ensures user sees EXACTLY what is executed (no divergence!)
+        # ═══════════════════════════════════════════════════════════════════
+        if search_plan.is_composite and search_plan.subtasks:
+            subtasks = search_plan.subtasks
+            print(f"  ✓ Using {len(subtasks)} subtasks from decomposer")
+        else:
+            # Direct plan: create a single subtask for the entire query
+            subtasks = [Subtask(
+                text=sanitized_query_text,
+                task_type="general",
+                weight=1.0,
+                rationale="Direct match - no decomposition needed"
+            )]
+            print(f"  ✓ Direct plan: using single subtask")
+
+        # STEP 3: Recompose into multiple execution DAG solutions
+        print("\n[3/4] Recomposing into execution DAG solutions...")
         dag_solutions = self.recomposer.recompose(
-            subtasks=subtasks,  # ✅ List[Subtask]
+            subtasks=subtasks,  # ✅ List[Subtask] from decomposer
             search_plan=search_plan,  # ✅ SearchPlan (was List[SearchResult])
             top_k=top_k
         )
 
         print(f"  ✓ Generated {len(dag_solutions)} solution candidates")
 
-        # STEP 5: Return multiple solutions (summaries only, no full workflows)
-        print("\n[5/5] Preparing solution summaries...")
+        # STEP 4: Return multiple solutions (summaries only, no full workflows)
+        print("\n[4/4] Preparing solution summaries...")
 
         solutions = []
         for i, dag in enumerate(dag_solutions):

@@ -31,12 +31,8 @@ def load_workflows_from_json(workflows_path: str) -> List[Workflow]:
     workflows = []
     for workflow_data in workflows_data:
         # Convert to Workflow model
+        # Workflow.from_dict() already sets node_type="workflow" and depth=0 by default
         workflow = Workflow.from_dict(workflow_data)
-
-        # Ensure node_type is set to "workflow" (not "step")
-        workflow.node_type = "workflow"
-        workflow.depth = 0
-
         workflows.append(workflow)
 
     print(f"Loaded {len(workflows)} workflows from {workflows_path}")
@@ -83,11 +79,17 @@ def workflow_to_text(workflow: Workflow) -> str:
         parts.append(f"Requirements: {', '.join(workflow.requirements)}")
 
     # Steps summary (for understanding workflow coverage)
+    # Steps are stored as List[Dict[str, Any]], not objects
     if workflow.steps:
         step_summaries = []
         for step in workflow.steps[:5]:  # First 5 steps to avoid too long text
-            step_summaries.append(f"{step.step_number}. {step.thought}")
-        parts.append(f"Steps: {'; '.join(step_summaries)}")
+            # Access dict fields, not attributes
+            step_num = step.get("step", "")
+            thought = step.get("thought", "")
+            if thought:
+                step_summaries.append(f"{step_num}. {thought}")
+        if step_summaries:
+            parts.append(f"Steps: {'; '.join(step_summaries)}")
 
     # Edge cases (important for matching complex scenarios)
     if workflow.edge_cases:
@@ -110,7 +112,7 @@ def prepare_for_indexing(workflow: Workflow, full_text: str, embedding: List[flo
         embedding: Dense vector embedding
 
     Returns:
-        Dictionary ready for indexing
+        Dictionary ready for indexing with _id field for Elasticsearch
     """
     # Set embedding and full_text on workflow
     workflow.embedding = embedding
@@ -118,6 +120,9 @@ def prepare_for_indexing(workflow: Workflow, full_text: str, embedding: List[flo
 
     # Convert to Elasticsearch document
     doc = workflow.to_es_document()
+
+    # Add _id field for Elasticsearch bulk indexing
+    doc["_id"] = workflow.workflow_id
 
     return doc
 
@@ -130,6 +135,7 @@ def validate_workflow_consistency(workflow: Workflow) -> List[str]:
     1. Workflows should have node_type="workflow", not "step"
     2. Steps should be in the steps array, not as child_ids
     3. Parent/child relationships should only be for sub-workflows, not steps
+    4. Required fields are present
 
     Args:
         workflow: Workflow to validate
@@ -139,7 +145,7 @@ def validate_workflow_consistency(workflow: Workflow) -> List[str]:
     """
     errors = []
 
-    # Check node_type
+    # Check node_type is valid
     if workflow.node_type not in ["workflow", "step"]:
         errors.append(f"Invalid node_type: {workflow.node_type}. Must be 'workflow' or 'step'.")
 
@@ -161,6 +167,16 @@ def validate_workflow_consistency(workflow: Workflow) -> List[str]:
 
     if not workflow.task_type:
         errors.append("Missing required field: task_type")
+
+    # Validate step structure if steps exist
+    if workflow.steps:
+        for i, step in enumerate(workflow.steps):
+            if not isinstance(step, dict):
+                errors.append(f"Step {i} is not a dictionary: {type(step)}")
+            elif "step" not in step:
+                errors.append(f"Step {i} is missing 'step' field (step number)")
+            elif "thought" not in step:
+                errors.append(f"Step {i} is missing 'thought' field")
 
     return errors
 
