@@ -1,0 +1,75 @@
+.nav {
+  position: fixed;
+  top: 0;
+  width: 100%;
+  z-index: 100;
+  padding: 16px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  backdrop-filter: blur(20px);
+  background: rgba(10, 10, 12, 0.8);
+  border-bottom: 1px solid var(--border);
+}
+
+.navLogo {
+  font-family: var(--font-mono), monospace;
+  font-weight: 700;
+  font-size: 20px;
+  letter-spacing: -0.5px;
+  color: var(--accent);
+}
+
+.navLogo span {
+  color: var(--text-dim);
+  font-weight: 300;
+}
+
+.navLinks {
+  display: flex;
+  gap: 32px;
+  align-items: center;
+}
+
+.navLinks a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  transition: color 0.2s;
+}
+
+.navLinks a:hover {
+  color: var(--text);
+}
+
+.navCta {
+  background: var(--accent) !important;
+  color: var(--bg) !important;
+  padding: 8px 20px;
+  border-radius: 6px;
+  font-weight: 600 !important;
+  font-size: 12px !important;
+  transition: opacity 0.2s !important;
+}
+
+.navCta:hover {
+  opacity: 0.85;
+}
+
+@media (max-width: 900px) {
+  .nav {
+    padding: 12px 20px;
+  }
+  .navLinks {
+    gap: 16px;
+  }
+}
+
+@media (max-width: 600px) {
+  .navLinks a:not(.navCta) {
+    display: none;
+  }
+}

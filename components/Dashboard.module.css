@@ -1,0 +1,302 @@
+.dashboardSection {
+  padding: 120px 40px;
+}
+
+.dashboardContainer {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.sectionLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--accent);
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  margin-bottom: 16px;
+}
+
+.sectionTitle {
+  font-size: clamp(32px, 4vw, 48px);
+  font-weight: 700;
+  letter-spacing: -1.5px;
+  margin-bottom: 48px;
+  line-height: 1.1;
+}
+
+.dashboard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  overflow: hidden;
+  margin-top: 48px;
+}
+
+.dashHeader {
+  padding: 16px 24px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--surface-2);
+}
+
+.dashTabs {
+  display: flex;
+  gap: 4px;
+}
+
+.dashTab {
+  padding: 6px 16px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  background: transparent;
+  font-family: var(--font-sans), sans-serif;
+}
+
+.dashTab.active {
+  background: var(--accent);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.dashTab:not(.active):hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.dashWallet {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.walletBalance {
+  font-family: var(--font-mono), monospace;
+  font-size: 13px;
+  color: var(--accent);
+  background: var(--accent-dim);
+  padding: 4px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--accent-mid);
+}
+
+.dashBody {
+  display: flex;
+  min-height: 480px;
+}
+
+.dashSidebar {
+  width: 220px;
+  border-right: 1px solid var(--border);
+  padding: 16px 0;
+  flex-shrink: 0;
+}
+
+.dashNavItem {
+  padding: 10px 24px;
+  font-size: 13px;
+  color: var(--text-dim);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  transition: all 0.15s;
+}
+
+.dashNavItem:hover {
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.dashNavItem.active {
+  color: var(--accent);
+  background: var(--accent-dim);
+  border-right: 2px solid var(--accent);
+}
+
+.dashNavIcon {
+  font-size: 14px;
+  width: 18px;
+  text-align: center;
+}
+
+.dashContent {
+  flex: 1;
+  padding: 24px;
+}
+
+.dashStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  margin-bottom: 24px;
+}
+
+.statCard {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.statLabel {
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.statValue {
+  font-family: var(--font-mono), monospace;
+  font-size: 24px;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
+
+.statChange {
+  font-size: 11px;
+  margin-top: 4px;
+  font-family: var(--font-mono), monospace;
+}
+
+.statUp {
+  color: var(--green);
+}
+
+.statDown {
+  color: var(--red);
+}
+
+.chartArea {
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin-bottom: 24px;
+  height: 180px;
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+  position: relative;
+}
+
+.chartTitle {
+  position: absolute;
+  top: 12px;
+  left: 16px;
+  font-size: 11px;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.chartBar {
+  flex: 1;
+  background: var(--accent);
+  border-radius: 3px 3px 0 0;
+  opacity: 0.6;
+  transition: opacity 0.2s;
+  min-height: 4px;
+}
+
+.chartBar:hover {
+  opacity: 1;
+}
+
+.txTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.txTable th {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--text-muted);
+  text-align: left;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border);
+  font-weight: 500;
+}
+
+.txTable td {
+  padding: 12px;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(37, 37, 41, 0.5);
+  color: var(--text-dim);
+}
+
+.txTable tr:hover td {
+  background: rgba(255, 255, 255, 0.01);
+}
+
+.txId {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  color: var(--text-muted);
+}
+
+.txSolution {
+  font-weight: 500;
+  color: var(--text);
+}
+
+.txPrice {
+  font-family: var(--font-mono), monospace;
+  color: var(--accent);
+}
+
+.txRating {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+.ratingUp {
+  color: var(--green);
+  background: rgba(0, 214, 143, 0.08);
+}
+
+.ratingDown {
+  color: var(--red);
+  background: rgba(255, 77, 77, 0.08);
+}
+
+.txStatus {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  padding: 3px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.statusComplete {
+  color: var(--green);
+  background: rgba(0, 214, 143, 0.08);
+}
+
+.statusPending {
+  color: #ffaa00;
+  background: rgba(255, 170, 0, 0.08);
+}
+
+@media (max-width: 900px) {
+  .dashboardSection {
+    padding: 80px 20px;
+  }
+  .dashStats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
