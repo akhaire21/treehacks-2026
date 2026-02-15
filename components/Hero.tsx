@@ -2,26 +2,55 @@
 
 import styles from './Hero.module.css'
 import Link from 'next/link'
-import { useState } from 'react'
+import { useState, useEffect, useCallback } from 'react'
+
+const ROTATING_WORDS = ['tradable.', 'reusable.', 'accessible.']
 
 export default function Hero() {
   const [copied, setCopied] = useState(false)
+  const [wordIndex, setWordIndex] = useState(0)
+  const [displayed, setDisplayed] = useState('')
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleCopy = () => {
     navigator.clipboard.writeText('pip install marktools')
     setCopied(true)
     setTimeout(() => setCopied(false), 2000)
   }
+
+  const tick = useCallback(() => {
+    const currentWord = ROTATING_WORDS[wordIndex]
+    if (!isDeleting) {
+      setDisplayed(currentWord.slice(0, displayed.length + 1))
+      if (displayed.length + 1 === currentWord.length) {
+        setTimeout(() => setIsDeleting(true), 1800)
+        return
+      }
+    } else {
+      setDisplayed(currentWord.slice(0, displayed.length - 1))
+      if (displayed.length - 1 === 0) {
+        setIsDeleting(false)
+        setWordIndex((wordIndex + 1) % ROTATING_WORDS.length)
+        return
+      }
+    }
+  }, [displayed, isDeleting, wordIndex])
+
+  useEffect(() => {
+    const speed = isDeleting ? 50 : 100
+    const timer = setTimeout(tick, speed)
+    return () => clearTimeout(timer)
+  }, [tick, isDeleting])
+
   return (
     <section className={styles.hero}>
       <div className={styles.heroGlow}></div>
       <div className={styles.heroBadge}>⚡ TreeHacks 2026 — Live Demo</div>
       <h1>
-        The marketplace your
+        intelligence is now
         <br />
-        agents <em>already know</em>
-        <br />
-        how to use.
+        <em>{displayed}</em>
+        <span className={styles.cursor}>|</span>
       </h1>
       <div className={styles.installBar}>
         <div className={styles.installLabel}>Get MarkTools <span className={styles.installChevron}></span></div>
