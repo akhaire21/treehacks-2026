@@ -184,11 +184,11 @@ Output ONLY a JSON object with:
 }"""
 
         workflow_summary = f"""
-Title: {workflow.get('title', '')}
-Task Type: {workflow.get('task_type', '')}
-Description: {workflow.get('description', '')}
-Tags: {', '.join(workflow.get('tags', []))}
-Requirements: {workflow.get('requirements', [])}
+Title: {workflow.title}
+Task Type: {workflow.task_type}
+Description: {workflow.description}
+Tags: {', '.join(workflow.tags)}
+Requirements: {workflow.requirements}
 """
 
         prompt = f"""Task: "{task_description}"
@@ -224,7 +224,7 @@ How well does this workflow match the task? Output JSON only."""
         except Exception as e:
             print(f"Error scoring plan: {e}")
             # Fallback: use workflow rating as proxy
-            return workflow.get("rating", 0) / 5.0
+            return workflow.rating / 5.0 if workflow.rating else 0.0
 
 
 # Example usage
