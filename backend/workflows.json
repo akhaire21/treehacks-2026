@@ -172,7 +172,7 @@
       "pricing": {
         "base_price": 1981,
         "quality_multiplier": 1.276,
-        "market_rate": null,
+        "market_rate": 1938.5,
         "roi_percentage": 522.5,
         "breakdown": "Base: 1552 (15% of 10,350 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 1981 tokens"
       }
@@ -187,14 +187,32 @@
       "execution_tokens": 4500,
       "rating": 4.9,
       "usage_count": 142,
-      "tags": ["legal", "finance", "mergers_acquisitions", "due_diligence", "risk_assessment"],
-      "requirements": ["VDR Access (Intralinks/Datasite)", "Target Company Org Chart", "Materiality Threshold"],
+      "tags": [
+        "legal",
+        "finance",
+        "mergers_acquisitions",
+        "due_diligence",
+        "risk_assessment"
+      ],
+      "requirements": [
+        "VDR Access (Intralinks/Datasite)",
+        "Target Company Org Chart",
+        "Materiality Threshold"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "Ingest VDR index and map folder structure to diligence checklist",
           "action": "map_vdr_structure",
-          "categories": ["Corporate", "Contracts", "IP", "Employment", "Litigation", "Financials", "Tax"],
+          "categories": [
+            "Corporate",
+            "Contracts",
+            "IP",
+            "Employment",
+            "Litigation",
+            "Financials",
+            "Tax"
+          ],
           "gap_analysis": "Identify missing critical folders (e.g., 'No Cap Table found')",
           "output": "Diligence Request List (DRL) for missing items"
         },
@@ -202,7 +220,12 @@
           "step": 2,
           "thought": "Analyze Material Contracts for 'Change of Control' (CoC) provisions",
           "action": "scan_coc",
-          "search_terms": ["assignment", "change of control", "termination upon merger", "successor in interest"],
+          "search_terms": [
+            "assignment",
+            "change of control",
+            "termination upon merger",
+            "successor in interest"
+          ],
           "risk_flag": "Contracts requiring counterparty consent to transfer (can kill the deal)",
           "output_table": "Contract Name | Counterparty | CoC Clause | Consent Required (Y/N)"
         },
@@ -210,7 +233,11 @@
           "step": 3,
           "thought": "Verify Intellectual Property (IP) Chain of Title",
           "action": "audit_ip_assignments",
-          "documents": ["Employee PIIA Agreements", "Contractor IP Assignments", "Open Source Logs"],
+          "documents": [
+            "Employee PIIA Agreements",
+            "Contractor IP Assignments",
+            "Open Source Logs"
+          ],
           "red_flag": "Key developers missing signed PIIA (Proprietary Information and Inventions Agreement)",
           "validation": "Cross-reference GitHub contributors with signed HR agreements"
         },
@@ -218,7 +245,13 @@
           "step": 4,
           "thought": "Scan for Undisclosed Litigation or Threats",
           "action": "litigation_search",
-          "keywords": ["cease and desist", "subpoena", "plaintiff", "settlement agreement", "demand letter"],
+          "keywords": [
+            "cease and desist",
+            "subpoena",
+            "plaintiff",
+            "settlement agreement",
+            "demand letter"
+          ],
           "context": "Distinguish between standard patent troll letters vs material lawsuits",
           "database_check": "Cross-check Pacer/CourtListener for docket hits against company name"
         },
@@ -235,7 +268,11 @@
           "thought": "Generate Red Flag Report for Investment Committee",
           "action": "generate_report",
           "format": "Traffic Light System (Red/Yellow/Green)",
-          "sections": ["Deal Killers", "Valuation Adjustments", "Post-Closing Remediation"],
+          "sections": [
+            "Deal Killers",
+            "Valuation Adjustments",
+            "Post-Closing Remediation"
+          ],
           "summary": "Executive summary of top 5 risks identified"
         }
       ],
@@ -257,11 +294,17 @@
         "409A Valuation consistency is critical for tax liability in stock-based comp"
       ],
       "pricing": {
-        "base_price": 12000,
-        "quality_multiplier": 2.5,
-        "roi_percentage": 5000.0,
-        "breakdown": "Replaces $500/hr Junior Associate work (20+ hours)"
-      }
+        "base_price": 4760,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 1232.0,
+        "breakdown": "Base: 3696 (15% of 24,640 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 32000,
+      "avg_tokens_with": 7360,
+      "tokens_saved": 24640,
+      "savings_percentage": 77,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "legacy_monolith_microservices_extractor",
@@ -273,8 +316,19 @@
       "execution_tokens": 1800,
       "rating": 4.7,
       "usage_count": 89,
-      "tags": ["refactoring", "microservices", "architecture", "java", "dotnet", "cloud_native"],
-      "requirements": ["Source Code Repository", "Database Schema", "Access Logs (optional)"],
+      "tags": [
+        "refactoring",
+        "microservices",
+        "architecture",
+        "java",
+        "dotnet",
+        "cloud_native"
+      ],
+      "requirements": [
+        "Source Code Repository",
+        "Database Schema",
+        "Access Logs (optional)"
+      ],
       "steps": [
         {
           "step": 1,
@@ -288,7 +342,11 @@
           "step": 2,
           "thought": "Identify Domain Boundaries (Bounded Contexts)",
           "action": "domain_driven_design_map",
-          "heuristics": ["Linguistic Analysis (class names)", "Transactional Boundaries", "Data Ownership"],
+          "heuristics": [
+            "Linguistic Analysis (class names)",
+            "Transactional Boundaries",
+            "Data Ownership"
+          ],
           "proposal": "Candidate Services: [Catalog, Cart, Identity, Pricing, Inventory]"
         },
         {
@@ -343,11 +401,17 @@
         "Conway's Law: The architecture will mirror the organization structure"
       ],
       "pricing": {
-        "base_price": 4500,
-        "quality_multiplier": 1.35,
-        "roi_percentage": 800.0,
-        "breakdown": "High-level architectural consulting"
-      }
+        "base_price": 4088,
+        "quality_multiplier": 1.264,
+        "market_rate": null,
+        "roi_percentage": 1078.0,
+        "breakdown": "Base: 3234 (15% of 21,560 saved) \u2192 Quality adjusted (4.7\u2605): \u00d71.26 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 28000,
+      "avg_tokens_with": 6440,
+      "tokens_saved": 21560,
+      "savings_percentage": 77,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "clinical_trial_patient_screening_hipaa",
@@ -359,8 +423,18 @@
       "execution_tokens": 1100,
       "rating": 4.9,
       "usage_count": 215,
-      "tags": ["medical", "clinical_trials", "patient_recruitment", "oncology", "hipaa"],
-      "requirements": ["De-identified EHR Dataset", "Trial Protocol (Inclusion/Exclusion)", "IRB Approval Code"],
+      "tags": [
+        "medical",
+        "clinical_trials",
+        "patient_recruitment",
+        "oncology",
+        "hipaa"
+      ],
+      "requirements": [
+        "De-identified EHR Dataset",
+        "Trial Protocol (Inclusion/Exclusion)",
+        "IRB Approval Code"
+      ],
       "steps": [
         {
           "step": 1,
@@ -368,8 +442,16 @@
           "action": "extract_criteria",
           "inputs": "ClinicalTrials.gov text or PDF Protocol",
           "outputs": {
-            "inclusion": ["Age > 18", "Histologically confirmed Stage IV NSCLC", "EGFR mutation positive"],
-            "exclusion": ["Brain metastases", "Prior immunotherapy", "Creatinine clearance < 40 mL/min"]
+            "inclusion": [
+              "Age > 18",
+              "Histologically confirmed Stage IV NSCLC",
+              "EGFR mutation positive"
+            ],
+            "exclusion": [
+              "Brain metastases",
+              "Prior immunotherapy",
+              "Creatinine clearance < 40 mL/min"
+            ]
           }
         },
         {
@@ -384,7 +466,11 @@
           "step": 3,
           "thought": "Execute Structured Query Matching (Layer 1)",
           "action": "sql_filtering",
-          "filters": ["Age", "Gender", "Diagnosis Codes"],
+          "filters": [
+            "Age",
+            "Gender",
+            "Diagnosis Codes"
+          ],
           "goal": "Fast filter to remove obvious non-matches (Reduce search space by 90%)"
         },
         {
@@ -429,11 +515,17 @@
         "Genomic data (EGFR, KRAS, ALK) is critical for modern oncology trials"
       ],
       "pricing": {
-        "base_price": 5500,
-        "quality_multiplier": 2.0,
-        "roi_percentage": 2500.0,
-        "breakdown": "Accelerates recruitment by 50%, saving millions in trial delays"
-      }
+        "base_price": 3818,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 988.0,
+        "breakdown": "Base: 2964 (15% of 19,760 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 26000,
+      "avg_tokens_with": 6240,
+      "tokens_saved": 19760,
+      "savings_percentage": 76,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "supply_chain_predictive_inventory_q4",
@@ -445,14 +537,27 @@
       "execution_tokens": 1200,
       "rating": 4.8,
       "usage_count": 302,
-      "tags": ["logistics", "inventory", "forecasting", "retail", "operations"],
-      "requirements": ["Sales History (3 yrs)", "Supplier Lead Times", "Marketing Calendar"],
+      "tags": [
+        "logistics",
+        "inventory",
+        "forecasting",
+        "retail",
+        "operations"
+      ],
+      "requirements": [
+        "Sales History (3 yrs)",
+        "Supplier Lead Times",
+        "Marketing Calendar"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "Cleanse and Baseline Historical Data",
           "action": "data_preprocessing",
-          "adjustments": ["Remove stockout periods (don't train on zero sales)", "Normalize for 'Black Swan' events (e.g., COVID spikes)"],
+          "adjustments": [
+            "Remove stockout periods (don't train on zero sales)",
+            "Normalize for 'Black Swan' events (e.g., COVID spikes)"
+          ],
           "output": "Cleaned Time Series Data"
         },
         {
@@ -461,7 +566,7 @@
           "action": "enrich_data",
           "signals": [
             "Macro: Consumer Confidence Index",
-            "Weather: La Niña forecast (affects winter gear)",
+            "Weather: La Ni\u00f1a forecast (affects winter gear)",
             "Marketing: Planned Ad Spend for Q4"
           ],
           "correlation_check": "Determine which external factors actually drive sales for this SKU"
@@ -470,7 +575,11 @@
           "step": 3,
           "thought": "Generate Demand Forecast (Ensemble Model)",
           "action": "run_forecast",
-          "models": ["Prophet", "XGBoost", "ARIMA"],
+          "models": [
+            "Prophet",
+            "XGBoost",
+            "ARIMA"
+          ],
           "horizon": "16 weeks (Sep-Dec)",
           "output": "P50, P90, and P99 Demand Scenarios"
         },
@@ -515,11 +624,17 @@
         "Q4 logistics surcharges must be factored into landed cost"
       ],
       "pricing": {
-        "base_price": 3200,
-        "quality_multiplier": 1.4,
-        "roi_percentage": 600.0,
-        "breakdown": "Prevents stockouts during highest revenue period"
-      }
+        "base_price": 3116,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 814.0,
+        "breakdown": "Base: 2442 (15% of 16,280 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 22000,
+      "avg_tokens_with": 5720,
+      "tokens_saved": 16280,
+      "savings_percentage": 74,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "seo_topic_cluster_authority_builder",
@@ -531,8 +646,18 @@
       "execution_tokens": 850,
       "rating": 4.6,
       "usage_count": 520,
-      "tags": ["seo", "marketing", "content_strategy", "blogging", "serp"],
-      "requirements": ["Seed Keyword", "Competitor URLs", "Target Region"],
+      "tags": [
+        "seo",
+        "marketing",
+        "content_strategy",
+        "blogging",
+        "serp"
+      ],
+      "requirements": [
+        "Seed Keyword",
+        "Competitor URLs",
+        "Target Region"
+      ],
       "steps": [
         {
           "step": 1,
@@ -554,7 +679,11 @@
           "step": 3,
           "thought": "Generate 'Cluster Content' Ideas (Long-tail)",
           "action": "keyword_expansion",
-          "sources": ["People Also Ask (PAA)", "Related Searches", "Autocomplete"],
+          "sources": [
+            "People Also Ask (PAA)",
+            "Related Searches",
+            "Autocomplete"
+          ],
           "grouping": "Group keywords by semantic relevance",
           "output": "List of 10-20 sub-topics (e.g., 'How to X', 'Best tools for X', 'X vs Y')"
         },
@@ -605,11 +734,17 @@
         "Content velocity (publishing frequency) matters for fresh signals"
       ],
       "pricing": {
-        "base_price": 850,
-        "quality_multiplier": 1.2,
-        "roi_percentage": 400.0,
-        "breakdown": "Replaces $2000/month SEO agency retainer tasks"
-      }
+        "base_price": 2133,
+        "quality_multiplier": 1.252,
+        "market_rate": null,
+        "roi_percentage": 568.0,
+        "breakdown": "Base: 1704 (15% of 11,360 saved) \u2192 Quality adjusted (4.6\u2605): \u00d71.25 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 16000,
+      "avg_tokens_with": 4640,
+      "tokens_saved": 11360,
+      "savings_percentage": 71,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "automated_pentest_webapp_owasp",
@@ -621,8 +756,18 @@
       "execution_tokens": 2500,
       "rating": 4.9,
       "usage_count": 112,
-      "tags": ["security", "pentesting", "owasp", "devsecops", "red_team"],
-      "requirements": ["Target URL", "Authorized Test Token/Credentials", "Allowed Window"],
+      "tags": [
+        "security",
+        "pentesting",
+        "owasp",
+        "devsecops",
+        "red_team"
+      ],
+      "requirements": [
+        "Target URL",
+        "Authorized Test Token/Credentials",
+        "Allowed Window"
+      ],
       "steps": [
         {
           "step": 1,
@@ -636,15 +781,28 @@
           "step": 2,
           "thought": "Test for Injection Flaws (SQLi/Command)",
           "action": "injection_fuzzing",
-          "payloads": ["' OR 1=1--", "; ls -la", "{{7*7}}"],
-          "locations": ["URL parameters", "Form fields", "Headers", "Cookies"],
+          "payloads": [
+            "' OR 1=1--",
+            "; ls -la",
+            "{{7*7}}"
+          ],
+          "locations": [
+            "URL parameters",
+            "Form fields",
+            "Headers",
+            "Cookies"
+          ],
           "monitor": "Look for database errors, time delays, or rendered math results"
         },
         {
           "step": 3,
           "thought": "Test for Cross-Site Scripting (XSS)",
           "action": "xss_fuzzing",
-          "types": ["Reflected", "Stored", "DOM-based"],
+          "types": [
+            "Reflected",
+            "Stored",
+            "DOM-based"
+          ],
           "payload": "<script>alert('Pentest')</script>",
           "verification": "Check if payload is executed in browser response (headless chrome)"
         },
@@ -692,11 +850,17 @@
         "Directory Enumeration often reveals forgotten backup files (.bak, .old) containing secrets"
       ],
       "pricing": {
-        "base_price": 2800,
-        "quality_multiplier": 1.4,
-        "roi_percentage": 1000.0,
-        "breakdown": "Cost of a breach is infinite; manual pentest costs $10k+"
-      }
+        "base_price": 4463,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 1155.0,
+        "breakdown": "Base: 3465 (15% of 23,100 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 30000,
+      "avg_tokens_with": 6900,
+      "tokens_saved": 23100,
+      "savings_percentage": 77,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "patent_prior_art_semantic_search",
@@ -708,8 +872,17 @@
       "execution_tokens": 1000,
       "rating": 4.7,
       "usage_count": 76,
-      "tags": ["legal", "patent", "ip", "research", "prior_art"],
-      "requirements": ["Target Patent Number or Invention Disclosure", "Technical Field"],
+      "tags": [
+        "legal",
+        "patent",
+        "ip",
+        "research",
+        "prior_art"
+      ],
+      "requirements": [
+        "Target Patent Number or Invention Disclosure",
+        "Technical Field"
+      ],
       "steps": [
         {
           "step": 1,
@@ -731,8 +904,15 @@
           "step": 3,
           "thought": "Search Global Databases",
           "action": "query_databases",
-          "targets": ["Google Patents", "Espacenet", "IEEE Xplore", "arXiv"],
-          "filters": ["Date < Priority Date of Target Patent"],
+          "targets": [
+            "Google Patents",
+            "Espacenet",
+            "IEEE Xplore",
+            "arXiv"
+          ],
+          "filters": [
+            "Date < Priority Date of Target Patent"
+          ],
           "ranking": "Cosine Similarity Score"
         },
         {
@@ -747,7 +927,12 @@
           "step": 5,
           "thought": "Generate Search Report",
           "action": "report_writing",
-          "sections": ["Executive Summary", "Top 3 Prior Art References", "Claim Comparison Matrix", "Invalidation Likelihood Score"],
+          "sections": [
+            "Executive Summary",
+            "Top 3 Prior Art References",
+            "Claim Comparison Matrix",
+            "Invalidation Likelihood Score"
+          ],
           "disclaimer": "This is automated research, not legal opinion."
         }
       ],
@@ -768,11 +953,17 @@
         "Freedom to Operate (FTO) search is different from Prior Art search"
       ],
       "pricing": {
-        "base_price": 2000,
-        "quality_multiplier": 1.5,
-        "roi_percentage": 1000.0,
-        "breakdown": "Law firms charge $3k-$10k for this search"
-      }
+        "base_price": 3413,
+        "quality_multiplier": 1.264,
+        "market_rate": null,
+        "roi_percentage": 900.0,
+        "breakdown": "Base: 2700 (15% of 18,000 saved) \u2192 Quality adjusted (4.7\u2605): \u00d71.26 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 24000,
+      "avg_tokens_with": 6000,
+      "tokens_saved": 18000,
+      "savings_percentage": 75,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "wedding_budget_vendor_manager_luxury",
@@ -784,8 +975,19 @@
       "execution_tokens": 700,
       "rating": 4.8,
       "usage_count": 310,
-      "tags": ["wedding", "budget", "planning", "negotiation", "personal"],
-      "requirements": ["Total Budget", "Guest Count", "Location", "Date"],
+      "tags": [
+        "wedding",
+        "budget",
+        "planning",
+        "negotiation",
+        "personal"
+      ],
+      "requirements": [
+        "Total Budget",
+        "Guest Count",
+        "Location",
+        "Date"
+      ],
       "steps": [
         {
           "step": 1,
@@ -832,7 +1034,11 @@
           "step": 5,
           "thought": "Payment Schedule Tracker",
           "action": "generate_timeline",
-          "milestones": ["Deposit (Booking)", "Halfway Payment", "Final Balance (30 days out)"],
+          "milestones": [
+            "Deposit (Booking)",
+            "Halfway Payment",
+            "Final Balance (30 days out)"
+          ],
           "alert": "Remind user 7 days before large payments due"
         }
       ],
@@ -849,11 +1055,17 @@
         "Florals are the most volatile cost due to shipping/climate - suggest 'seasonal blooms' only"
       ],
       "pricing": {
-        "base_price": 600,
-        "quality_multiplier": 1.1,
-        "roi_percentage": 300.0,
-        "breakdown": "Saves stress and prevents budget blowouts"
-      }
+        "base_price": 2446,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 639.0,
+        "breakdown": "Base: 1917 (15% of 12,780 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 18000,
+      "avg_tokens_with": 5220,
+      "tokens_saved": 12780,
+      "savings_percentage": 71,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "podcast_post_production_repurposing",
@@ -865,8 +1077,18 @@
       "execution_tokens": 1400,
       "rating": 4.8,
       "usage_count": 650,
-      "tags": ["podcast", "content", "social_media", "ai_writing", "transcription"],
-      "requirements": ["Audio File (MP3/WAV)", "Guest Name", "Show Tone"],
+      "tags": [
+        "podcast",
+        "content",
+        "social_media",
+        "ai_writing",
+        "transcription"
+      ],
+      "requirements": [
+        "Audio File (MP3/WAV)",
+        "Guest Name",
+        "Show Tone"
+      ],
       "steps": [
         {
           "step": 1,
@@ -892,7 +1114,12 @@
           "step": 3,
           "thought": "Identify Viral Clip Moments",
           "action": "clip_finder",
-          "criteria": ["High emotion", "Controversial statement", "Laughter", "Concise wisdom"],
+          "criteria": [
+            "High emotion",
+            "Controversial statement",
+            "Laughter",
+            "Concise wisdom"
+          ],
           "output": "Start/End times for 3-5 potential Reels/TikToks",
           "virality_score": "Estimated engagement based on topic trend"
         },
@@ -933,11 +1160,17 @@
         "The first 60 seconds of a podcast determines 80% of retention"
       ],
       "pricing": {
-        "base_price": 900,
-        "quality_multiplier": 1.25,
-        "roi_percentage": 500.0,
-        "breakdown": "Replaces a Producer + Copywriter ($1500 value per episode)"
-      }
+        "base_price": 2010,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 525.0,
+        "breakdown": "Base: 1575 (15% of 10,500 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 15000,
+      "avg_tokens_with": 4500,
+      "tokens_saved": 10500,
+      "savings_percentage": 70,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "gdnt_engineering_drawing_checker",
@@ -949,14 +1182,28 @@
       "execution_tokens": 1200,
       "rating": 4.6,
       "usage_count": 45,
-      "tags": ["engineering", "cad", "gdnt", "quality", "manufacturing"],
-      "requirements": ["PDF/DXF Drawing", "Standard Version (2009 or 2018)"],
+      "tags": [
+        "engineering",
+        "cad",
+        "gdnt",
+        "quality",
+        "manufacturing"
+      ],
+      "requirements": [
+        "PDF/DXF Drawing",
+        "Standard Version (2009 or 2018)"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "Feature Recognition & OCR",
           "action": "scan_drawing",
-          "identify": ["Views", "Dimensions", "Feature Control Frames (FCF)", "Datum Labels"],
+          "identify": [
+            "Views",
+            "Dimensions",
+            "Feature Control Frames (FCF)",
+            "Datum Labels"
+          ],
           "validation": "Ensure text is readable"
         },
         {
@@ -1006,11 +1253,17 @@
         "Datums should be functional mating surfaces, not obscure centerlines"
       ],
       "pricing": {
-        "base_price": 3000,
-        "quality_multiplier": 1.6,
-        "roi_percentage": 1000.0,
-        "breakdown": "Prevents scrap parts ($$$) and tooling rework"
-      }
+        "base_price": 3904,
+        "quality_multiplier": 1.252,
+        "market_rate": null,
+        "roi_percentage": 1039.5,
+        "breakdown": "Base: 3118 (15% of 20,790 saved) \u2192 Quality adjusted (4.6\u2605): \u00d71.25 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 27000,
+      "avg_tokens_with": 6210,
+      "tokens_saved": 20790,
+      "savings_percentage": 77,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "crypto_portfolio_rebalancer_harvesting",
@@ -1022,21 +1275,39 @@
       "execution_tokens": 900,
       "rating": 4.8,
       "usage_count": 220,
-      "tags": ["crypto", "trading", "finance", "tax", "automation"],
-      "requirements": ["Exchange API Keys", "Target Allocation %", "Loss Threshold"],
+      "tags": [
+        "crypto",
+        "trading",
+        "finance",
+        "tax",
+        "automation"
+      ],
+      "requirements": [
+        "Exchange API Keys",
+        "Target Allocation %",
+        "Loss Threshold"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "Fetch Current Holdings & Prices",
           "action": "get_balances",
-          "sources": ["CEX (Binance/Coinbase)", "On-chain Wallets (via Zapper/DeBank API)"],
+          "sources": [
+            "CEX (Binance/Coinbase)",
+            "On-chain Wallets (via Zapper/DeBank API)"
+          ],
           "calc": "Total Portfolio Value (USD)"
         },
         {
           "step": 2,
           "thought": "Calculate Drift from Target",
           "action": "calc_drift",
-          "targets": {"BTC": "50%", "ETH": "30%", "SOL": "10%", "Stable": "10%"},
+          "targets": {
+            "BTC": "50%",
+            "ETH": "30%",
+            "SOL": "10%",
+            "Stable": "10%"
+          },
           "drift": "Identify assets > 5% off target"
         },
         {
@@ -1076,11 +1347,17 @@
         "Stablecoins are not risk-free (De-peg risk) - diversify across USDC/USDT/DAI"
       ],
       "pricing": {
-        "base_price": 1500,
-        "quality_multiplier": 1.3,
-        "roi_percentage": 500.0,
-        "breakdown": "Pays for itself in tax savings"
-      }
+        "base_price": 2794,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 730.0,
+        "breakdown": "Base: 2190 (15% of 14,600 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 20000,
+      "avg_tokens_with": 5400,
+      "tokens_saved": 14600,
+      "savings_percentage": 73,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "corporate_travel_policy_auditor",
@@ -1092,8 +1369,18 @@
       "execution_tokens": 750,
       "rating": 4.7,
       "usage_count": 340,
-      "tags": ["finance", "audit", "expenses", "compliance", "fraud"],
-      "requirements": ["Expense Report Data", "Travel Policy PDF", "Receipt Images"],
+      "tags": [
+        "finance",
+        "audit",
+        "expenses",
+        "compliance",
+        "fraud"
+      ],
+      "requirements": [
+        "Expense Report Data",
+        "Travel Policy PDF",
+        "Receipt Images"
+      ],
       "steps": [
         {
           "step": 1,
@@ -1146,11 +1433,17 @@
         "Ride-share tips > 20% are often non-reimbursable"
       ],
       "pricing": {
-        "base_price": 1800,
-        "quality_multiplier": 1.1,
-        "roi_percentage": 400.0,
-        "breakdown": "Reduces expense fraud by 15%"
-      }
+        "base_price": 2594,
+        "quality_multiplier": 1.264,
+        "market_rate": null,
+        "roi_percentage": 684.0,
+        "breakdown": "Base: 2052 (15% of 13,680 saved) \u2192 Quality adjusted (4.7\u2605): \u00d71.26 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 19000,
+      "avg_tokens_with": 5320,
+      "tokens_saved": 13680,
+      "savings_percentage": 72,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "personalized_sleep_circadian_optimization",
@@ -1162,14 +1455,28 @@
       "execution_tokens": 600,
       "rating": 4.8,
       "usage_count": 88,
-      "tags": ["health", "sleep", "data_science", "wellness", "personal"],
-      "requirements": ["Wearable CSV Export", "Chronotype Quiz Result"],
+      "tags": [
+        "health",
+        "sleep",
+        "data_science",
+        "wellness",
+        "personal"
+      ],
+      "requirements": [
+        "Wearable CSV Export",
+        "Chronotype Quiz Result"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "Analyze Sleep Architecture",
           "action": "analyze_stages",
-          "metrics": ["Deep Sleep %", "REM %", "Latency", "Wake After Sleep Onset (WASO)"],
+          "metrics": [
+            "Deep Sleep %",
+            "REM %",
+            "Latency",
+            "Wake After Sleep Onset (WASO)"
+          ],
           "norm": "Deep should be 15-20%, REM 20-25%",
           "deficiency": "Low Deep Sleep = Physical recovery issue. Low REM = Mental recovery/temp issue."
         },
@@ -1177,7 +1484,12 @@
           "step": 2,
           "thought": "Correlate Habits with HRV/Sleep",
           "action": "correlation_analysis",
-          "inputs": ["Caffeine time", "Alcohol consumption", "Late meal", "Exercise time"],
+          "inputs": [
+            "Caffeine time",
+            "Alcohol consumption",
+            "Late meal",
+            "Exercise time"
+          ],
           "finding": "Alcohol detected -> HRV drops 20ms, RHR increases 5bpm"
         },
         {
@@ -1194,7 +1506,7 @@
           "action": "create_plan",
           "morning": "Sunlight view within 30 mins of waking (10k lux)",
           "evening": "Blue light blockers starting at {sunset_time}",
-          "temp": "Bedroom temp 65-68°F (18-20°C)"
+          "temp": "Bedroom temp 65-68\u00b0F (18-20\u00b0C)"
         }
       ],
       "edge_cases": [
@@ -1210,11 +1522,17 @@
         "High HRV is the best proxy for 'Ready to Train/Perform'"
       ],
       "pricing": {
-        "base_price": 400,
-        "quality_multiplier": 1.2,
-        "roi_percentage": 1000.0,
-        "breakdown": "Priceless for productivity/health"
-      }
+        "base_price": 1849,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 522.4,
+        "breakdown": "Base: 1449 (15% of 9,660 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 1849 tokens"
+      },
+      "avg_tokens_without": 14000,
+      "avg_tokens_with": 4340,
+      "tokens_saved": 9660,
+      "savings_percentage": 69,
+      "price_tokens": 1849
     },
     {
       "workflow_id": "real_estate_brrrr_calculator",
@@ -1226,14 +1544,30 @@
       "execution_tokens": 600,
       "rating": 4.9,
       "usage_count": 156,
-      "tags": ["real_estate", "investing", "finance", "calculator"],
-      "requirements": ["Purchase Price", "Rehab Budget", "ARV Estimate", "Market Rent", "Interest Rates"],
+      "tags": [
+        "real_estate",
+        "investing",
+        "finance",
+        "calculator"
+      ],
+      "requirements": [
+        "Purchase Price",
+        "Rehab Budget",
+        "ARV Estimate",
+        "Market Rent",
+        "Interest Rates"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "Calculate Total Project Cost",
           "action": "sum_costs",
-          "items": ["Purchase Price", "Closing Costs (Buy)", "Rehab Budget", "Holding Costs (interest, util, ins during rehab)"],
+          "items": [
+            "Purchase Price",
+            "Closing Costs (Buy)",
+            "Rehab Budget",
+            "Holding Costs (interest, util, ins during rehab)"
+          ],
           "output": "All-in Cost"
         },
         {
@@ -1249,7 +1583,14 @@
           "thought": "Calculate Rental Cash Flow",
           "action": "calc_cashflow",
           "income": "Gross Rent - Vacancy (5%)",
-          "expenses": ["Mortgage (New Refi Loan)", "Taxes", "Insurance", "CapEx (5%)", "Repairs (5%)", "Management (10%)"],
+          "expenses": [
+            "Mortgage (New Refi Loan)",
+            "Taxes",
+            "Insurance",
+            "CapEx (5%)",
+            "Repairs (5%)",
+            "Management (10%)"
+          ],
           "net": "NOI - Debt Service"
         },
         {
@@ -1274,11 +1615,17 @@
         "Cash flow is vanity, Equity is sanity, Cash is King"
       ],
       "pricing": {
-        "base_price": 500,
-        "quality_multiplier": 1.1,
-        "roi_percentage": 500.0,
-        "breakdown": "Standard tool for investors"
-      }
+        "base_price": 2962,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 766.5,
+        "breakdown": "Base: 2299 (15% of 15,330 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 21000,
+      "avg_tokens_with": 5670,
+      "tokens_saved": 15330,
+      "savings_percentage": 73,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "academic_grant_proposal_generator",
@@ -1290,8 +1637,18 @@
       "execution_tokens": 1200,
       "rating": 4.5,
       "usage_count": 62,
-      "tags": ["writing", "academia", "science", "funding", "grants"],
-      "requirements": ["Research Hypothesis", "Preliminary Data Summary", "Agency (NIH/NSF)"],
+      "tags": [
+        "writing",
+        "academia",
+        "science",
+        "funding",
+        "grants"
+      ],
+      "requirements": [
+        "Research Hypothesis",
+        "Preliminary Data Summary",
+        "Agency (NIH/NSF)"
+      ],
       "steps": [
         {
           "step": 1,
@@ -1334,11 +1691,17 @@
         "NIH scores on 1-9 scale (1 is best)"
       ],
       "pricing": {
-        "base_price": 1200,
-        "quality_multiplier": 1.3,
-        "roi_percentage": 10000.0,
-        "breakdown": "Grants are worth $500k-$2M"
-      }
+        "base_price": 2245,
+        "quality_multiplier": 1.24,
+        "market_rate": null,
+        "roi_percentage": 603.5,
+        "breakdown": "Base: 1810 (15% of 12,070 saved) \u2192 Quality adjusted (4.5\u2605): \u00d71.24 \u2192 Final: 2000 tokens"
+      },
+      "avg_tokens_without": 17000,
+      "avg_tokens_with": 4930,
+      "tokens_saved": 12070,
+      "savings_percentage": 71,
+      "price_tokens": 2000
     },
     {
       "workflow_id": "california_w2_standard_2024",
@@ -1469,7 +1832,7 @@
       "pricing": {
         "base_price": 1877,
         "quality_multiplier": 1.288,
-        "market_rate": 1981,
+        "market_rate": 1990.5,
         "roi_percentage": 517.6,
         "breakdown": "Base: 1457 (15% of 9,715 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 1877 tokens"
       }
@@ -1895,7 +2258,7 @@
       "pricing": {
         "base_price": 1530,
         "quality_multiplier": 1.288,
-        "market_rate": null,
+        "market_rate": 1587,
         "roi_percentage": 517.6,
         "breakdown": "Base: 1188 (15% of 7,920 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 1530 tokens"
       }
@@ -2727,8 +3090,20 @@
       "execution_tokens": 700,
       "rating": 4.9,
       "usage_count": 203,
-      "tags": ["shopping", "grocery", "budget", "nutrition", "commerce", "ai_shopping"],
-      "requirements": ["Budget", "household size", "dietary preferences", "preferred stores"],
+      "tags": [
+        "shopping",
+        "grocery",
+        "budget",
+        "nutrition",
+        "commerce",
+        "ai_shopping"
+      ],
+      "requirements": [
+        "Budget",
+        "household size",
+        "dietary preferences",
+        "preferred stores"
+      ],
       "steps": [
         {
           "step": 1,
@@ -2765,7 +3140,14 @@
           "thought": "Build consolidated shopping list from meal plan",
           "action": "build_list",
           "method": "Aggregate ingredients, round up to store quantities",
-          "categorize_by": ["produce", "protein", "dairy", "pantry", "frozen", "snacks"],
+          "categorize_by": [
+            "produce",
+            "protein",
+            "dairy",
+            "pantry",
+            "frozen",
+            "snacks"
+          ],
           "smart_quantities": "If recipe needs 100ml cream but smallest is 250ml, plan second use"
         },
         {
@@ -2839,6 +3221,18 @@
         "from_scratch": 3200,
         "with_workflow": 860,
         "savings_percent": 73
+      },
+      "avg_tokens_without": 9000,
+      "avg_tokens_with": 3510,
+      "tokens_saved": 5490,
+      "savings_percentage": 61,
+      "price_tokens": 1061,
+      "pricing": {
+        "base_price": 1061,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 517.4,
+        "breakdown": "Base: 823 (15% of 5,490 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 1061 tokens"
       }
     },
     {
@@ -2851,8 +3245,19 @@
       "execution_tokens": 720,
       "rating": 4.8,
       "usage_count": 147,
-      "tags": ["shopping", "electronics", "comparison", "commerce", "product_research"],
-      "requirements": ["Product category", "budget range", "must-have features", "use cases"],
+      "tags": [
+        "shopping",
+        "electronics",
+        "comparison",
+        "commerce",
+        "product_research"
+      ],
+      "requirements": [
+        "Product category",
+        "budget range",
+        "must-have features",
+        "use cases"
+      ],
       "steps": [
         {
           "step": 1,
@@ -2871,7 +3276,11 @@
           "thought": "Identify top candidates matching requirements",
           "action": "candidate_selection",
           "method": "Filter products by must-haves, then rank by value within budget",
-          "sources": ["manufacturer specs", "expert reviews (Wirecutter, RTINGS, Tom's Hardware)", "user reviews"],
+          "sources": [
+            "manufacturer specs",
+            "expert reviews (Wirecutter, RTINGS, Tom's Hardware)",
+            "user reviews"
+          ],
           "target": "Narrow to 3-5 top candidates"
         },
         {
@@ -2880,10 +3289,41 @@
           "action": "spec_comparison",
           "build_table": true,
           "common_specs_by_category": {
-            "smartphone": ["processor", "RAM", "storage", "camera", "battery", "display", "5G"],
-            "laptop": ["CPU", "GPU", "RAM", "storage", "display", "battery_hours", "weight", "ports"],
-            "headphones": ["driver_size", "ANC", "battery", "codec_support", "comfort", "water_resistance"],
-            "tv": ["panel_type", "resolution", "HDR", "refresh_rate", "ports", "smart_platform"]
+            "smartphone": [
+              "processor",
+              "RAM",
+              "storage",
+              "camera",
+              "battery",
+              "display",
+              "5G"
+            ],
+            "laptop": [
+              "CPU",
+              "GPU",
+              "RAM",
+              "storage",
+              "display",
+              "battery_hours",
+              "weight",
+              "ports"
+            ],
+            "headphones": [
+              "driver_size",
+              "ANC",
+              "battery",
+              "codec_support",
+              "comfort",
+              "water_resistance"
+            ],
+            "tv": [
+              "panel_type",
+              "resolution",
+              "HDR",
+              "refresh_rate",
+              "ports",
+              "smart_platform"
+            ]
           },
           "highlight": "Areas where one product clearly wins over others"
         },
@@ -2891,7 +3331,12 @@
           "step": 4,
           "thought": "Analyze review sentiment for real-world performance",
           "action": "review_analysis",
-          "aggregate": ["Amazon", "BestBuy", "Reddit", "YouTube reviews"],
+          "aggregate": [
+            "Amazon",
+            "BestBuy",
+            "Reddit",
+            "YouTube reviews"
+          ],
           "extract": [
             "Most praised features",
             "Most common complaints",
@@ -2961,6 +3406,18 @@
         "from_scratch": 3600,
         "with_workflow": 895,
         "savings_percent": 75
+      },
+      "avg_tokens_without": 10000,
+      "avg_tokens_with": 3700,
+      "tokens_saved": 6300,
+      "savings_percentage": 63,
+      "price_tokens": 1206,
+      "pricing": {
+        "base_price": 1206,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 522.4,
+        "breakdown": "Base: 945 (15% of 6,300 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 1206 tokens"
       }
     },
     {
@@ -2973,8 +3430,20 @@
       "execution_tokens": 780,
       "rating": 4.7,
       "usage_count": 98,
-      "tags": ["shopping", "fashion", "personal_shopper", "style", "commerce", "outfits"],
-      "requirements": ["Occasion", "budget", "style preferences", "sizes"],
+      "tags": [
+        "shopping",
+        "fashion",
+        "personal_shopper",
+        "style",
+        "commerce",
+        "outfits"
+      ],
+      "requirements": [
+        "Occasion",
+        "budget",
+        "style preferences",
+        "sizes"
+      ],
       "steps": [
         {
           "step": 1,
@@ -2994,10 +3463,29 @@
           "action": "gap_analysis",
           "occasions": "{user_occasions}",
           "essentials_by_occasion": {
-            "work_professional": ["blazer", "dress_pants", "button_down", "dress_shoes"],
-            "casual_weekend": ["jeans", "sneakers", "t_shirts", "light_jacket"],
-            "date_night": ["statement_piece", "accessories", "dress_shoes"],
-            "formal_event": ["suit_or_gown", "dress_shoes", "clutch", "jewelry"]
+            "work_professional": [
+              "blazer",
+              "dress_pants",
+              "button_down",
+              "dress_shoes"
+            ],
+            "casual_weekend": [
+              "jeans",
+              "sneakers",
+              "t_shirts",
+              "light_jacket"
+            ],
+            "date_night": [
+              "statement_piece",
+              "accessories",
+              "dress_shoes"
+            ],
+            "formal_event": [
+              "suit_or_gown",
+              "dress_shoes",
+              "clutch",
+              "jewelry"
+            ]
           },
           "output": "List of items to acquire, prioritized by frequency of need"
         },
@@ -3006,10 +3494,30 @@
           "thought": "Search retailers for matching items within budget",
           "action": "shop_search",
           "retailers_by_tier": {
-            "budget": ["H&M", "Zara", "Uniqlo", "Target"],
-            "mid_range": ["J.Crew", "Banana Republic", "COS", "Everlane"],
-            "premium": ["Nordstrom", "SSENSE", "Net-a-Porter", "Mr Porter"],
-            "sustainable": ["Patagonia", "Reformation", "Allbirds", "Eileen Fisher"]
+            "budget": [
+              "H&M",
+              "Zara",
+              "Uniqlo",
+              "Target"
+            ],
+            "mid_range": [
+              "J.Crew",
+              "Banana Republic",
+              "COS",
+              "Everlane"
+            ],
+            "premium": [
+              "Nordstrom",
+              "SSENSE",
+              "Net-a-Porter",
+              "Mr Porter"
+            ],
+            "sustainable": [
+              "Patagonia",
+              "Reformation",
+              "Allbirds",
+              "Eileen Fisher"
+            ]
           },
           "filter_by": "Size availability, return policy, shipping speed"
         },
@@ -3072,6 +3580,18 @@
         "from_scratch": 3800,
         "with_workflow": 965,
         "savings_percent": 75
+      },
+      "avg_tokens_without": 8500,
+      "avg_tokens_with": 3315,
+      "tokens_saved": 5185,
+      "savings_percentage": 61,
+      "price_tokens": 983,
+      "pricing": {
+        "base_price": 983,
+        "quality_multiplier": 1.264,
+        "market_rate": 1061,
+        "roi_percentage": 527.5,
+        "breakdown": "Base: 777 (15% of 5,185 saved) \u2192 Quality adjusted (4.7\u2605): \u00d71.26 \u2192 Final: 983 tokens"
       }
     },
     {
@@ -3084,8 +3604,18 @@
       "execution_tokens": 650,
       "rating": 4.9,
       "usage_count": 178,
-      "tags": ["finance", "subscriptions", "optimization", "savings", "commerce", "audit"],
-      "requirements": ["List of current subscriptions with costs", "usage patterns"],
+      "tags": [
+        "finance",
+        "subscriptions",
+        "optimization",
+        "savings",
+        "commerce",
+        "audit"
+      ],
+      "requirements": [
+        "List of current subscriptions with costs",
+        "usage patterns"
+      ],
       "steps": [
         {
           "step": 1,
@@ -3096,7 +3626,16 @@
             "App store subscriptions (Apple/Google)",
             "Email search for 'subscription', 'renewal', 'billing'"
           ],
-          "categorize": ["streaming", "software", "fitness", "news", "food_delivery", "storage", "insurance", "memberships"]
+          "categorize": [
+            "streaming",
+            "software",
+            "fitness",
+            "news",
+            "food_delivery",
+            "storage",
+            "insurance",
+            "memberships"
+          ]
         },
         {
           "step": 2,
@@ -3142,7 +3681,7 @@
           "scripts": {
             "streaming": "I'm considering canceling because of the recent price increase. Are there any promotional rates available for loyal customers?",
             "phone_plan": "I've been with you for X years. I've seen better rates at [competitor]. Can you match or beat that?",
-            "insurance": "I'd like to review my policy. I've been claim-free for X years — is there a loyalty discount available?",
+            "insurance": "I'd like to review my policy. I've been claim-free for X years \u2014 is there a loyalty discount available?",
             "gym": "I'm thinking of switching to [cheaper gym]. Can you offer a reduced rate to keep me?"
           },
           "success_rate": "40-60% of retention calls result in a discount"
@@ -3163,7 +3702,7 @@
       "edge_cases": [
         {
           "scenario": "Subscription is bundled (Apple One, Amazon Prime)",
-          "handling": "Calculate individual cost vs bundle — sometimes bundle is cheaper even if you don't use everything"
+          "handling": "Calculate individual cost vs bundle \u2014 sometimes bundle is cheaper even if you don't use everything"
         },
         {
           "scenario": "Annual vs monthly pricing dilemma",
@@ -3175,7 +3714,7 @@
         "84% of people underestimate their subscription spending by 2-3x",
         "Canceling and re-subscribing often triggers 'win-back' offers at 40-50% off",
         "Student/military/senior discounts are available for most services but rarely advertised",
-        "Many subscriptions continue charging after free trial — set calendar reminders",
+        "Many subscriptions continue charging after free trial \u2014 set calendar reminders",
         "Library cards provide free access to many digital services (Libby, Kanopy, NYT)"
       ],
       "estimated_time_saved": "Saves 3+ hours auditing and negotiating",
@@ -3183,6 +3722,18 @@
         "from_scratch": 2800,
         "with_workflow": 805,
         "savings_percent": 71
+      },
+      "avg_tokens_without": 12000,
+      "avg_tokens_with": 3840,
+      "tokens_saved": 8160,
+      "savings_percentage": 68,
+      "price_tokens": 1577,
+      "pricing": {
+        "base_price": 1577,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 517.4,
+        "breakdown": "Base: 1224 (15% of 8,160 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 1577 tokens"
       }
     },
     {
@@ -3194,16 +3745,40 @@
       "execution_tokens": 2200,
       "rating": 4.9,
       "usage_count": 2847,
-      "tags": ["ai_agent", "code", "refactoring", "modernization", "automated"],
-      "requirements": ["source_code", "language_version", "target_framework"],
+      "tags": [
+        "ai_agent",
+        "code",
+        "refactoring",
+        "modernization",
+        "automated"
+      ],
+      "requirements": [
+        "source_code",
+        "language_version",
+        "target_framework"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI agents analyze codebase structure using AST parsing and pattern recognition",
           "action": "automated_code_analysis",
-          "ai_capabilities": ["ast_parsing", "dependency_graph_analysis", "smell_detection", "complexity_scoring"],
-          "scan_for": ["deprecated_apis", "security_vulnerabilities", "code_smells", "unused_dependencies"],
-          "tools": ["static_analysis_ai", "ml_powered_complexity_metrics", "vulnerability_db_matching"],
+          "ai_capabilities": [
+            "ast_parsing",
+            "dependency_graph_analysis",
+            "smell_detection",
+            "complexity_scoring"
+          ],
+          "scan_for": [
+            "deprecated_apis",
+            "security_vulnerabilities",
+            "code_smells",
+            "unused_dependencies"
+          ],
+          "tools": [
+            "static_analysis_ai",
+            "ml_powered_complexity_metrics",
+            "vulnerability_db_matching"
+          ],
           "output": "AI-prioritized refactor list based on impact and risk"
         },
         {
@@ -3234,6 +3809,18 @@
         "from_scratch": 8500,
         "with_workflow": 450,
         "savings_percent": 95
+      },
+      "avg_tokens_without": 22000,
+      "avg_tokens_with": 5940,
+      "tokens_saved": 16060,
+      "savings_percentage": 73,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 3103,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 803.0,
+        "breakdown": "Base: 2409 (15% of 16,060 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3245,22 +3832,47 @@
       "execution_tokens": 1800,
       "rating": 4.8,
       "usage_count": 3421,
-      "tags": ["ai_agent", "api", "integration", "automation", "autonomous"],
-      "requirements": ["api_documentation_url", "api_key", "use_case"],
+      "tags": [
+        "ai_agent",
+        "api",
+        "integration",
+        "automation",
+        "autonomous"
+      ],
+      "requirements": [
+        "api_documentation_url",
+        "api_key",
+        "use_case"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI agent reads and understands API documentation autonomously",
           "action": "documentation_comprehension",
-          "ai_capabilities": ["natural_language_processing", "openapi_parsing", "example_extraction"],
-          "learns": ["authentication_methods", "endpoint_structure", "rate_limits", "error_codes"],
+          "ai_capabilities": [
+            "natural_language_processing",
+            "openapi_parsing",
+            "example_extraction"
+          ],
+          "learns": [
+            "authentication_methods",
+            "endpoint_structure",
+            "rate_limits",
+            "error_codes"
+          ],
           "generates": "Internal API model for code generation"
         },
         {
           "step": 2,
           "thought": "Auto-generate integration code with best practices baked in",
           "action": "code_generation",
-          "includes": ["auth_layer", "rate_limiting", "retry_logic", "error_handling", "response_validation"],
+          "includes": [
+            "auth_layer",
+            "rate_limiting",
+            "retry_logic",
+            "error_handling",
+            "response_validation"
+          ],
           "ai_advantages": "Follows language-specific idioms and company coding standards automatically",
           "testing": "AI generates integration tests and mocks simultaneously"
         },
@@ -3268,7 +3880,12 @@
           "step": 3,
           "thought": "AI agent sets up monitoring and alerting automatically",
           "action": "observability_automation",
-          "implements": ["request_logging", "error_tracking", "latency_monitoring", "rate_limit_alerts"],
+          "implements": [
+            "request_logging",
+            "error_tracking",
+            "latency_monitoring",
+            "rate_limit_alerts"
+          ],
           "self_healing": "Agent adjusts retry strategies based on observed API behavior patterns"
         }
       ],
@@ -3283,6 +3900,18 @@
         "from_scratch": 4200,
         "with_workflow": 380,
         "savings_percent": 91
+      },
+      "avg_tokens_without": 18000,
+      "avg_tokens_with": 5040,
+      "tokens_saved": 12960,
+      "savings_percentage": 72,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2481,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 648.0,
+        "breakdown": "Base: 1944 (15% of 12,960 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3294,31 +3923,71 @@
       "execution_tokens": 2500,
       "rating": 4.9,
       "usage_count": 1923,
-      "tags": ["ai_agent", "data", "etl", "pipeline", "ml_ops"],
-      "requirements": ["data_source", "target_schema", "transformation_requirements"],
+      "tags": [
+        "ai_agent",
+        "data",
+        "etl",
+        "pipeline",
+        "ml_ops"
+      ],
+      "requirements": [
+        "data_source",
+        "target_schema",
+        "transformation_requirements"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI automatically infers schema and data relationships",
           "action": "intelligent_schema_detection",
-          "ai_capabilities": ["schema_inference", "relationship_discovery", "data_profiling", "anomaly_detection"],
-          "learns": ["data_types", "primary_keys", "foreign_keys", "null_patterns", "value_distributions"],
+          "ai_capabilities": [
+            "schema_inference",
+            "relationship_discovery",
+            "data_profiling",
+            "anomaly_detection"
+          ],
+          "learns": [
+            "data_types",
+            "primary_keys",
+            "foreign_keys",
+            "null_patterns",
+            "value_distributions"
+          ],
           "suggests": "Optimal indexing and partitioning strategies based on data patterns"
         },
         {
           "step": 2,
           "thought": "Auto-generate transformation logic from examples or natural language",
           "action": "transformation_synthesis",
-          "input_methods": ["example_transformations", "natural_language_rules", "sql_template"],
-          "ai_generates": ["data_cleaning", "normalization", "enrichment", "aggregations"],
+          "input_methods": [
+            "example_transformations",
+            "natural_language_rules",
+            "sql_template"
+          ],
+          "ai_generates": [
+            "data_cleaning",
+            "normalization",
+            "enrichment",
+            "aggregations"
+          ],
           "validation": "AI creates data quality checks based on inferred business rules"
         },
         {
           "step": 3,
           "thought": "Continuous optimization based on pipeline performance",
           "action": "autonomous_optimization",
-          "monitors": ["execution_time", "resource_usage", "data_quality_metrics", "cost"],
-          "optimizes": ["parallelization", "partition_strategy", "batch_sizes", "caching"],
+          "monitors": [
+            "execution_time",
+            "resource_usage",
+            "data_quality_metrics",
+            "cost"
+          ],
+          "optimizes": [
+            "parallelization",
+            "partition_strategy",
+            "batch_sizes",
+            "caching"
+          ],
           "adapts": "AI adjusts pipeline parameters based on changing data volumes"
         }
       ],
@@ -3333,6 +4002,18 @@
         "from_scratch": 6800,
         "with_workflow": 520,
         "savings_percent": 92
+      },
+      "avg_tokens_without": 20000,
+      "avg_tokens_with": 5600,
+      "tokens_saved": 14400,
+      "savings_percentage": 72,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2782,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 720.0,
+        "breakdown": "Base: 2160 (15% of 14,400 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3344,14 +4025,28 @@
       "execution_tokens": 2300,
       "rating": 5.0,
       "usage_count": 2156,
-      "tags": ["ai_agent", "security", "audit", "threat_detection", "autonomous"],
-      "requirements": ["application_url", "source_code_repo", "compliance_requirements"],
+      "tags": [
+        "ai_agent",
+        "security",
+        "audit",
+        "threat_detection",
+        "autonomous"
+      ],
+      "requirements": [
+        "application_url",
+        "source_code_repo",
+        "compliance_requirements"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI continuously monitors for OWASP Top 10 and emerging threats",
           "action": "adaptive_vulnerability_scanning",
-          "ai_capabilities": ["zero_day_detection", "anomaly_based_scanning", "ml_threat_modeling"],
+          "ai_capabilities": [
+            "zero_day_detection",
+            "anomaly_based_scanning",
+            "ml_threat_modeling"
+          ],
           "real_time": "Scans every commit, deployment, and runtime for vulnerabilities",
           "learns": "AI learns from security incidents across all monitored systems"
         },
@@ -3359,7 +4054,11 @@
           "step": 2,
           "thought": "Automated penetration testing using AI adversarial agents",
           "action": "ai_pentest",
-          "techniques": ["automated_exploit_chaining", "intelligent_fuzzing", "auth_bypass_attempts"],
+          "techniques": [
+            "automated_exploit_chaining",
+            "intelligent_fuzzing",
+            "auth_bypass_attempts"
+          ],
           "safe_testing": "AI ensures tests don't impact production availability",
           "reporting": "Generates detailed attack paths with remediation priorities"
         },
@@ -3367,7 +4066,11 @@
           "step": 3,
           "thought": "AI generates and validates security patches automatically",
           "action": "automated_remediation",
-          "capabilities": ["patch_generation", "dependency_updating", "config_hardening"],
+          "capabilities": [
+            "patch_generation",
+            "dependency_updating",
+            "config_hardening"
+          ],
           "validation": "AI verifies patches don't break functionality before suggesting",
           "pr_automation": "Creates pull requests with security fixes and test coverage"
         }
@@ -3383,6 +4086,18 @@
         "from_scratch": 7200,
         "with_workflow": 490,
         "savings_percent": 93
+      },
+      "avg_tokens_without": 24000,
+      "avg_tokens_with": 6480,
+      "tokens_saved": 17520,
+      "savings_percentage": 73,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 3416,
+        "quality_multiplier": 1.3,
+        "market_rate": null,
+        "roi_percentage": 876.0,
+        "breakdown": "Base: 2628 (15% of 17,520 saved) \u2192 Quality adjusted (5.0\u2605): \u00d71.30 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3394,15 +4109,32 @@
       "execution_tokens": 1900,
       "rating": 4.9,
       "usage_count": 4567,
-      "tags": ["ai_agent", "testing", "automation", "quality_assurance"],
-      "requirements": ["source_code", "framework", "coverage_target"],
+      "tags": [
+        "ai_agent",
+        "testing",
+        "automation",
+        "quality_assurance"
+      ],
+      "requirements": [
+        "source_code",
+        "framework",
+        "coverage_target"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI analyzes code paths and generates comprehensive test scenarios",
           "action": "intelligent_test_discovery",
-          "ai_capabilities": ["symbolic_execution", "path_coverage_analysis", "edge_case_mining"],
-          "generates": ["boundary_tests", "error_condition_tests", "race_condition_tests"],
+          "ai_capabilities": [
+            "symbolic_execution",
+            "path_coverage_analysis",
+            "edge_case_mining"
+          ],
+          "generates": [
+            "boundary_tests",
+            "error_condition_tests",
+            "race_condition_tests"
+          ],
           "learns": "From production logs to create tests for real-world usage patterns"
         },
         {
@@ -3434,6 +4166,18 @@
         "from_scratch": 5400,
         "with_workflow": 410,
         "savings_percent": 92
+      },
+      "avg_tokens_without": 19000,
+      "avg_tokens_with": 5320,
+      "tokens_saved": 13680,
+      "savings_percentage": 72,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2643,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 684.0,
+        "breakdown": "Base: 2052 (15% of 13,680 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3445,22 +4189,45 @@
       "execution_tokens": 2000,
       "rating": 4.8,
       "usage_count": 1534,
-      "tags": ["ai_agent", "database", "optimization", "performance", "autonomous"],
-      "requirements": ["database_connection", "query_logs", "performance_goals"],
+      "tags": [
+        "ai_agent",
+        "database",
+        "optimization",
+        "performance",
+        "autonomous"
+      ],
+      "requirements": [
+        "database_connection",
+        "query_logs",
+        "performance_goals"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI analyzes query patterns and performance bottlenecks",
           "action": "intelligent_query_analysis",
-          "ai_capabilities": ["query_plan_analysis", "cost_estimation", "anti_pattern_detection"],
-          "monitors": ["slow_queries", "table_scans", "missing_indexes", "lock_contention"],
+          "ai_capabilities": [
+            "query_plan_analysis",
+            "cost_estimation",
+            "anti_pattern_detection"
+          ],
+          "monitors": [
+            "slow_queries",
+            "table_scans",
+            "missing_indexes",
+            "lock_contention"
+          ],
           "learns": "Query patterns and access patterns over time"
         },
         {
           "step": 2,
           "thought": "Automated index and schema optimization recommendations",
           "action": "ml_powered_optimization",
-          "generates": ["index_recommendations", "partition_strategies", "materialized_view_suggestions"],
+          "generates": [
+            "index_recommendations",
+            "partition_strategies",
+            "materialized_view_suggestions"
+          ],
           "validates": "AI simulates changes to verify performance improvement before applying",
           "cost_aware": "Balances write performance vs read performance based on workload"
         },
@@ -3468,7 +4235,11 @@
           "step": 3,
           "thought": "Predictive capacity planning and auto-scaling",
           "action": "predictive_scaling",
-          "forecasts": ["storage_growth", "connection_pool_needs", "memory_requirements"],
+          "forecasts": [
+            "storage_growth",
+            "connection_pool_needs",
+            "memory_requirements"
+          ],
           "auto_scales": "Adjusts resources proactively before performance degradation",
           "anomaly_detection": "Detects unusual query patterns that may indicate issues"
         }
@@ -3484,6 +4255,18 @@
         "from_scratch": 5800,
         "with_workflow": 440,
         "savings_percent": 92
+      },
+      "avg_tokens_without": 21000,
+      "avg_tokens_with": 5880,
+      "tokens_saved": 15120,
+      "savings_percentage": 72,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2894,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 756.0,
+        "breakdown": "Base: 2268 (15% of 15,120 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3495,14 +4278,28 @@
       "execution_tokens": 2400,
       "rating": 4.9,
       "usage_count": 1876,
-      "tags": ["ai_agent", "incident", "sre", "automation", "self_healing"],
-      "requirements": ["monitoring_access", "deployment_permissions", "runbook_database"],
+      "tags": [
+        "ai_agent",
+        "incident",
+        "sre",
+        "automation",
+        "self_healing"
+      ],
+      "requirements": [
+        "monitoring_access",
+        "deployment_permissions",
+        "runbook_database"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI continuously monitors for anomalies and incidents",
           "action": "intelligent_anomaly_detection",
-          "ai_capabilities": ["time_series_analysis", "multi_metric_correlation", "pattern_recognition"],
+          "ai_capabilities": [
+            "time_series_analysis",
+            "multi_metric_correlation",
+            "pattern_recognition"
+          ],
           "detects": "Issues often 5-10 minutes before traditional alerting",
           "reduces_noise": "ML filters false positives, only alerts on real incidents"
         },
@@ -3510,7 +4307,13 @@
           "step": 2,
           "thought": "Automated root cause analysis using distributed tracing",
           "action": "ai_root_cause_analysis",
-          "correlates": ["logs", "metrics", "traces", "deployments", "config_changes"],
+          "correlates": [
+            "logs",
+            "metrics",
+            "traces",
+            "deployments",
+            "config_changes"
+          ],
           "identifies": "Root cause in seconds using causal inference algorithms",
           "learns": "From past incidents to improve diagnostic accuracy"
         },
@@ -3518,7 +4321,13 @@
           "step": 3,
           "thought": "Autonomous remediation and self-healing",
           "action": "automated_remediation",
-          "actions": ["auto_rollback", "traffic_shifting", "pod_restart", "cache_clearing", "auto_scaling"],
+          "actions": [
+            "auto_rollback",
+            "traffic_shifting",
+            "pod_restart",
+            "cache_clearing",
+            "auto_scaling"
+          ],
           "safety": "AI only takes actions with high confidence and safe rollback",
           "escalation": "Pages humans only when autonomous remediation fails",
           "communication": "Auto-generates status page updates and incident reports"
@@ -3535,6 +4344,18 @@
         "from_scratch": 6500,
         "with_workflow": 510,
         "savings_percent": 92
+      },
+      "avg_tokens_without": 23000,
+      "avg_tokens_with": 6210,
+      "tokens_saved": 16790,
+      "savings_percentage": 73,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 3244,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 839.5,
+        "breakdown": "Base: 2518 (15% of 16,790 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3546,22 +4367,47 @@
       "execution_tokens": 1950,
       "rating": 4.9,
       "usage_count": 5234,
-      "tags": ["ai_agent", "code_review", "quality", "automation"],
-      "requirements": ["pull_request", "codebase_context", "team_conventions"],
+      "tags": [
+        "ai_agent",
+        "code_review",
+        "quality",
+        "automation"
+      ],
+      "requirements": [
+        "pull_request",
+        "codebase_context",
+        "team_conventions"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI understands full codebase context for meaningful review",
           "action": "contextual_code_analysis",
-          "ai_capabilities": ["codebase_embedding", "semantic_understanding", "intent_recognition"],
-          "analyzes": ["design_patterns", "architectural_consistency", "business_logic", "conventions"],
+          "ai_capabilities": [
+            "codebase_embedding",
+            "semantic_understanding",
+            "intent_recognition"
+          ],
+          "analyzes": [
+            "design_patterns",
+            "architectural_consistency",
+            "business_logic",
+            "conventions"
+          ],
           "learns": "Team coding style and preferences from approved PRs"
         },
         {
           "step": 2,
           "thought": "Multi-faceted automated review across all quality dimensions",
           "action": "comprehensive_review",
-          "checks": ["correctness", "security", "performance", "readability", "tests", "documentation"],
+          "checks": [
+            "correctness",
+            "security",
+            "performance",
+            "readability",
+            "tests",
+            "documentation"
+          ],
           "bug_detection": "AI finds logic errors, race conditions, edge cases humans miss",
           "suggestions": "Provides specific code suggestions, not just problem identification"
         },
@@ -3569,7 +4415,11 @@
           "step": 3,
           "thought": "Learning system that improves from feedback",
           "action": "continuous_learning",
-          "learns_from": ["accepted_suggestions", "rejected_suggestions", "post_merge_bugs"],
+          "learns_from": [
+            "accepted_suggestions",
+            "rejected_suggestions",
+            "post_merge_bugs"
+          ],
           "adapts": "To team preferences and codebase-specific patterns",
           "improves": "Review quality and reduces false positives over time"
         }
@@ -3585,6 +4435,18 @@
         "from_scratch": 4100,
         "with_workflow": 420,
         "savings_percent": 90
+      },
+      "avg_tokens_without": 17000,
+      "avg_tokens_with": 4930,
+      "tokens_saved": 12070,
+      "savings_percentage": 71,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2332,
+        "quality_multiplier": 1.288,
+        "market_rate": null,
+        "roi_percentage": 603.5,
+        "breakdown": "Base: 1810 (15% of 12,070 saved) \u2192 Quality adjusted (4.9\u2605): \u00d71.29 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3596,23 +4458,53 @@
       "execution_tokens": 1800,
       "rating": 4.8,
       "usage_count": 3421,
-      "tags": ["ai_agent", "documentation", "automation", "knowledge_management"],
-      "requirements": ["source_code", "api_endpoints", "documentation_format"],
+      "tags": [
+        "ai_agent",
+        "documentation",
+        "automation",
+        "knowledge_management"
+      ],
+      "requirements": [
+        "source_code",
+        "api_endpoints",
+        "documentation_format"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI reads code and infers intent and behavior",
           "action": "code_comprehension",
-          "ai_capabilities": ["program_synthesis", "intent_inference", "behavior_analysis"],
-          "understands": ["function_purpose", "parameter_meanings", "return_values", "side_effects"],
+          "ai_capabilities": [
+            "program_synthesis",
+            "intent_inference",
+            "behavior_analysis"
+          ],
+          "understands": [
+            "function_purpose",
+            "parameter_meanings",
+            "return_values",
+            "side_effects"
+          ],
           "generates": "Human-readable explanations from code structure"
         },
         {
           "step": 2,
           "thought": "Multi-format documentation generation",
           "action": "doc_synthesis",
-          "generates": ["api_reference", "architecture_docs", "tutorials", "runbooks", "troubleshooting_guides"],
-          "formats": ["markdown", "openapi", "swagger", "confluence", "notion"],
+          "generates": [
+            "api_reference",
+            "architecture_docs",
+            "tutorials",
+            "runbooks",
+            "troubleshooting_guides"
+          ],
+          "formats": [
+            "markdown",
+            "openapi",
+            "swagger",
+            "confluence",
+            "notion"
+          ],
           "examples": "AI generates realistic code examples and usage scenarios",
           "diagrams": "Auto-generates architecture, sequence, and flow diagrams"
         },
@@ -3636,6 +4528,18 @@
         "from_scratch": 4800,
         "with_workflow": 390,
         "savings_percent": 92
+      },
+      "avg_tokens_without": 15000,
+      "avg_tokens_with": 4500,
+      "tokens_saved": 10500,
+      "savings_percentage": 70,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2010,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 525.0,
+        "breakdown": "Base: 1575 (15% of 10,500 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 2000 tokens"
       }
     },
     {
@@ -3647,15 +4551,33 @@
       "execution_tokens": 2200,
       "rating": 4.8,
       "usage_count": 2789,
-      "tags": ["ai_agent", "research", "analysis", "knowledge_work"],
-      "requirements": ["research_topic", "depth_level", "output_format"],
+      "tags": [
+        "ai_agent",
+        "research",
+        "analysis",
+        "knowledge_work"
+      ],
+      "requirements": [
+        "research_topic",
+        "depth_level",
+        "output_format"
+      ],
       "steps": [
         {
           "step": 1,
           "thought": "AI autonomously searches and gathers relevant information",
           "action": "intelligent_information_gathering",
-          "ai_capabilities": ["query_generation", "source_evaluation", "relevance_ranking"],
-          "searches": ["academic_papers", "documentation", "code_repositories", "industry_reports"],
+          "ai_capabilities": [
+            "query_generation",
+            "source_evaluation",
+            "relevance_ranking"
+          ],
+          "searches": [
+            "academic_papers",
+            "documentation",
+            "code_repositories",
+            "industry_reports"
+          ],
           "evaluates": "Source credibility and information quality automatically"
         },
         {
@@ -3663,7 +4585,12 @@
           "thought": "Multi-source synthesis and insight generation",
           "action": "knowledge_synthesis",
           "synthesizes": "Information from 50+ sources into coherent narrative",
-          "identifies": ["common_patterns", "contradictions", "knowledge_gaps", "emerging_trends"],
+          "identifies": [
+            "common_patterns",
+            "contradictions",
+            "knowledge_gaps",
+            "emerging_trends"
+          ],
           "generates": "Novel insights by connecting information across sources",
           "fact_checking": "Cross-references claims across multiple sources"
         },
@@ -3671,7 +4598,12 @@
           "step": 3,
           "thought": "Structured report generation with citations",
           "action": "report_creation",
-          "formats": ["executive_summary", "detailed_analysis", "recommendations", "citations"],
+          "formats": [
+            "executive_summary",
+            "detailed_analysis",
+            "recommendations",
+            "citations"
+          ],
           "tailors": "Content depth and technical level to target audience",
           "visualizes": "Creates charts and diagrams to illustrate key findings",
           "maintains": "Research trail for reproducibility and verification"
@@ -3688,6 +4620,18 @@
         "from_scratch": 6200,
         "with_workflow": 480,
         "savings_percent": 92
+      },
+      "avg_tokens_without": 16000,
+      "avg_tokens_with": 4640,
+      "tokens_saved": 11360,
+      "savings_percentage": 71,
+      "price_tokens": 2000,
+      "pricing": {
+        "base_price": 2174,
+        "quality_multiplier": 1.276,
+        "market_rate": null,
+        "roi_percentage": 568.0,
+        "breakdown": "Base: 1704 (15% of 11,360 saved) \u2192 Quality adjusted (4.8\u2605): \u00d71.28 \u2192 Final: 2000 tokens"
       }
     }
   ]
