@@ -1,10 +1,13 @@
 'use client'
 
+import { useState } from 'react'
 import styles from './Nav.module.css'
 import UserInfo from './auth/UserInfo'
 import Link from 'next/link'
 
 export default function Nav() {
+  const [loggedIn, setLoggedIn] = useState(false)
+
   return (
     <nav className={styles.nav}>
       <Link href="/" className={styles.navLogo}>
@@ -16,10 +19,12 @@ export default function Nav() {
         <Link href="/docs">Docs</Link>
         <Link href="/dashboard">Dashboard</Link>
         <a href="/workflow">Visualization</a>
-        <UserInfo />
-        <Link href="/auth/signup" className={styles.navCta}>
-          Get Started
-        </Link>
+        <UserInfo onAuthChange={setLoggedIn} />
+        {!loggedIn && (
+          <Link href="/auth/signup" className={styles.navCta}>
+            Get Started
+          </Link>
+        )}
       </div>
     </nav>
   )

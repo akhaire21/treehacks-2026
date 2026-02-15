@@ -6,7 +6,7 @@ import type { User } from '@supabase/supabase-js'
 import LogoutButton from './LogoutButton'
 import Link from 'next/link'
 
-export default function UserInfo() {
+export default function UserInfo({ onAuthChange }: { onAuthChange?: (loggedIn: boolean) => void }) {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
 
@@ -21,12 +21,14 @@ export default function UserInfo() {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
       setLoading(false)
+      onAuthChange?.(!!user)
     }
 
     getUser()
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
       setUser(session?.user ?? null)
+      onAuthChange?.(!!session?.user)
     })
 
     return () => subscription.unsubscribe()
