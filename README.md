@@ -1,305 +1,526 @@
-# Agent Workflow Marketplace
+# Mark AI — The Intelligence Marketplace
 
-**StackOverflow for AI agents.** Reusable reasoning workflows for specific tasks that save 70%+ tokens.
+> **Marketplace for AI agents.** A marketplace where AI agents autonomously search, purchase, and execute pre-solved reasoning workflows — saving 70%+ tokens and eliminating repeated planning waste.
 
-## 🎯 The Problem
+Built at [TreeHacks 2026](https://www.treehacks.com/)
 
-- Agents waste 10-25% tokens on planning (decomposing tasks, deciding tool calls, handling errors)
-- Same specific tasks get re-solved repeatedly (e.g., "file Ohio taxes", "parse Stripe invoice")
-- Too specific to train separate models, but common enough to be valuable
+---
 
-## 💡 The Solution
+## The Problem
 
-Marketplace where agents buy/sell domain-specific reasoning workflows:
-- User's agent queries marketplace: "File Ohio 2024 taxes, W2, itemized deductions"
-- Finds workflow: ohio_taxes_w2_itemized (47 uses, 4.8★, 200 tokens)
-- Purchases workflow, executes locally with private data
-- Saves ~12,000 tokens vs solving from scratch
+Every time an AI agent encounters a task — filing Ohio taxes, parsing a Stripe invoice, comparing laptops — it starts from scratch. It burns tokens re-deriving domain knowledge that thousands of other agents have already figured out.
 
-## 🏗️ Architecture
+- **10–25% of all tokens** wasted on planning (decomposing tasks, deciding tool calls, handling errors)
+- Same hyper-specific tasks get re-solved **millions of times** across agents worldwide
+- Too specific to train separate models, but common enough to be enormously valuable
 
-### Backend (Python/Flask)
-- **API Endpoints:**
-  - `POST /api/search` - Find matching workflows (vector similarity + hard filters)
-  - `POST /api/purchase` - Buy workflow, returns execution template
-  - `POST /api/feedback` - Rate workflow (upvote/downvote)
-  - `POST /api/sanitize` - Demo privacy sanitization
-  - `GET /api/workflows` - List all workflows
-  - `GET /api/pricing/<id>` - Get detailed pricing breakdown
-  - `GET /health` - Health check
+## The Solution
 
-- **Components:**
-  - `matcher.py` - Embedding-based search using sentence-transformers
-  - `sanitizer.py` - Privacy filter (removes PII from queries)
-  - `pricing.py` - Dynamic pricing calculation engine
-  - `workflows.json` - 8 hyper-specific workflow examples with pricing data
-
-### Frontend (Next.js + React)
-- **Pages:**
-  - `/` - Landing page with hero, features, and dashboard preview
-  - `/marketplace` - Browse all workflows with pricing details
-- **Components:**
-  - `WorkflowCard.tsx` - Display workflow cards with ROI
-  - `PricingBreakdown.tsx` - Detailed pricing calculation breakdown
-  - `Dashboard.tsx`, `Hero.tsx`, `HowItWorks.tsx`, etc.
-
-## 💰 Dynamic Pricing Model
-
-Workflows are priced dynamically based on value delivered and quality:
-
-### Pricing Formula
-```
-price = tokens_saved × 0.15 × quality_multiplier
-quality_multiplier = 0.7 + (rating/5.0) × 0.6
-```
-
-### Examples
-- **5★ workflow**: 1.3x multiplier (premium for proven quality)
-- **4.8★ workflow**: 1.276x multiplier
-- **3★ workflow**: 1.06x multiplier
-
-### Constraints
-- **Min/Max**: 50-2000 tokens
-- **Market comparison**: ±30% of median for similar workflows
-- **Transparent**: Full breakdown shown in UI
-
-### ROI Display
-Each workflow prominently displays ROI:
-```
-ROI = (tokens_saved / price) × 100
-```
-
-**Example**: Ohio taxes workflow
-- Saves: 10,350 tokens
-- Price: 1,981 tokens
-- **ROI: 522%** 🎯
-
-### Pricing Breakdown UI
-```
-Base: 1,552 (15% of 10,350 saved)
-→ Quality adjusted (4.8★): ×1.28
-→ Final: 1,981 tokens
-```
-
-**Backend Module**: `backend/pricing.py`
-**Update Script**: `backend/update_pricing.py`
-**API Endpoint**: `GET /api/pricing/<workflow_id>`
-
-## 🚀 Quick Start
-
-### Prerequisites
-- Python 3.9+
-- Node.js 18+
-- npm or yarn
-
-### Backend Setup
+A marketplace of **reusable reasoning workflows** — hyper-specific, battle-tested solution templates that agents buy and execute locally with their own private data.
 
 ```bash
-# Navigate to backend directory
+pip install marktools
+```
+
+```python
+from marktools import MarkClient
+
+mark = MarkClient(api_key="mk_...")
+
+# Agent autonomously: estimate → buy → execute → rate
+receipt = mark.solve("File Ohio 2024 taxes with W2 and itemized deductions")
+print(f"Tokens saved: {receipt.tokens_saved}")  # ~10,000 tokens
+```
+
+Three lines of code. Any AI agent (Claude, GPT-4, LangChain) gets access to an ever-growing library of expert-level domain knowledge.
+
+---
+
+## Table of Contents
+
+- [Architecture](#architecture)
+- [Project Structure](#project-structure)
+- [Tech Stack](#tech-stack)
+- [Getting Started](#getting-started)
+- [SDK — `marktools`](#sdk--marktools)
+- [API Reference](#api-reference)
+- [Search Algorithm](#search-algorithm)
+- [Dynamic Pricing](#dynamic-pricing)
+- [Privacy Architecture](#privacy-architecture)
+- [Deployment](#deployment)
+- [Demo](#demo)
+- [License](#license)
+
+---
+
+## Architecture
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│                        Mark AI Platform                       │
+├──────────────────────────────────────────────────────────────┤
+│                                                               │
+│  ┌─────────────┐    ┌──────────────┐    ┌────────────────┐  │
+│  │  Next.js App │───▶│  Flask API   │───▶│ Elasticsearch  │  │
+│  │  (frontend)  │    │  (backend)   │    │  (serverless)  │  │
+│  └─────────────┘    └──────┬───────┘    └────────────────┘  │
+│                            │                                  │
+│                     ┌──────┴───────┐                         │
+│                     │   Services   │                         │
+│                     ├──────────────┤                         │
+│                     │ Claude (LLM) │                         │
+│                     │ JINA (embed) │                         │
+│                     │ Supabase     │                         │
+│                     │ Visa Direct  │                         │
+│                     └──────────────┘                         │
+│                                                               │
+│  ┌─────────────────────────────────────────────────────────┐ │
+│  │                    marktools SDK                         │ │
+│  │  pip install marktools                                   │ │
+│  │  Agents call: estimate → buy → execute → rate            │ │
+│  └─────────────────────────────────────────────────────────┘ │
+└──────────────────────────────────────────────────────────────┘
+```
+
+### Elasticsearch Two-Index Design
+
+Two separate indices instead of one monolithic store:
+
+| Index | Purpose | Content |
+|-------|---------|---------|
+| `workflows` | Broad search | Full workflow metadata + 1024-dim JINA embeddings |
+| `workflows_nodes` | Tree-aware search | Individual steps within workflows + embeddings |
+
+This gives **25% faster** workflow search and **75% faster** node-level search at scale (1,000+ workflows) by eliminating cross-type filter overhead and keeping each index in its own semantic space.
+
+---
+
+## Project Structure
+
+```
+mark-ai/
+├── app/                          # Next.js pages (App Router)
+│   ├── page.tsx                  #   Landing page
+│   ├── layout.tsx                #   Root layout
+│   ├── globals.css               #   Global styles
+│   ├── auth/                     #   Auth flows (login, signup, callback)
+│   ├── dashboard/                #   User dashboard
+│   ├── marketplace/              #   Browse & purchase workflows
+│   ├── sdk/                      #   SDK documentation page
+│   └── workflow/                 #   Workflow visualization
+│
+├── components/                   # React components
+│   ├── AgentChat.tsx             #   Live agent chat interface
+│   ├── Dashboard.tsx             #   Token balance & history
+│   ├── Hero.tsx                  #   Landing hero section
+│   ├── HowItWorks.tsx            #   Feature walkthrough
+│   ├── Marketplace.tsx           #   Workflow grid
+│   ├── Nav.tsx                   #   Navigation bar
+│   ├── PricingBreakdown.tsx      #   Pricing calculation display
+│   ├── PurchaseModal.tsx         #   Purchase confirmation modal
+│   ├── WorkflowCard.tsx          #   Workflow listing card
+│   ├── WorkflowVisualizer.tsx    #   DAG/tree visualization
+│   └── VisaPayment.tsx           #   Visa payment integration
+│
+├── backend/                      # Flask API server
+│   ├── api.py                    #   Main app — all REST endpoints
+│   ├── config.py                 #   Environment & configuration
+│   ├── models.py                 #   Dataclasses (Workflow, DAG, etc.)
+│   ├── matcher.py                #   Embedding-based workflow matching
+│   ├── sanitizer.py              #   PII removal from queries
+│   ├── pricing.py                #   Dynamic pricing engine
+│   ├── orchestrator.py           #   Multi-step task orchestration
+│   ├── query_decomposer.py       #   Recursive query decomposition
+│   ├── recomposer.py             #   DAG recomposition
+│   ├── agent.py                  #   Claude agent integration
+│   ├── commerce.py               #   Token economy & purchases
+│   ├── elastic_client.py         #   Elasticsearch client wrapper
+│   ├── visa_payments.py          #   Visa CyberSource + Direct
+│   ├── workflow_loader.py        #   Workflow JSON loader
+│   ├── workflows.json            #   Workflow definitions
+│   ├── services/                 #   Service modules
+│   │   ├── cache_service.py      #     Response caching
+│   │   ├── claude_service.py     #     Anthropic Claude client
+│   │   ├── elasticsearch_service.py  # ES operations
+│   │   └── embedding_service.py  #     JINA embedding client
+│   └── requirements.txt          #   Python dependencies
+│
+├── marktools/                    # Python SDK package
+│   ├── src/marktools/            #   Package source
+│   ├── tests/                    #   Test suite
+│   ├── pyproject.toml            #   Package config
+│   └── LICENSE                   #   MIT license
+│
+├── agent-sdk/                    # Agent demo scripts
+│   ├── tax_agent.py              #   Ohio tax filing agent
+│   ├── shopping_agent.py         #   Product comparison agent
+│   ├── orchestrator_agent.py     #   Multi-task chaining agent
+│   ├── run_all.py                #   Run all demos
+│   └── scenarios.py              #   Demo scenarios
+│
+├── demo/                         # Pitch demo
+│   ├── run_demo.py               #   Self-contained demo runner
+│   ├── with_marktools.py         #   Agent with marktools
+│   ├── without_marktools.py      #   Baseline agent (no marktools)
+│   └── benchmark_suite.py        #   Performance benchmarks
+│
+├── lib/supabase/                 # Supabase client helpers
+├── middleware.ts                 # Next.js auth middleware
+├── next.config.mjs               # Next.js config
+├── vercel.json                   # Vercel deployment config
+├── render.yaml                   # Render deployment config
+└── package.json                  # Node.js dependencies
+```
+
+---
+
+## Tech Stack
+
+### Backend
+| Technology | Purpose |
+|------------|---------|
+| Flask 3.0 | REST API framework |
+| Anthropic Claude | LLM for query decomposition & scoring |
+| JINA Embeddings v3 | 1024-dim vectors for semantic search |
+| Elasticsearch Serverless | Hybrid kNN + BM25 search |
+| Supabase | Auth, user balances, transaction history |
+| Visa CyberSource + Direct | Payment processing & instant creator payouts |
+
+### Frontend
+| Technology | Purpose |
+|------------|---------|
+| Next.js 14 | React framework (App Router) |
+| TypeScript | Type safety |
+| Framer Motion | Animations |
+| Supabase SSR | Auth & session management |
+
+### SDK
+| Technology | Purpose |
+|------------|---------|
+| Python 3.9+ | Package runtime |
+| Pydantic v2 | Type-safe models |
+| Requests | HTTP client |
+| Adapters for Anthropic, OpenAI, LangChain | Framework integrations |
+
+---
+
+## Getting Started
+
+### Prerequisites
+
+- Python 3.9+
+- Node.js 18+
+- API keys: Anthropic, JINA, Elasticsearch (optional for local dev — in-memory fallback available)
+
+### 1. Backend
+
+```bash
 cd backend
-
-# Create virtual environment (optional but recommended)
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-
-# Install dependencies
+python -m venv venv && source venv/bin/activate
 pip install -r requirements.txt
 
-# Run the API
+# Configure environment
+cp .env.example .env   # Add your API keys
+
 python api.py
 ```
 
-Backend will start on `http://localhost:5001`
+The API starts at `http://localhost:5001`. Without Elasticsearch credentials it falls back to in-memory search.
 
-### Frontend Setup
+### 2. Frontend
 
 ```bash
-# Install dependencies (from project root)
 npm install
-
-# Run development server
 npm run dev
 ```
 
-Frontend will start on `http://localhost:3000`
+Open `http://localhost:3000`.
 
-### Access the App
-- **Landing page**: http://localhost:3000
-- **Marketplace**: http://localhost:3000/marketplace
-- **Backend API**: http://localhost:5001
+### 3. SDK (optional)
 
-## 📦 What's Included
+```bash
+pip install marktools
+```
 
-### 8 Hyper-Specific Workflows
+Or install from source:
 
-1. **Ohio 2024 IT-1040** (W2, Itemized, Married)
-   - 69% token savings | 4.8★ rating | 47 uses
+```bash
+cd marktools && pip install -e ".[all]"
+```
 
-2. **California 2024 Form 540** (W2, Standard Deduction)
-   - 67% token savings | 4.9★ rating | 89 uses
+### Environment Variables
 
-3. **Tokyo 5-Day Family Trip** (Kids 3-8, Stroller Accessible)
-   - 73% token savings | 4.7★ rating | 34 uses
+**Backend** (`.env`):
+```
+ANTHROPIC_API_KEY=sk-ant-...
+JINA_API_KEY=jina_...
+ELASTIC_CLOUD_ID=...          # optional
+ELASTIC_API_KEY=...           # optional
+VISA_API_KEY=...              # optional
+VISA_SECRET_KEY=...           # optional
+```
 
-4. **Stripe Invoice Parser** (Multi-Currency, Line Items)
-   - 66% token savings | 4.9★ rating | 156 uses
+**Frontend** (`.env.local`):
+```
+NEXT_PUBLIC_SUPABASE_URL=https://...supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
+NEXT_PUBLIC_API_URL=http://localhost:5001
+```
 
-5. **Zillow Columbus OH Search** (3bed+, <$400k, School >7)
-   - 65% token savings | 4.6★ rating | 28 uses
+---
 
-6. **LinkedIn B2B Cold Outreach** (Polite, Relationship-Preserving)
-   - 60% token savings | 4.8★ rating | 92 uses
+## SDK — `marktools`
 
-7. **Nebraska Self-Employed Taxes** (Quarterly Estimates)
-   - 70% token savings | 4.7★ rating | 19 uses
+The Python SDK that lets any AI agent tap into the marketplace.
 
-8. **PDF Medical Records Parser** (Vitals, Medications, Diagnoses)
-   - 65% token savings | 4.6★ rating | 63 uses
+### Installation
 
-## 🎬 Demo Flow
+```bash
+pip install marktools                   # core
+pip install marktools[anthropic]        # + Claude support
+pip install marktools[openai]           # + OpenAI support
+pip install marktools[all]              # everything
+```
 
-1. **Select Scenario** - Choose from 3 demo scenarios
-2. **Search Marketplace** - Vector similarity search across workflows
-3. **View Results** - Browse matching workflows with ratings
-4. **Purchase Workflow** - Download workflow template (200 tokens)
-5. **Execute** - Run locally with private data (800 tokens)
-6. **Compare** - See 70%+ token savings vs. from scratch
-7. **Rate** - Provide feedback to improve quality
+### Usage with Claude
 
-## 🔒 Privacy-First Design
+```python
+import anthropic
+from marktools import MarkTools
 
-**Two-layer architecture:**
+client = anthropic.Anthropic()
+tools = MarkTools(api_key="mk_...")
 
-**Public (sent to marketplace):**
+response = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=4096,
+    tools=tools.to_anthropic(),
+    messages=[{"role": "user", "content": "File my Ohio 2024 taxes, W2, itemized"}],
+)
+```
+
+### Usage with OpenAI
+
+```python
+from openai import OpenAI
+from marktools import MarkTools
+
+client = OpenAI()
+tools = MarkTools(api_key="mk_...")
+
+response = client.chat.completions.create(
+    model="gpt-4",
+    tools=tools.to_openai(),
+    messages=[{"role": "user", "content": "File my Ohio 2024 taxes"}],
+)
+```
+
+### Direct Client
+
+```python
+from marktools import MarkClient
+
+mark = MarkClient(api_key="mk_...")
+receipt = mark.solve("File Ohio 2024 taxes with W2 and itemized deductions")
+```
+
+### Tool Reference
+
+| Tool | Cost | Description |
+|------|------|-------------|
+| `mark_estimate` | Free | Search marketplace, get pricing & ranked solutions |
+| `mark_buy` | Credits | Purchase solution, get full execution plan |
+| `mark_rate` | Free | Rate a workflow after execution |
+| `mark_search` | Free | Browse/filter available workflows |
+
+---
+
+## API Reference
+
+### Core Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/search` | Semantic workflow search |
+| `POST` | `/api/purchase` | Purchase a workflow |
+| `POST` | `/api/feedback` | Rate a workflow (up/down) |
+| `POST` | `/api/sanitize` | Demo PII sanitization |
+| `GET`  | `/api/workflows` | List all workflows |
+| `GET`  | `/api/pricing/<id>` | Detailed pricing breakdown |
+| `GET`  | `/health` | Health check |
+
+### Agent Endpoints
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/agent/estimate` | Free complexity estimate |
+| `POST` | `/api/agent/buy` | Purchase best workflow |
+| `POST` | `/api/agent/rate` | Submit quality rating |
+
+### Commerce & Payments
+
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| `POST` | `/api/visa/purchase-tokens` | Buy tokens via Visa CyberSource |
+| `POST` | `/api/visa/payout` | Creator payout via Visa Direct |
+| `GET`  | `/api/visa/health` | Visa integration health check |
+
+### Example: Search
+
+```bash
+curl -X POST http://localhost:5001/api/search \
+  -H "Content-Type: application/json" \
+  -d '{"task_type": "tax_filing", "state": "ohio", "year": 2024}'
+```
+
+---
+
+## Search Algorithm
+
+A 10-step recursive query decomposition algorithm:
+
+```
+1. Broad Search       — kNN + BM25 hybrid across workflows index
+2. Score Quality      — Claude evaluates match (0-1)
+3. If score ≥ 0.85   — Return direct match
+4. Decompose          — Claude splits query into 2-8 subtasks
+5. Search Subtasks    — Each subtask searched independently
+6. Compose DAG        — Merge results into execution plan
+7. Score Composite    — Claude evaluates combined plan
+8. Compare Plans      — Keep best if improvement ≥ 0.1
+9. Recursive Split    — Tree-aware node search on workflows_nodes index
+10. Return Best Plan  — Direct match or composite DAG
+```
+
+### Hybrid Search Scoring
+
+```
+score = 0.7 × cosine_similarity(JINA_embedding) + 0.3 × BM25(text)
+```
+
+JINA embeddings capture semantic meaning ("file my taxes" matches "income tax return preparation"), while BM25 catches exact terms ("IT-1040" matches precisely).
+
+---
+
+## Dynamic Pricing
+
+Transparent, value-based pricing tied to actual token savings.
+
+### Formula
+
+```
+price = tokens_saved × 0.15 × quality_multiplier
+quality_multiplier = 0.7 + (rating / 5.0) × 0.6
+```
+
+### Constraints
+- **Floor / ceiling**: 50 – 2,000 tokens
+- **Market band**: ±30% of median for comparable workflows
+
+### Example
+
+| Workflow | Tokens Saved | Rating | Price | ROI |
+|----------|-------------|--------|-------|-----|
+| Ohio 2024 IT-1040 | 10,350 | 4.8★ | 1,981 | 522% |
+| California Form 540 | 9,715 | 4.9★ | 1,877 | 518% |
+| Tokyo Family Trip | 13,140 | 4.7★ | 2,000 | 657% |
+| Stripe Invoice Parser | 7,920 | 4.9★ | 1,530 | 518% |
+
+Typical ROI: **500–650%** (5–6.5x return on every token spent).
+
+---
+
+## Privacy Architecture
+
+Two-layer design — PII never leaves the agent.
+
+**Layer 1 — Public** (sent to marketplace for matching):
 ```json
 {
   "task_type": "tax_filing",
   "state": "ohio",
-  "income_bracket": "80k-100k"  // Bucketed, not exact
+  "income_bracket": "80k-100k"
 }
 ```
 
-**Private (stays local):**
+**Layer 2 — Private** (stays local, never transmitted):
 ```json
 {
   "name": "John Smith",
   "ssn": "123-45-6789",
   "exact_income": 87432.18
-  // Never sent to marketplace
 }
 ```
 
-## 🧪 Testing the API
+Workflows are **templates with placeholders**. The agent fills in private data locally after purchase.
 
-### Search for workflows
-```bash
-curl -X POST http://localhost:5000/api/search \
-  -H "Content-Type: application/json" \
-  -d '{
-    "task_type": "tax_filing",
-    "state": "ohio",
-    "year": 2024
-  }'
-```
-
-### Purchase a workflow
-```bash
-curl -X POST http://localhost:5000/api/purchase \
-  -H "Content-Type: application/json" \
-  -d '{
-    "workflow_id": "ohio_w2_itemized_2024"
-  }'
-```
-
-### Rate a workflow
-```bash
-curl -X POST http://localhost:5000/api/feedback \
-  -H "Content-Type: application/json" \
-  -d '{
-    "workflow_id": "ohio_w2_itemized_2024",
-    "vote": "up"
-  }'
-```
-
-## 📊 Key Metrics (Mock for Demo)
-
-- **2,400 workflows** traded
-- **$12k** in token costs saved
-- **70%+ average** token savings
-- **4.8★ average** workflow rating
-
-## 🛠️ Tech Stack
-
-**Backend:**
-- Flask 3.0 - Web framework
-- sentence-transformers - Embedding search
-- scikit-learn - Cosine similarity
-- CORS enabled for frontend
-
-**Frontend:**
-- React 18 - UI framework
-- Tailwind CSS - Styling
-- Recharts - Token comparison charts
-- Lucide React - Icons
-- Vite - Build tool
-
-## 📝 Project Structure
-
-```
-treehacks-2026/
-├── backend/
-│   ├── api.py              # Main Flask app with endpoints
-│   ├── matcher.py          # Embedding-based search
-│   ├── sanitizer.py        # Privacy filter
-│   ├── workflows.json      # 8 workflow examples
-│   └── requirements.txt    # Python dependencies
-├── frontend/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── Demo.jsx            # Main demo orchestrator
-│   │   │   ├── WorkflowCard.jsx    # Workflow display card
-│   │   │   └── TokenComparison.jsx # Savings visualization
-│   │   ├── App.jsx         # Root component
-│   │   └── main.jsx        # Entry point
-│   ├── package.json
-│   └── vite.config.js
-├── idea.md                 # Original concept document
-└── README.md              # This file
-```
-
-## 🎯 Success Criteria
-
-✅ Show 70%+ token savings on multiple tasks
-✅ Workflows have realistic ratings/usage stats
-✅ Privacy sanitization visible (before/after)
-✅ Demo runs smoothly in <3 min
-
-## 🚢 Deployment
-
-### Backend (Railway/Render)
-```bash
-cd backend
-# Follow platform-specific deploy instructions
-```
-
-### Frontend (Vercel)
-```bash
-cd frontend
-npm run build
-# Deploy dist/ folder to Vercel
-```
-
-## 💡 Key Insights
-
-1. **Specificity is critical** - "Ohio 2024 IT-1040, W2, itemized, married" not just "tax filing"
-2. **Network effects** - More usage → better workflows → more users
-3. **Privacy-first** - Workflows are templates, not data
-4. **Domain knowledge** - Captures nuances agents miss ("Ohio has NO SALT cap")
-
-## 🎤 Pitch One-Liner
-
-"StackOverflow for AI agents. Reuse proven reasoning workflows for specific tasks. Save 70% tokens. Privacy-preserving. Infrastructure for the agent economy."
+The `sanitizer.py` module strips PII (names, SSNs, exact financials, emails, phone numbers) from queries before they reach the marketplace API.
 
 ---
 
-Built for TreeHacks 2026 🌲
+## Deployment
+
+### Backend → Render
+
+```yaml
+# render.yaml is pre-configured
+# Set environment variables in Render dashboard:
+#   ANTHROPIC_API_KEY, JINA_API_KEY, ELASTIC_CLOUD_ID, ELASTIC_API_KEY
+```
+
+Build: `pip install -r requirements.txt`
+Start: `gunicorn api:app`
+
+### Frontend → Vercel
+
+```bash
+# vercel.json is pre-configured
+# Set environment variable:
+#   NEXT_PUBLIC_API_URL=https://your-backend.onrender.com
+vercel --prod
+```
+
+API requests are proxied to the backend via the `rewrites` in `vercel.json`.
+
+---
+
+## Demo
+
+### Side-by-Side Comparison
+
+```bash
+python demo/run_demo.py          # full demo
+python demo/run_demo.py --fast   # skip animations
+python demo/run_demo.py --json   # export results
+```
+
+| Metric | Without marktools | With marktools | Delta |
+|--------|-------------------|----------------|-------|
+| Accuracy | 37.5% | 100% | +62.5pp |
+| Tokens | 4,390 | 1,330 | **−70%** |
+| Latency | 8.5s | 3.8s | −55% |
+| Errors | 4 | 0 | −100% |
+| Edge cases caught | 0 | 6 | +6 |
+
+### Agent SDK Demos
+
+```bash
+cd agent-sdk
+pip install marktools anthropic rich
+export ANTHROPIC_API_KEY=sk-ant-...
+
+python tax_agent.py              # Ohio tax filing
+python shopping_agent.py         # Product comparison
+python orchestrator_agent.py     # Multi-task chaining
+python run_all.py                # All demos with rich output
+```
+
+---
+
+## License
+
+MIT
+
+---
+
+*Built at TreeHacks 2026*

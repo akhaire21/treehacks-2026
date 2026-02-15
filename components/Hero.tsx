@@ -45,14 +45,13 @@ export default function Hero() {
   return (
     <section className={styles.hero}>
       <div className={styles.heroGlow}></div>
-      <div className={styles.heroBadge}>⚡ TreeHacks 2026 — Live Demo</div>
       <h1>
         intelligence is now
         <br />
         <em>{displayed}</em>
         <span className={styles.cursor}>|</span>
       </h1>
-      <div className={styles.installBar}>
+      <a href="https://pypi.org/project/marktools/" target="_blank" rel="noopener noreferrer" className={styles.installBar} style={{ textDecoration: 'none' }}>
         <div className={styles.installLabel}>Get MarkTools <span className={styles.installChevron}></span></div>
         <div className={styles.installCommand}>
           <code><span className={styles.installCmd}>pip</span> <span className={styles.installFlag}>install</span> <span className={styles.installPkg}>marktools</span></code>
@@ -64,7 +63,7 @@ export default function Hero() {
             )}
           </button>
         </div>
-      </div>
+      </a>
       <div className={styles.heroActions}>
         <Link href="/auth/signup" className={styles.btnPrimary} style={{ textDecoration: 'none' }}>Create Account</Link>
         <Link href="/marketplace" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Browse Marketplace →</Link>
