@@ -65,6 +65,8 @@ export default function PurchaseModal({ workflow, onClose, onSuccess, apiBase }:
       setReceipt(data.receipt || data)
       setState('success')
       onSuccess(data)
+      // Notify wallet to refresh balance
+      window.dispatchEvent(new Event('wallet-refresh'))
     } catch (err) {
       setError('Network error. Please check your connection and try again.')
       setState('error')

@@ -35,7 +35,7 @@ export default function UserInfo({ onAuthChange }: { onAuthChange?: (loggedIn: b
   }, [])
 
   if (loading) {
-    return <div>Loading...</div>
+    return null
   }
 
   if (!user) {
@@ -43,13 +43,14 @@ export default function UserInfo({ onAuthChange }: { onAuthChange?: (loggedIn: b
       <Link
         href="/auth/login"
         style={{
-          padding: '8px 16px',
-          backgroundColor: '#000',
-          color: 'white',
+          padding: '6px 16px',
+          color: 'var(--text-dim)',
           textDecoration: 'none',
-          borderRadius: '4px',
-          fontSize: '14px',
-          fontWeight: '500'
+          fontSize: '13px',
+          fontWeight: '500',
+          letterSpacing: '0.5px',
+          textTransform: 'uppercase' as const,
+          transition: 'color 0.2s',
         }}
       >
         Login
@@ -59,21 +60,7 @@ export default function UserInfo({ onAuthChange }: { onAuthChange?: (loggedIn: b
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <Link
-        href="/marketplace"
-        style={{
-          padding: '8px 16px',
-          backgroundColor: 'var(--accent)',
-          color: 'var(--bg)',
-          textDecoration: 'none',
-          borderRadius: '4px',
-          fontSize: '14px',
-          fontWeight: '600'
-        }}
-      >
-        Marketplace
-      </Link>
-      <span style={{ fontSize: '14px', color: 'var(--text-dim)' }}>
+      <span style={{ fontSize: '12px', color: 'var(--text-muted)', maxWidth: '120px', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
         {user.email}
       </span>
       <LogoutButton />

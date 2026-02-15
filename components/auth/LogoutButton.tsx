@@ -18,14 +18,23 @@ export default function LogoutButton() {
     <button
       onClick={handleLogout}
       style={{
-        padding: '8px 16px',
+        padding: '5px 12px',
         backgroundColor: 'transparent',
-        color: 'var(--red)',
-        border: '1px solid var(--red)',
-        borderRadius: '4px',
+        color: 'var(--text-muted)',
+        border: '1px solid var(--border)',
+        borderRadius: '6px',
         cursor: 'pointer',
-        fontSize: '14px',
-        fontWeight: '500'
+        fontSize: '12px',
+        fontWeight: '500',
+        transition: 'all 0.15s ease',
+      }}
+      onMouseOver={(e) => {
+        e.currentTarget.style.borderColor = 'var(--red)'
+        e.currentTarget.style.color = 'var(--red)'
+      }}
+      onMouseOut={(e) => {
+        e.currentTarget.style.borderColor = 'var(--border)'
+        e.currentTarget.style.color = 'var(--text-muted)'
       }}
     >
       Logout

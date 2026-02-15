@@ -38,8 +38,8 @@ export default function Hero() {
       </div>
       <div className={styles.heroActions}>
         <Link href="/auth/signup" className={styles.btnPrimary} style={{ textDecoration: 'none' }}>Create Account</Link>
-        <a href="#agent" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Try the Live Agent ↓</a>
-        <a href="#marketplace" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Search Marketplace ↓</a>
+        <Link href="/marketplace" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Browse Marketplace →</Link>
+        <a href="#marketplace" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Search Workflows ↓</a>
       </div>
       <div className={styles.heroCode}>
         <pre>
