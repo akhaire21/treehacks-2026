@@ -178,6 +178,1169 @@
       }
     },
     {
+      "workflow_id": "ma_due_diligence_vdr_scanner_2026",
+      "title": "M&A Due Diligence VDR Scanner (Legal & Financial Risks)",
+      "task_type": "legal_finance_audit",
+      "domain": "corporate_law",
+      "description": "Automated analysis of Virtual Data Rooms (VDR) for Mergers & Acquisitions. Scans thousands of documents to flag Change of Control clauses, undisclosed litigation, IP assignment issues, and financial irregularities.",
+      "token_cost": 850,
+      "execution_tokens": 4500,
+      "rating": 4.9,
+      "usage_count": 142,
+      "tags": ["legal", "finance", "mergers_acquisitions", "due_diligence", "risk_assessment"],
+      "requirements": ["VDR Access (Intralinks/Datasite)", "Target Company Org Chart", "Materiality Threshold"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Ingest VDR index and map folder structure to diligence checklist",
+          "action": "map_vdr_structure",
+          "categories": ["Corporate", "Contracts", "IP", "Employment", "Litigation", "Financials", "Tax"],
+          "gap_analysis": "Identify missing critical folders (e.g., 'No Cap Table found')",
+          "output": "Diligence Request List (DRL) for missing items"
+        },
+        {
+          "step": 2,
+          "thought": "Analyze Material Contracts for 'Change of Control' (CoC) provisions",
+          "action": "scan_coc",
+          "search_terms": ["assignment", "change of control", "termination upon merger", "successor in interest"],
+          "risk_flag": "Contracts requiring counterparty consent to transfer (can kill the deal)",
+          "output_table": "Contract Name | Counterparty | CoC Clause | Consent Required (Y/N)"
+        },
+        {
+          "step": 3,
+          "thought": "Verify Intellectual Property (IP) Chain of Title",
+          "action": "audit_ip_assignments",
+          "documents": ["Employee PIIA Agreements", "Contractor IP Assignments", "Open Source Logs"],
+          "red_flag": "Key developers missing signed PIIA (Proprietary Information and Inventions Agreement)",
+          "validation": "Cross-reference GitHub contributors with signed HR agreements"
+        },
+        {
+          "step": 4,
+          "thought": "Scan for Undisclosed Litigation or Threats",
+          "action": "litigation_search",
+          "keywords": ["cease and desist", "subpoena", "plaintiff", "settlement agreement", "demand letter"],
+          "context": "Distinguish between standard patent troll letters vs material lawsuits",
+          "database_check": "Cross-check Pacer/CourtListener for docket hits against company name"
+        },
+        {
+          "step": 5,
+          "thought": "Financial Anomaly Detection (Revenue Recognition)",
+          "action": "audit_financials",
+          "focus": "ASC 606 Revenue Recognition compliance",
+          "check": "Compare 'Bookings' vs 'Revenue' in monthly financials vs Bank Statements",
+          "red_flag": "Stuffing channel (booking revenue before delivery) in Q4"
+        },
+        {
+          "step": 6,
+          "thought": "Generate Red Flag Report for Investment Committee",
+          "action": "generate_report",
+          "format": "Traffic Light System (Red/Yellow/Green)",
+          "sections": ["Deal Killers", "Valuation Adjustments", "Post-Closing Remediation"],
+          "summary": "Executive summary of top 5 risks identified"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Target uses non-standard foreign law contracts",
+          "handling": "Route to 'Jurisdiction Specific Agent' (e.g., UK Law Module) or flag for local counsel review",
+          "alert": "Jurisdiction Mismatch: Contracts governed by laws of [Country]"
+        },
+        {
+          "scenario": "VDR contains scanned/handwritten documents",
+          "handling": "Trigger 'High-Fidelity OCR' pipeline before analysis (adds time/cost)",
+          "quality_check": "Flag unreadable docs for re-upload request"
+        }
+      ],
+      "domain_knowledge": [
+        "Change of Control consents in customer contracts can delay closing by weeks",
+        "Open Source License violations (GPL v3 in proprietary code) can devalue software assets to zero",
+        "409A Valuation consistency is critical for tax liability in stock-based comp"
+      ],
+      "pricing": {
+        "base_price": 12000,
+        "quality_multiplier": 2.5,
+        "roi_percentage": 5000.0,
+        "breakdown": "Replaces $500/hr Junior Associate work (20+ hours)"
+      }
+    },
+    {
+      "workflow_id": "legacy_monolith_microservices_extractor",
+      "title": "Legacy Monolith to Microservices Extraction Planner",
+      "task_type": "software_architecture",
+      "domain": "devops_modernization",
+      "description": "Analyzes legacy codebases (Java/C#), identifies bounded contexts, maps dependencies, and generates a strangler fig migration plan to extract microservices safely.",
+      "token_cost": 420,
+      "execution_tokens": 1800,
+      "rating": 4.7,
+      "usage_count": 89,
+      "tags": ["refactoring", "microservices", "architecture", "java", "dotnet", "cloud_native"],
+      "requirements": ["Source Code Repository", "Database Schema", "Access Logs (optional)"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Static Code Analysis to build Dependency Graph",
+          "action": "analyze_dependencies",
+          "tool": "Graph Theory Analysis",
+          "output": "Coupling Matrix (Afferent/Efferent coupling)",
+          "goal": "Identify 'God Classes' and highly coupled modules that are hard to extract"
+        },
+        {
+          "step": 2,
+          "thought": "Identify Domain Boundaries (Bounded Contexts)",
+          "action": "domain_driven_design_map",
+          "heuristics": ["Linguistic Analysis (class names)", "Transactional Boundaries", "Data Ownership"],
+          "proposal": "Candidate Services: [Catalog, Cart, Identity, Pricing, Inventory]"
+        },
+        {
+          "step": 3,
+          "thought": "Database Decomposition Strategy",
+          "action": "analyze_schema",
+          "check": "Foreign Key constraints across proposed service boundaries",
+          "problem": "Shared Tables (the 'Integration Database' anti-pattern)",
+          "solution": "Propose 'Database per Service' with data replication or dual-write strategy during migration"
+        },
+        {
+          "step": 4,
+          "thought": "Define API Contracts (OpenAPI/Swagger)",
+          "action": "generate_contracts",
+          "input": "Existing internal method calls between modules",
+          "output": "REST/gRPC interface definitions for new services",
+          "validation": "Ensure payload sizes are suitable for network calls (avoid chatty interfaces)"
+        },
+        {
+          "step": 5,
+          "thought": "Create Strangler Fig Migration Plan",
+          "action": "plan_migration",
+          "phases": [
+            "Phase 1: Put Monolith behind API Gateway",
+            "Phase 2: Extract 'Edge' service (lowest dependency) - e.g., Notifications",
+            "Phase 3: Route traffic to new service via Gateway",
+            "Phase 4: Remove old code from Monolith"
+          ]
+        },
+        {
+          "step": 6,
+          "thought": "Estimate Cloud Infrastructure Costs",
+          "action": "cost_projection",
+          "comparison": "Monolith Hosting (1 huge instance) vs Microservices (20 small containers + Orchestration + Network overhead)",
+          "warning": "Microservices usually increase infrastructure cost but increase developer velocity"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Distributed Transactions (ACID requirements)",
+          "handling": "Flag functionality requiring SAGA Pattern or Two-Phase Commit (2PC). Warn about complexity.",
+          "recommendation": "Eventual consistency where possible"
+        },
+        {
+          "scenario": "Circular Dependencies",
+          "handling": "Cannot extract until cycle is broken. Suggest refactoring plan to introduce Interface or Event Bus."
+        }
+      ],
+      "domain_knowledge": [
+        "The 'Strangler Fig' pattern is the only safe way to migrate live systems",
+        "Network latency will replace in-memory method call speed - performance budget is needed",
+        "Conway's Law: The architecture will mirror the organization structure"
+      ],
+      "pricing": {
+        "base_price": 4500,
+        "quality_multiplier": 1.35,
+        "roi_percentage": 800.0,
+        "breakdown": "High-level architectural consulting"
+      }
+    },
+    {
+      "workflow_id": "clinical_trial_patient_screening_hipaa",
+      "title": "Clinical Trial Patient Screening & Matching (HIPAA Compliant)",
+      "task_type": "medical_research",
+      "domain": "healthcare_lifesciences",
+      "description": "Matches Electronic Health Records (EHR) against complex clinical trial inclusion/exclusion criteria. Identifies eligible candidates for Oncology/Cardiology trials while maintaining strict patient privacy.",
+      "token_cost": 500,
+      "execution_tokens": 1100,
+      "rating": 4.9,
+      "usage_count": 215,
+      "tags": ["medical", "clinical_trials", "patient_recruitment", "oncology", "hipaa"],
+      "requirements": ["De-identified EHR Dataset", "Trial Protocol (Inclusion/Exclusion)", "IRB Approval Code"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Parse Trial Protocol for Eligibility Criteria",
+          "action": "extract_criteria",
+          "inputs": "ClinicalTrials.gov text or PDF Protocol",
+          "outputs": {
+            "inclusion": ["Age > 18", "Histologically confirmed Stage IV NSCLC", "EGFR mutation positive"],
+            "exclusion": ["Brain metastases", "Prior immunotherapy", "Creatinine clearance < 40 mL/min"]
+          }
+        },
+        {
+          "step": 2,
+          "thought": "Normalize Patient Data (OMOP CDM)",
+          "action": "data_standardization",
+          "standard": "OHDSI OMOP Common Data Model",
+          "mapping": "Map local lab codes to LOINC, diagnoses to ICD-10/SNOMED",
+          "reason": "Ensure 'High Blood Pressure' matches 'Hypertension' codes"
+        },
+        {
+          "step": 3,
+          "thought": "Execute Structured Query Matching (Layer 1)",
+          "action": "sql_filtering",
+          "filters": ["Age", "Gender", "Diagnosis Codes"],
+          "goal": "Fast filter to remove obvious non-matches (Reduce search space by 90%)"
+        },
+        {
+          "step": 4,
+          "thought": "Unstructured Note Analysis (NLP) (Layer 2)",
+          "action": "analyze_clinical_notes",
+          "target": "Exclusion criteria often buried in text (e.g., 'patient reports history of alcohol abuse', 'ECOG performance status 2')",
+          "technique": "BioBERT Named Entity Recognition (NER)",
+          "negation_detection": "Ensure 'No evidence of metastasis' is not flagged as 'metastasis'"
+        },
+        {
+          "step": 5,
+          "thought": "Temporal Logic Check",
+          "action": "check_timelines",
+          "logic": "Criteria: 'No chemotherapy within last 4 weeks'.",
+          "check": "Date of last chemo infusion vs Current Date",
+          "validation": "Ensure Washout periods are respected"
+        },
+        {
+          "step": 6,
+          "thought": "Generate Candidate List & Physician Letters",
+          "action": "generate_output",
+          "format": "Secure Dashboard List",
+          "artifact": "Draft 'Pre-screening Note' for Investigator to review",
+          "privacy": "Output only MRN (Medical Record Number), no Names"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Ambiguous criteria (e.g., 'Adequate organ function')",
+          "handling": "Map to specific lab value thresholds defined in Common Terminology Criteria for Adverse Events (CTCAE)",
+          "default": "Flag for Manual Review if thresholds missing"
+        },
+        {
+          "scenario": "Patient deceased",
+          "handling": "Check 'Death Registry' or latest encounter date > 6 months ago. Mark as 'Deceased/Lost to Follow-up'"
+        }
+      ],
+      "domain_knowledge": [
+        "Recruitment failure is the #1 reason clinical trials fail",
+        "ECOG Performance Status is rarely coded, almost always in free text notes",
+        "Genomic data (EGFR, KRAS, ALK) is critical for modern oncology trials"
+      ],
+      "pricing": {
+        "base_price": 5500,
+        "quality_multiplier": 2.0,
+        "roi_percentage": 2500.0,
+        "breakdown": "Accelerates recruitment by 50%, saving millions in trial delays"
+      }
+    },
+    {
+      "workflow_id": "supply_chain_predictive_inventory_q4",
+      "title": "Supply Chain Predictive Inventory Optimization (Q4 Peak)",
+      "task_type": "logistics_planning",
+      "domain": "supply_chain",
+      "description": "Predicts inventory needs for Q4 peak season using historical sales, macro-economic indicators, weather patterns, and supplier lead times. Generates POs to prevent stockouts and overstock.",
+      "token_cost": 350,
+      "execution_tokens": 1200,
+      "rating": 4.8,
+      "usage_count": 302,
+      "tags": ["logistics", "inventory", "forecasting", "retail", "operations"],
+      "requirements": ["Sales History (3 yrs)", "Supplier Lead Times", "Marketing Calendar"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Cleanse and Baseline Historical Data",
+          "action": "data_preprocessing",
+          "adjustments": ["Remove stockout periods (don't train on zero sales)", "Normalize for 'Black Swan' events (e.g., COVID spikes)"],
+          "output": "Cleaned Time Series Data"
+        },
+        {
+          "step": 2,
+          "thought": "Integrate External Signals (Causal Factors)",
+          "action": "enrich_data",
+          "signals": [
+            "Macro: Consumer Confidence Index",
+            "Weather: La Niña forecast (affects winter gear)",
+            "Marketing: Planned Ad Spend for Q4"
+          ],
+          "correlation_check": "Determine which external factors actually drive sales for this SKU"
+        },
+        {
+          "step": 3,
+          "thought": "Generate Demand Forecast (Ensemble Model)",
+          "action": "run_forecast",
+          "models": ["Prophet", "XGBoost", "ARIMA"],
+          "horizon": "16 weeks (Sep-Dec)",
+          "output": "P50, P90, and P99 Demand Scenarios"
+        },
+        {
+          "step": 4,
+          "thought": "Calculate Safety Stock & Reorder Points",
+          "action": "inventory_math",
+          "formula": "Safety Stock = Z * std_dev_demand * sqrt(lead_time)",
+          "variable_lead_time": "Account for port congestion (add 14 days buffer for ocean freight)",
+          "service_level": "Target 98% instock for 'A' items, 95% for 'B' items"
+        },
+        {
+          "step": 5,
+          "thought": "Generate Purchase Orders (POs)",
+          "action": "create_pos",
+          "constraint": "Minimum Order Quantities (MOQ) and Container utilization",
+          "optimization": "Round up to full pallet/container to save freight cost",
+          "split": "Split orders: 70% Ocean (cheap, slow), 30% Air (fast, expensive) for flexibility"
+        },
+        {
+          "step": 6,
+          "thought": "Cash Flow Analysis",
+          "action": "finance_check",
+          "projection": "Estimated spend vs available Working Capital / Credit Line",
+          "warning": "If spend > credit limit, recommend prioritizing 'A' SKUs"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Supplier Force Majeure (Factory fire/strike)",
+          "handling": "Trigger 'Alternate Sourcing' workflow. Scan backup supplier database for capacity.",
+          "cost_impact": "Calculate margin erosion from spot-buying"
+        },
+        {
+          "scenario": "New Product Launch (No history)",
+          "handling": "Use 'Reference Product' forecasting. Map demand curve from similar past launch."
+        }
+      ],
+      "domain_knowledge": [
+        "Bullwhip Effect: small fluctuations in retail demand cause massive fluctuations in manufacturing orders",
+        "Cost of Stockout (Lost Sales + Goodwill) usually exceeds Cost of Carrying Inventory for high-margin items",
+        "Q4 logistics surcharges must be factored into landed cost"
+      ],
+      "pricing": {
+        "base_price": 3200,
+        "quality_multiplier": 1.4,
+        "roi_percentage": 600.0,
+        "breakdown": "Prevents stockouts during highest revenue period"
+      }
+    },
+    {
+      "workflow_id": "seo_topic_cluster_authority_builder",
+      "title": "SEO Topic Cluster & Authority Map Builder",
+      "task_type": "marketing_content",
+      "domain": "digital_marketing",
+      "description": "Architects a complete SEO content strategy. Identifies a 'Pillar Page' topic, generates 20+ support article ideas (Cluster Content), maps internal linking, and creates content briefs based on SERP analysis.",
+      "token_cost": 180,
+      "execution_tokens": 850,
+      "rating": 4.6,
+      "usage_count": 520,
+      "tags": ["seo", "marketing", "content_strategy", "blogging", "serp"],
+      "requirements": ["Seed Keyword", "Competitor URLs", "Target Region"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Analyze SERP Intent for Seed Keyword",
+          "action": "serp_analysis",
+          "keyword": "{seed_keyword}",
+          "intent": "Informational vs Transactional vs Commercial",
+          "competitor_audit": "Extract headers (H1, H2) from top 10 results to understand required depth"
+        },
+        {
+          "step": 2,
+          "thought": "Define 'Pillar Page' Strategy",
+          "action": "create_pillar_brief",
+          "concept": "The ultimate guide covering the topic broadly",
+          "structure": "Definition + History + Benefits + How-to + Future Trends",
+          "url_slug": "/{seed_keyword}-guide"
+        },
+        {
+          "step": 3,
+          "thought": "Generate 'Cluster Content' Ideas (Long-tail)",
+          "action": "keyword_expansion",
+          "sources": ["People Also Ask (PAA)", "Related Searches", "Autocomplete"],
+          "grouping": "Group keywords by semantic relevance",
+          "output": "List of 10-20 sub-topics (e.g., 'How to X', 'Best tools for X', 'X vs Y')"
+        },
+        {
+          "step": 4,
+          "thought": "Map Internal Linking Structure",
+          "action": "link_graphing",
+          "rule": "Hub-and-Spoke model",
+          "instruction": "Pillar links to all Clusters. All Clusters link back to Pillar. Clusters link to neighbors.",
+          "anchor_text": "Define exact anchor text for each link to maximize relevance signal"
+        },
+        {
+          "step": 5,
+          "thought": "Generate Content Briefs for Writers",
+          "action": "create_briefs",
+          "for_each": "Sub-topic",
+          "include": [
+            "Primary Keyword",
+            "Secondary LSI Keywords",
+            "Target Word Count",
+            "Required Sections (H2s)",
+            "External Authority Links to cite"
+          ]
+        },
+        {
+          "step": 6,
+          "thought": "Gap Analysis vs Competitors",
+          "action": "competitor_gap",
+          "check": "What are competitors writing about that we missed?",
+          "tool": "TF-IDF analysis of competitor content",
+          "add": "Add missing sub-topics to plan"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Zero Search Volume keywords",
+          "handling": "Include if relevant for 'Topical Authority' even if traffic is low. Helps rank the main Pillar.",
+          "tag": "Authority Builder (Low Traffic)"
+        },
+        {
+          "scenario": "Cannibalization Risk",
+          "handling": "Check if existing content already covers these topics. If so, recommend 'Update/Refresh' instead of 'New Post'."
+        }
+      ],
+      "domain_knowledge": [
+        "Google ranks sites with 'Topical Authority' higher than isolated pages",
+        "Internal linking is the most undervalued SEO lever",
+        "Content velocity (publishing frequency) matters for fresh signals"
+      ],
+      "pricing": {
+        "base_price": 850,
+        "quality_multiplier": 1.2,
+        "roi_percentage": 400.0,
+        "breakdown": "Replaces $2000/month SEO agency retainer tasks"
+      }
+    },
+    {
+      "workflow_id": "automated_pentest_webapp_owasp",
+      "title": "Automated Web App Penetration Test (OWASP Top 10)",
+      "task_type": "security_audit",
+      "domain": "cybersecurity",
+      "description": "Performs an authorized automated security scan against a web application. Checks for SQL Injection, XSS, Broken Auth, and Misconfigurations using dynamic analysis (DAST). Generates a remediation report.",
+      "token_cost": 600,
+      "execution_tokens": 2500,
+      "rating": 4.9,
+      "usage_count": 112,
+      "tags": ["security", "pentesting", "owasp", "devsecops", "red_team"],
+      "requirements": ["Target URL", "Authorized Test Token/Credentials", "Allowed Window"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Reconnaissance & Spidering",
+          "action": "crawl_target",
+          "scope": "Identify all endpoints, forms, and API routes",
+          "exclusion": "Exclude 'Logout' buttons (to keep session alive) and 'Delete' endpoints (safety)",
+          "output": "Site Map and Attack Surface"
+        },
+        {
+          "step": 2,
+          "thought": "Test for Injection Flaws (SQLi/Command)",
+          "action": "injection_fuzzing",
+          "payloads": ["' OR 1=1--", "; ls -la", "{{7*7}}"],
+          "locations": ["URL parameters", "Form fields", "Headers", "Cookies"],
+          "monitor": "Look for database errors, time delays, or rendered math results"
+        },
+        {
+          "step": 3,
+          "thought": "Test for Cross-Site Scripting (XSS)",
+          "action": "xss_fuzzing",
+          "types": ["Reflected", "Stored", "DOM-based"],
+          "payload": "<script>alert('Pentest')</script>",
+          "verification": "Check if payload is executed in browser response (headless chrome)"
+        },
+        {
+          "step": 4,
+          "thought": "Check Authentication & Session Management",
+          "action": "auth_audit",
+          "checks": [
+            "Weak password policy",
+            "No MFA enforcement",
+            "Session fixation",
+            "Cookie flags (Missing Secure/HttpOnly)"
+          ]
+        },
+        {
+          "step": 5,
+          "thought": "Vulnerable Components Scan",
+          "action": "dependency_check",
+          "method": "Fingerprint libraries (React version, jQuery, Bootstrap)",
+          "db_lookup": "Check CVE database for known vulnerabilities in these versions",
+          "result": "Flag outdated libraries with CVSS > 7.0"
+        },
+        {
+          "step": 6,
+          "thought": "Generate Executive & Technical Report",
+          "action": "report_gen",
+          "structure": "Executive Summary (Risk Score) + Technical Details (Reproduction Steps) + Remediation (Code Fixes)",
+          "severity": "Classify findings: Critical, High, Medium, Low, Info"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "WAF (Web Application Firewall) blocking scan",
+          "handling": "Detect 403 Forbidden spikes. Recommend whitelisting scanner IP for accurate 'White Box' testing.",
+          "note": "If testing WAF efficacy, do not whitelist."
+        },
+        {
+          "scenario": "Production Data Danger",
+          "handling": "Strictly limit fuzzing on State-Changing requests (POST/PUT/DELETE). Use 'Safe Mode' by default."
+        }
+      ],
+      "domain_knowledge": [
+        "Automated scanners miss 100% of Business Logic Logic vulnerabilities (e.g., 'buying an item for $0.00')",
+        "Stored XSS is more dangerous than Reflected XSS",
+        "Directory Enumeration often reveals forgotten backup files (.bak, .old) containing secrets"
+      ],
+      "pricing": {
+        "base_price": 2800,
+        "quality_multiplier": 1.4,
+        "roi_percentage": 1000.0,
+        "breakdown": "Cost of a breach is infinite; manual pentest costs $10k+"
+      }
+    },
+    {
+      "workflow_id": "patent_prior_art_semantic_search",
+      "title": "Patent Prior Art Semantic Search & Invalidation Analysis",
+      "task_type": "legal_research",
+      "domain": "intellectual_property",
+      "description": "Uses semantic vector search to find 'Prior Art' that could invalidate a target patent or blocking patent. Searches USPTO, EPO, WIPO, and non-patent literature (NPL).",
+      "token_cost": 300,
+      "execution_tokens": 1000,
+      "rating": 4.7,
+      "usage_count": 76,
+      "tags": ["legal", "patent", "ip", "research", "prior_art"],
+      "requirements": ["Target Patent Number or Invention Disclosure", "Technical Field"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Deconstruct Claims into Elements",
+          "action": "claim_parsing",
+          "input": "Patent Claims (usually Claim 1 is independent)",
+          "output": "Element List (e.g., [Element A: 'A rotating arm'], [Element B: 'connected to a hydraulic pump'])",
+          "logic": "To invalidate, Prior Art must contain ALL elements of the claim"
+        },
+        {
+          "step": 2,
+          "thought": "Generate Semantic Search Vectors",
+          "action": "vector_embedding",
+          "model": "Legal-BERT or specialized IP model",
+          "query": "Embed descriptions of the invention elements",
+          "expansion": "Include synonyms (e.g., 'fastener' -> 'screw', 'bolt', 'rivet')"
+        },
+        {
+          "step": 3,
+          "thought": "Search Global Databases",
+          "action": "query_databases",
+          "targets": ["Google Patents", "Espacenet", "IEEE Xplore", "arXiv"],
+          "filters": ["Date < Priority Date of Target Patent"],
+          "ranking": "Cosine Similarity Score"
+        },
+        {
+          "step": 4,
+          "thought": "Analyze 'Novelty' and 'Obviousness'",
+          "action": "compare_art",
+          "check_102": "Novelty (Section 102): Does one single document disclose ALL elements?",
+          "check_103": "Obviousness (Section 103): Do two documents combined teach the invention?",
+          "output": "Claim Charts (Target Element vs Prior Art Text)"
+        },
+        {
+          "step": 5,
+          "thought": "Generate Search Report",
+          "action": "report_writing",
+          "sections": ["Executive Summary", "Top 3 Prior Art References", "Claim Comparison Matrix", "Invalidation Likelihood Score"],
+          "disclaimer": "This is automated research, not legal opinion."
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Non-English Prior Art",
+          "handling": "Auto-translate Chinese/Japanese/Korean (CJK) patents. These are major sources of prior art often missed by manual search.",
+          "importance": "High"
+        },
+        {
+          "scenario": "Product Manuals/YouTube Videos",
+          "handling": "Search Wayback Machine and YouTube transcripts. Public use/sale counts as prior art."
+        }
+      ],
+      "domain_knowledge": [
+        "The 'Priority Date' is the cutoff. Anything published 1 day after is useless as prior art.",
+        "KSR v. Teleflex changed the standard for Obviousness - 'Common Sense' can be used to combine references",
+        "Freedom to Operate (FTO) search is different from Prior Art search"
+      ],
+      "pricing": {
+        "base_price": 2000,
+        "quality_multiplier": 1.5,
+        "roi_percentage": 1000.0,
+        "breakdown": "Law firms charge $3k-$10k for this search"
+      }
+    },
+    {
+      "workflow_id": "wedding_budget_vendor_manager_luxury",
+      "title": "Luxury Wedding Budget & Vendor Negotiation Manager",
+      "task_type": "event_planning",
+      "domain": "personal_lifestyle",
+      "description": "Manages complex wedding budgets ($100k+), tracks payments, and drafts negotiation emails for vendors. Balances 'Must-Haves' with cost realities.",
+      "token_cost": 160,
+      "execution_tokens": 700,
+      "rating": 4.8,
+      "usage_count": 310,
+      "tags": ["wedding", "budget", "planning", "negotiation", "personal"],
+      "requirements": ["Total Budget", "Guest Count", "Location", "Date"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Create Budget Allocation (The 'Slices')",
+          "action": "allocate_budget",
+          "standard_ratios": {
+            "Venue & Catering": "45%",
+            "Photography/Video": "12%",
+            "Attire": "8%",
+            "Decor/Florals": "10%",
+            "Music": "8%",
+            "Planner": "10%",
+            "Buffer": "7%"
+          },
+          "adjustment": "Adjust based on user priorities (e.g., 'Foodie' couple -> 55% Catering)"
+        },
+        {
+          "step": 2,
+          "thought": "Estimate Per-Head Cost",
+          "action": "calc_per_head",
+          "formula": "(Total Budget * 0.45) / Guest Count",
+          "reality_check": "If result < $150 in NYC/LA, trigger 'Unrealistic Expectation' alert. Suggest cutting guest list or budget increase."
+        },
+        {
+          "step": 3,
+          "thought": "Vendor Outreach Strategy",
+          "action": "draft_inquiries",
+          "template": "Professional, asking for 'Packages' and 'Availability' upfront.",
+          "tactic": "Do not reveal full budget immediately. Ask for their 'starting range'."
+        },
+        {
+          "step": 4,
+          "thought": "Contract & Negotiation Review",
+          "action": "review_contracts",
+          "check": [
+            "Hidden fees (Service Charge vs Gratuity)",
+            "Plus Plus (++ tax and service)",
+            "Force Majeure (Post-COVID essential)",
+            "Overtime rates"
+          ],
+          "negotiation_point": "Ask for 'in-kind' upgrades if they won't lower price (e.g., 'Free extra hour' or 'Signature cocktail included')"
+        },
+        {
+          "step": 5,
+          "thought": "Payment Schedule Tracker",
+          "action": "generate_timeline",
+          "milestones": ["Deposit (Booking)", "Halfway Payment", "Final Balance (30 days out)"],
+          "alert": "Remind user 7 days before large payments due"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Guest count fluctuation",
+          "handling": "Contracts often have a 'Minimum Guaranteed Count'. Ensure this is set conservatively (e.g., 80% of expected) to avoid paying for no-shows.",
+          "advice": "Negotiate the ability to lower count up to 30 days prior"
+        }
+      ],
+      "domain_knowledge": [
+        "Service Charge (22%+) is usually taxable and goes to the venue house, not the staff (Gratuity is separate)",
+        "Friday/Sunday weddings save 20-30% on venue fees",
+        "Florals are the most volatile cost due to shipping/climate - suggest 'seasonal blooms' only"
+      ],
+      "pricing": {
+        "base_price": 600,
+        "quality_multiplier": 1.1,
+        "roi_percentage": 300.0,
+        "breakdown": "Saves stress and prevents budget blowouts"
+      }
+    },
+    {
+      "workflow_id": "podcast_post_production_repurposing",
+      "title": "Podcast Post-Production & Content Repurposing Engine",
+      "task_type": "content_repurposing",
+      "domain": "media_production",
+      "description": "Takes a raw audio file, generates transcript, show notes, viral social clips, newsletters, and SEO blog posts. A complete 'Content Empire' from one asset.",
+      "token_cost": 250,
+      "execution_tokens": 1400,
+      "rating": 4.8,
+      "usage_count": 650,
+      "tags": ["podcast", "content", "social_media", "ai_writing", "transcription"],
+      "requirements": ["Audio File (MP3/WAV)", "Guest Name", "Show Tone"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "High-Fidelity Transcription",
+          "action": "transcribe",
+          "model": "Whisper V3 Large",
+          "diarization": "Identify Speaker A (Host) vs Speaker B (Guest)",
+          "output": "Timestamped JSON Transcript"
+        },
+        {
+          "step": 2,
+          "thought": "Generate Show Notes & Timestamps",
+          "action": "summarize_audio",
+          "outputs": [
+            "Hook (2 sentences)",
+            "Guest Bio",
+            "Key Topics (Bulleted)",
+            "Links Mentioned",
+            "Timestamps (e.g., '04:20 - The Future of AI')"
+          ]
+        },
+        {
+          "step": 3,
+          "thought": "Identify Viral Clip Moments",
+          "action": "clip_finder",
+          "criteria": ["High emotion", "Controversial statement", "Laughter", "Concise wisdom"],
+          "output": "Start/End times for 3-5 potential Reels/TikToks",
+          "virality_score": "Estimated engagement based on topic trend"
+        },
+        {
+          "step": 4,
+          "thought": "Draft Social Media Copy",
+          "action": "write_socials",
+          "platforms": {
+            "LinkedIn": "Professional insight, long-form text, 'Click link in comments'",
+            "Twitter": "Thread summarizing top 5 takeaways",
+            "TikTok/Reels": "Caption with Hooks + Hashtags",
+            "Newsletter": "Personal note from host + deep dive on one topic"
+          }
+        },
+        {
+          "step": 5,
+          "thought": "Convert to SEO Blog Post",
+          "action": "write_article",
+          "transformation": "Don't just paste transcript. Rewrite as a narrative article.",
+          "structure": "Intro -> Argument 1 -> Argument 2 -> Conclusion",
+          "optimization": "Include H2s with keywords"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Audio Quality Issues (Crosstalk/Noise)",
+          "handling": "Flag for Audio Engineer review. Transcript accuracy drops significantly.",
+          "tag": "Low Confidence Transcript"
+        },
+        {
+          "scenario": "Sensitive Content",
+          "handling": "Detect PII or swearing. Auto-flag for 'Bleep' timestamps if requested."
+        }
+      ],
+      "domain_knowledge": [
+        "Timestamps are critical for YouTube SEO (Chapters)",
+        "LinkedIn algorithm favors text-only posts or native video over external links",
+        "The first 60 seconds of a podcast determines 80% of retention"
+      ],
+      "pricing": {
+        "base_price": 900,
+        "quality_multiplier": 1.25,
+        "roi_percentage": 500.0,
+        "breakdown": "Replaces a Producer + Copywriter ($1500 value per episode)"
+      }
+    },
+    {
+      "workflow_id": "gdnt_engineering_drawing_checker",
+      "title": "GD&T Engineering Drawing Validator (ASME Y14.5)",
+      "task_type": "engineering_qa",
+      "domain": "mechanical_engineering",
+      "description": "Scans 2D engineering drawings for Geometric Dimensioning and Tolerancing (GD&T) errors. Checks datum structures, tolerance stack-ups, and symbol syntax against ASME Y14.5 standards.",
+      "token_cost": 400,
+      "execution_tokens": 1200,
+      "rating": 4.6,
+      "usage_count": 45,
+      "tags": ["engineering", "cad", "gdnt", "quality", "manufacturing"],
+      "requirements": ["PDF/DXF Drawing", "Standard Version (2009 or 2018)"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Feature Recognition & OCR",
+          "action": "scan_drawing",
+          "identify": ["Views", "Dimensions", "Feature Control Frames (FCF)", "Datum Labels"],
+          "validation": "Ensure text is readable"
+        },
+        {
+          "step": 2,
+          "thought": "Validate Datum Reference Frame (DRF)",
+          "action": "check_datums",
+          "logic": "Are Datums A, B, C defined? Are they mutually orthogonal (usually)?",
+          "error": "Datum Feature Symbol attached to a centerline without dimension (Ambiguous)"
+        },
+        {
+          "step": 3,
+          "thought": "Syntax Check of Feature Control Frames",
+          "action": "parse_fcf",
+          "rules": [
+            "Position needs Datums",
+            "Flatness usually needs no Datums",
+            "Material Condition Modifiers (MMC/LMC) present where beneficial?"
+          ],
+          "alert": "Profile of Surface used without Datums (valid only for form, unlikely intention)"
+        },
+        {
+          "step": 4,
+          "thought": "Tolerance Stack-up Check (1D)",
+          "action": "calc_stackup",
+          "check": "Does the assembly fit? (Worst Case vs RSS)",
+          "input": "Gap requirement",
+          "output": "Probability of Interference"
+        },
+        {
+          "step": 5,
+          "thought": "Manufacturability (DFM) Feedback",
+          "action": "dfm_check",
+          "check": "Tight tolerances (+/- 0.005mm) on non-critical features",
+          "suggestion": "Relax tolerance on Feature X to reduce machining cost"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Restrained State (Non-rigid parts)",
+          "handling": "Require 'Restraint Note' on drawing for flexible parts (rubber, thin sheet metal).",
+          "missing_note": "Flag as Error: Part creates inspection ambiguity"
+        }
+      ],
+      "domain_knowledge": [
+        "Rule #1 (Envelope Principle): Perfect form at MMC is required unless noted otherwise (Independency symbol)",
+        "Position tolerance provides 57% more tolerance zone than +/- tolerancing (Circular zone vs Square zone)",
+        "Datums should be functional mating surfaces, not obscure centerlines"
+      ],
+      "pricing": {
+        "base_price": 3000,
+        "quality_multiplier": 1.6,
+        "roi_percentage": 1000.0,
+        "breakdown": "Prevents scrap parts ($$$) and tooling rework"
+      }
+    },
+    {
+      "workflow_id": "crypto_portfolio_rebalancer_harvesting",
+      "title": "Crypto Portfolio Rebalancer & Tax Loss Harvester",
+      "task_type": "finance_trading",
+      "domain": "crypto_finance",
+      "description": "Monitors portfolio allocation. Executes rebalancing trades to maintain target ratios. Identifies opportunities to realize losses for tax offsets (Wash Sale rule does not apply to crypto as of 2026 check).",
+      "token_cost": 320,
+      "execution_tokens": 900,
+      "rating": 4.8,
+      "usage_count": 220,
+      "tags": ["crypto", "trading", "finance", "tax", "automation"],
+      "requirements": ["Exchange API Keys", "Target Allocation %", "Loss Threshold"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Fetch Current Holdings & Prices",
+          "action": "get_balances",
+          "sources": ["CEX (Binance/Coinbase)", "On-chain Wallets (via Zapper/DeBank API)"],
+          "calc": "Total Portfolio Value (USD)"
+        },
+        {
+          "step": 2,
+          "thought": "Calculate Drift from Target",
+          "action": "calc_drift",
+          "targets": {"BTC": "50%", "ETH": "30%", "SOL": "10%", "Stable": "10%"},
+          "drift": "Identify assets > 5% off target"
+        },
+        {
+          "step": 3,
+          "thought": "Tax Loss Harvesting Scan",
+          "action": "scan_losses",
+          "logic": "Check specific tax lots. Is (Current Price < Cost Basis) by > 10%?",
+          "strategy": "Sell loser -> Buy similar asset (or wait if Wash Sale rule changed in 2026)",
+          "execution": "Sell Asset A (Loss) -> Wait/Swap -> Capture Tax Deduction"
+        },
+        {
+          "step": 4,
+          "thought": "Generate Rebalance Orders",
+          "action": "create_orders",
+          "goal": "Minimize gas fees/slippage",
+          "logic": "Sell Overweight Assets -> Buy Underweight Assets",
+          "batching": "If on-chain, use aggregator (1inch/Jupiter) for best route"
+        },
+        {
+          "step": 5,
+          "thought": "Execute & Log",
+          "action": "execute_trade",
+          "safety": "Check liquidity depth. Do not market buy illiquid tokens.",
+          "log": "Record trade for tax software (CoinTracker/Koinly)"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Gas fees exceed rebalance benefit",
+          "handling": "Skip rebalance if cost > 1% of trade value (Dust threshold)",
+          "alert": "Skipped due to high network congestion"
+        }
+      ],
+      "domain_knowledge": [
+        "Rebalancing sells winners and buys losers - structurally 'buying low, selling high'",
+        "Tax Loss Harvesting is the only 'free lunch' in investing",
+        "Stablecoins are not risk-free (De-peg risk) - diversify across USDC/USDT/DAI"
+      ],
+      "pricing": {
+        "base_price": 1500,
+        "quality_multiplier": 1.3,
+        "roi_percentage": 500.0,
+        "breakdown": "Pays for itself in tax savings"
+      }
+    },
+    {
+      "workflow_id": "corporate_travel_policy_auditor",
+      "title": "Corporate Travel & Expense Compliance Auditor",
+      "task_type": "finance_audit",
+      "domain": "corporate_finance",
+      "description": "Audits expense reports against company travel policy. Checks for alcohol limits, flight class violations, weekend expensing, and duplicate receipts using OCR and pattern matching.",
+      "token_cost": 200,
+      "execution_tokens": 750,
+      "rating": 4.7,
+      "usage_count": 340,
+      "tags": ["finance", "audit", "expenses", "compliance", "fraud"],
+      "requirements": ["Expense Report Data", "Travel Policy PDF", "Receipt Images"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "OCR Receipts & Match to Line Items",
+          "action": "parse_receipts",
+          "verify": "Date, Amount, Merchant Name",
+          "flag": "Missing receipts for items > $50 (IRS requirement)"
+        },
+        {
+          "step": 2,
+          "thought": "Policy Check: Flight Class",
+          "action": "check_flights",
+          "rule": "Business Class allowed only if flight > 6 hours",
+          "data": "Calculate duration between Departure/Arrival cities",
+          "violation": "Domestic flight in First Class"
+        },
+        {
+          "step": 3,
+          "thought": "Policy Check: Meals & Alcohol",
+          "action": "check_meals",
+          "rule": "Per diem limit ($75/day) or Alcohol < 30% of bill",
+          "scan": "Look for 'Wine', 'Beer', 'Cocktail' on receipt lines",
+          "red_flag": "Steakhouse dinner for 1 person > $150"
+        },
+        {
+          "step": 4,
+          "thought": "Duplicate Detection",
+          "action": "find_duplicates",
+          "logic": "Same amount + Same date + Same merchant",
+          "scope": "Check against historical reports (Double dipping across months)"
+        },
+        {
+          "step": 5,
+          "thought": "Weekend/Holiday Check",
+          "action": "check_dates",
+          "logic": "Expense on Saturday/Sunday without corresponding hotel stay or client meeting note",
+          "flag": "Personal expense disguised as business"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Currency Conversion",
+          "handling": "Verify FX rate used. Did they use a padded rate to profit?",
+          "source": "Compare vs OANDA historical rate for that date"
+        }
+      ],
+      "domain_knowledge": [
+        "The 'Strip Club' test: Auditors look for merchant codes (MCC) associated with adult entertainment hidden as 'Restaurant'",
+        "Small frequent integer amounts (e.g., exactly $50.00) are statistically suspicious (Benford's Law)",
+        "Ride-share tips > 20% are often non-reimbursable"
+      ],
+      "pricing": {
+        "base_price": 1800,
+        "quality_multiplier": 1.1,
+        "roi_percentage": 400.0,
+        "breakdown": "Reduces expense fraud by 15%"
+      }
+    },
+    {
+      "workflow_id": "personalized_sleep_circadian_optimization",
+      "title": "Personalized Sleep & Circadian Rhythm Optimizer",
+      "task_type": "health_wellness",
+      "domain": "biohacking",
+      "description": "Analyzes wearable data (Oura/Whoop/Apple Watch) to optimize sleep efficiency. Suggests bedtimes, caffeine cutoffs, light exposure, and meal timing based on chronotype and HRV.",
+      "token_cost": 140,
+      "execution_tokens": 600,
+      "rating": 4.8,
+      "usage_count": 88,
+      "tags": ["health", "sleep", "data_science", "wellness", "personal"],
+      "requirements": ["Wearable CSV Export", "Chronotype Quiz Result"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Analyze Sleep Architecture",
+          "action": "analyze_stages",
+          "metrics": ["Deep Sleep %", "REM %", "Latency", "Wake After Sleep Onset (WASO)"],
+          "norm": "Deep should be 15-20%, REM 20-25%",
+          "deficiency": "Low Deep Sleep = Physical recovery issue. Low REM = Mental recovery/temp issue."
+        },
+        {
+          "step": 2,
+          "thought": "Correlate Habits with HRV/Sleep",
+          "action": "correlation_analysis",
+          "inputs": ["Caffeine time", "Alcohol consumption", "Late meal", "Exercise time"],
+          "finding": "Alcohol detected -> HRV drops 20ms, RHR increases 5bpm"
+        },
+        {
+          "step": 3,
+          "thought": "Determine Chronotype Window",
+          "action": "calc_circadian",
+          "input": "Mid-sleep point on free days",
+          "type": "Lark (Early) vs Owl (Late)",
+          "recommendation": "Ideal Bedtime Window: {window_start} to {window_end}"
+        },
+        {
+          "step": 4,
+          "thought": "Generate Protocols",
+          "action": "create_plan",
+          "morning": "Sunlight view within 30 mins of waking (10k lux)",
+          "evening": "Blue light blockers starting at {sunset_time}",
+          "temp": "Bedroom temp 65-68°F (18-20°C)"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Shift Work",
+          "handling": "Focus on 'Anchor Sleep' (4 hours constant) + Naps. Use light therapy boxes to shift phase.",
+          "difficulty": "High"
+        }
+      ],
+      "domain_knowledge": [
+        "Temperature minimum (lowest body temp) occurs ~2 hours before waking - do not view light before this",
+        "Caffeine half-life is ~5-6 hours; quarter-life is 10-12 hours. Noon cutoff is essential for slow metabolizers.",
+        "High HRV is the best proxy for 'Ready to Train/Perform'"
+      ],
+      "pricing": {
+        "base_price": 400,
+        "quality_multiplier": 1.2,
+        "roi_percentage": 1000.0,
+        "breakdown": "Priceless for productivity/health"
+      }
+    },
+    {
+      "workflow_id": "real_estate_brrrr_calculator",
+      "title": "Real Estate BRRRR Investment Calculator",
+      "task_type": "investment_analysis",
+      "domain": "real_estate",
+      "description": "Analyzes Buy, Rehab, Rent, Refinance, Repeat (BRRRR) deals. Calculates Cash on Cash Return, ROI, and Refinance cash-out potential based on After Repair Value (ARV).",
+      "token_cost": 180,
+      "execution_tokens": 600,
+      "rating": 4.9,
+      "usage_count": 156,
+      "tags": ["real_estate", "investing", "finance", "calculator"],
+      "requirements": ["Purchase Price", "Rehab Budget", "ARV Estimate", "Market Rent", "Interest Rates"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Calculate Total Project Cost",
+          "action": "sum_costs",
+          "items": ["Purchase Price", "Closing Costs (Buy)", "Rehab Budget", "Holding Costs (interest, util, ins during rehab)"],
+          "output": "All-in Cost"
+        },
+        {
+          "step": 2,
+          "thought": "Analyze Refinance (The 'Exit')",
+          "action": "calc_refi",
+          "rule": "Banks typically lend 75% LTV (Loan to Value) of ARV",
+          "cash_out": "(ARV * 0.75) - All-in Cost",
+          "goal": "Cash Out >= 0 (Perfect BRRRR - Infinite Return)"
+        },
+        {
+          "step": 3,
+          "thought": "Calculate Rental Cash Flow",
+          "action": "calc_cashflow",
+          "income": "Gross Rent - Vacancy (5%)",
+          "expenses": ["Mortgage (New Refi Loan)", "Taxes", "Insurance", "CapEx (5%)", "Repairs (5%)", "Management (10%)"],
+          "net": "NOI - Debt Service"
+        },
+        {
+          "step": 4,
+          "thought": "Calculate ROI Metrics",
+          "action": "generate_metrics",
+          "coc": "Annual Cashflow / Cash Left in Deal",
+          "equity": "ARV - New Loan Amount",
+          "verdict": "{Good Deal | Bad Deal}"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Appraisal Gap (ARV comes in low)",
+          "handling": "Deal fails. User leaves cash trapped. Sensitivity analysis required: What if ARV is 10% lower?",
+          "risk": "High"
+        }
+      ],
+      "domain_knowledge": [
+        "The '70% Rule': Max Allowable Offer = (ARV * 0.70) - Repairs",
+        "Seasoning Period: Most banks require 6 months ownership before refinancing based on appraised value",
+        "Cash flow is vanity, Equity is sanity, Cash is King"
+      ],
+      "pricing": {
+        "base_price": 500,
+        "quality_multiplier": 1.1,
+        "roi_percentage": 500.0,
+        "breakdown": "Standard tool for investors"
+      }
+    },
+    {
+      "workflow_id": "academic_grant_proposal_generator",
+      "title": "Academic/Research Grant Proposal Generator (NIH/NSF Style)",
+      "task_type": "academic_writing",
+      "domain": "research_science",
+      "description": "Drafts sections for research grants. Focuses on 'Specific Aims', 'Significance', and 'Innovation'. Aligns language with funding agency priorities.",
+      "token_cost": 300,
+      "execution_tokens": 1200,
+      "rating": 4.5,
+      "usage_count": 62,
+      "tags": ["writing", "academia", "science", "funding", "grants"],
+      "requirements": ["Research Hypothesis", "Preliminary Data Summary", "Agency (NIH/NSF)"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "Draft 'Specific Aims' Page (The most important page)",
+          "action": "write_aims",
+          "structure": "Intro Paragraph (The Hook) -> The Gap in Knowledge -> The Central Hypothesis -> Aim 1, Aim 2, Aim 3 -> Impact Statement",
+          "style": "Persuasive, confident, concise (1 page limit)"
+        },
+        {
+          "step": 2,
+          "thought": "Draft 'Significance' Section",
+          "action": "write_significance",
+          "focus": "Why does this matter? What is the vertical advancement?",
+          "check": "Does it address a specific 'Request for Applications' (RFA) priority?"
+        },
+        {
+          "step": 3,
+          "thought": "Draft 'Innovation' Section",
+          "action": "write_innovation",
+          "focus": "New conceptual framework? New tool/method?",
+          "contrast": "How is this better than the Status Quo?"
+        },
+        {
+          "step": 4,
+          "thought": "Review 'Broader Impacts' (NSF specific)",
+          "action": "check_impact",
+          "focus": "Teaching, training, diversity, societal benefit",
+          "validation": "Required for NSF, less critical for NIH"
+        }
+      ],
+      "edge_cases": [
+        {
+          "scenario": "Multidisciplinary Team",
+          "handling": "Emphasize 'Synergy' - why this specific team is uniquely qualified. Draft 'Multiple PI' leadership plan."
+        }
+      ],
+      "domain_knowledge": [
+        "Reviewers spend 80% of their time on the 'Specific Aims' page. If that fails, the rest isn't read.",
+        "Feasibility is the #1 killer of grants - Preliminary Data must support the hypothesis",
+        "NIH scores on 1-9 scale (1 is best)"
+      ],
+      "pricing": {
+        "base_price": 1200,
+        "quality_multiplier": 1.3,
+        "roi_percentage": 10000.0,
+        "breakdown": "Grants are worth $500k-$2M"
+      }
+    }
+    {
       "workflow_id": "california_w2_standard_2024",
       "title": "California 2024 Form 540 (W2, Standard Deduction)",
       "task_type": "tax_filing",
