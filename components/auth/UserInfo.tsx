@@ -12,10 +12,6 @@ export default function UserInfo() {
 
   useEffect(() => {
     const supabase = createClient()
-    if (!supabase) {
-      setLoading(false)
-      return
-    }
 
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
