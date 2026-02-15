@@ -53,6 +53,15 @@ sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 from sanitizer import PrivacySanitizer
 from commerce import CommerceEngine
 
+# Try to import Visa payments (optional, requires Visa credentials)
+try:
+    from visa_payments import visa_bp
+    visa_enabled = True
+    print("[api] Visa payment integration loaded")
+except Exception as e:
+    visa_enabled = False
+    print(f"[api] Visa payments disabled ({e})")
+
 # ---------------------------------------------------------------------------
 # Try to initialize Elasticsearch + JINA (graceful fallback if keys missing)
 # ---------------------------------------------------------------------------
@@ -138,6 +147,10 @@ except Exception as e:
 app = Flask(__name__)
 CORS(app)
 
+# Register Visa payments blueprint if enabled
+if visa_enabled:
+    app.register_blueprint(visa_bp)
+
 
 # ===== HEALTH =====
 
@@ -150,6 +163,7 @@ def health_check():
         "elasticsearch": elastic_client is not None,
         "agent_enabled": agent_instance is not None,
         "orchestrator_enabled": orchestrator is not None,
+        "visa_payments_enabled": visa_enabled,
     })
 
 
