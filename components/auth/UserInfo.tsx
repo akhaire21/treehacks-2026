@@ -9,9 +9,10 @@ import Link from 'next/link'
 export default function UserInfo() {
   const [user, setUser] = useState<User | null>(null)
   const [loading, setLoading] = useState(true)
-  const supabase = createClient()
 
   useEffect(() => {
+    const supabase = createClient()
+
     const getUser = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       setUser(user)
@@ -25,7 +26,7 @@ export default function UserInfo() {
     })
 
     return () => subscription.unsubscribe()
-  }, [supabase.auth])
+  }, [])
 
   if (loading) {
     return <div>Loading...</div>
