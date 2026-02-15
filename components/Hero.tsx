@@ -1,4 +1,8 @@
+
+
+
 import styles from './Hero.module.css'
+import Link from 'next/link'
 
 export default function Hero() {
   return (
@@ -18,7 +22,8 @@ export default function Hero() {
         artifacts from a marketplace of specialized AI — autonomously.
       </p>
       <div className={styles.heroActions}>
-        <a href="#agent" className={styles.btnPrimary} style={{ textDecoration: 'none' }}>Try the Live Agent ↓</a>
+        <Link href="/auth/signup" className={styles.btnPrimary} style={{ textDecoration: 'none' }}>Create Account</Link>
+        <a href="#agent" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Try the Live Agent ↓</a>
         <a href="#marketplace" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Search Marketplace ↓</a>
       </div>
       <div className={styles.heroCode}>
