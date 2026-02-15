@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: treehacks-backend
+    env: python
+    region: oregon
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn api:app
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.0
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: CLAUDE_MODEL
+        value: claude-sonnet-4-20250514
+      - key: CLAUDE_MAX_TOKENS
+        value: 4096
+      - key: JINA_API_KEY
+        sync: false
+      - key: JINA_MODEL
+        value: jina-embeddings-v3
+      - key: JINA_EMBEDDING_DIM
+        value: 1024
+      - key: ELASTIC_CLOUD_ID
+        sync: false
+      - key: ELASTIC_API_KEY
+        sync: false
+      - key: ELASTIC_INDEX
+        value: workflows
+      - key: FLASK_PORT
+        value: 5001
+      - key: FLASK_DEBUG
+        value: false
+      - key: FLASK_ENV
+        value: production
+      - key: SCORE_THRESHOLD_GOOD
+        value: 0.85
+      - key: SCORE_IMPROVEMENT_EPSILON
+        value: 0.1
+      - key: MAX_RECURSION_DEPTH
+        value: 2
+      - key: SUBTASKS_MIN
+        value: 2
+      - key: SUBTASKS_MAX
+        value: 8
