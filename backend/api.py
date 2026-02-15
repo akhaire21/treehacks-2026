@@ -32,6 +32,11 @@ Endpoints:
   POST /api/buy                  Purchase solution and get execution plan
   GET  /api/pricing/<workflow_id> Detailed pricing breakdown
 
+  ── SDK ──
+  GET  /api/sdk/info             SDK package info for pip install marktools
+  GET  /api/sdk/tools            Tool definitions (Anthropic/OpenAI format)
+  GET  /api/sdk/examples         Usage examples
+
 Tech stack: Flask, Elasticsearch, JINA embeddings, Claude Agent SDK
 """
 
@@ -499,6 +504,264 @@ def get_workflow_pricing(workflow_id):
         return jsonify({"error": str(e)}), 500
 
 
+# ===== SDK ENDPOINTS =====
+
+SDK_VERSION = "0.1.0"
+
+# Tool definitions for agents (same schema as marktools package)
+SDK_TOOLS = [
+    {
+        "name": "mark_estimate",
+        "description": (
+            "Search the Mark AI marketplace for pre-solved reasoning workflows that match "
+            "the agent's current task. Returns ranked solutions with pricing, confidence "
+            "scores, and estimated token savings. FREE — no credits spent. "
+            "Call this first to decide if the marketplace is worth using."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {
+                    "type": "string",
+                    "description": "Natural language description of the task.",
+                },
+                "context": {
+                    "type": "object",
+                    "description": "Optional structured metadata (PII auto-sanitized).",
+                },
+            },
+            "required": ["query"],
+        },
+    },
+    {
+        "name": "mark_buy",
+        "description": (
+            "Purchase a solution from the Mark AI marketplace. Requires a session_id from "
+            "a prior mark_estimate call. Deducts credits and returns the full execution plan."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "session_id": {"type": "string", "description": "Session ID from mark_estimate."},
+                "solution_id": {"type": "string", "description": "Solution to purchase (e.g., 'sol_1')."},
+            },
+            "required": ["session_id", "solution_id"],
+        },
+    },
+    {
+        "name": "mark_rate",
+        "description": (
+            "Rate a purchased workflow after use. Provide rating (1-5) or vote (up/down)."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "workflow_id": {"type": "string", "description": "The workflow_id to rate."},
+                "rating": {"type": "integer", "description": "Star rating (1-5).", "minimum": 1, "maximum": 5},
+                "vote": {"type": "string", "enum": ["up", "down"], "description": "Quick vote."},
+            },
+            "required": ["workflow_id"],
+        },
+    },
+    {
+        "name": "mark_search",
+        "description": (
+            "Search the Mark AI marketplace for workflows matching criteria. "
+            "Uses hybrid Elasticsearch kNN + BM25 search."
+        ),
+        "input_schema": {
+            "type": "object",
+            "properties": {
+                "query": {"type": "string", "description": "Natural language search query."},
+                "task_type": {"type": "string", "description": "Category filter."},
+                "state": {"type": "string", "description": "US state filter."},
+                "year": {"type": "integer", "description": "Year filter."},
+            },
+        },
+    },
+]
+
+
+@app.route("/api/sdk/info", methods=["GET"])
+def sdk_info():
+    """SDK package information for pip install marktools."""
+    return jsonify({
+        "package": "marktools",
+        "version": SDK_VERSION,
+        "install": "pip install marktools",
+        "pypi_url": "https://pypi.org/project/marktools/",
+        "github": "https://github.com/akhaire21/treehacks-2026",
+        "docs": "https://docs.mark.ai",
+        "description": "SDK for the Mark AI Agent Workflow Marketplace",
+        "quick_start": {
+            "install": "pip install marktools",
+            "usage": [
+                "from marktools import MarkClient",
+                "",
+                "mark = MarkClient(api_key='mk_...')",
+                "",
+                "# Estimate (free)",
+                "estimate = mark.estimate('File Ohio 2024 taxes')",
+                "",
+                "# Buy best solution",
+                "receipt = mark.buy(estimate.session_id, estimate.best_solution.solution_id)",
+                "",
+                "# Rate after use",
+                "mark.rate(receipt.execution_plan.workflows[0].workflow_id, rating=5)",
+            ],
+        },
+        "supported_frameworks": {
+            "anthropic": "tools = MarkTools().to_anthropic()",
+            "openai": "tools = MarkTools().to_openai()",
+            "langchain": "tools = MarkTools().to_langchain()",
+        },
+        "api_base_url": request.host_url.rstrip("/"),
+        "tools_count": len(SDK_TOOLS),
+    })
+
+
+@app.route("/api/sdk/tools", methods=["GET"])
+def sdk_tools():
+    """Get tool definitions in various formats."""
+    fmt = request.args.get("format", "anthropic")
+
+    if fmt == "openai":
+        openai_tools = []
+        for tool in SDK_TOOLS:
+            openai_tools.append({
+                "type": "function",
+                "function": {
+                    "name": tool["name"],
+                    "description": tool["description"],
+                    "parameters": tool["input_schema"],
+                },
+            })
+        return jsonify({"tools": openai_tools, "format": "openai"})
+    else:
+        return jsonify({"tools": SDK_TOOLS, "format": "anthropic"})
+
+
+@app.route("/api/sdk/examples", methods=["GET"])
+def sdk_examples():
+    """Get usage examples for different frameworks."""
+    return jsonify({
+        "anthropic_claude": {
+            "title": "Use with Anthropic Claude",
+            "code": '''from marktools import MarkTools
+from anthropic import Anthropic
+
+mark = MarkTools(api_key="mk_...")
+client = Anthropic()
+
+response = client.messages.create(
+    model="claude-sonnet-4-20250514",
+    max_tokens=4096,
+    tools=mark.to_anthropic(),
+    messages=[{"role": "user", "content": "Help me file my Ohio taxes"}],
+)
+
+for block in response.content:
+    if block.type == "tool_use":
+        result = mark.execute(block.name, block.input)''',
+        },
+        "openai_gpt4": {
+            "title": "Use with OpenAI GPT-4",
+            "code": '''from marktools import MarkTools
+from openai import OpenAI
+
+mark = MarkTools(api_key="mk_...")
+client = OpenAI()
+
+response = client.chat.completions.create(
+    model="gpt-4o",
+    tools=mark.to_openai(),
+    messages=[{"role": "user", "content": "Help me file my Ohio taxes"}],
+)''',
+        },
+        "direct_client": {
+            "title": "Direct Client Usage",
+            "code": '''from marktools import MarkClient
+
+mark = MarkClient(api_key="mk_...")
+
+# One-shot solve
+receipt = mark.solve("File Ohio 2024 taxes with W2 and itemized deductions")
+
+for wf in receipt.execution_plan.workflows:
+    print(f"Execute: {wf.workflow_title}")
+    for step in wf.workflow.steps:
+        print(f"  Step {step['step']}: {step['thought']}")''',
+        },
+    })
+
+
+# ===== AGENT SDK SIMULATION ENDPOINTS =====
+
+# Pre-built simulation scenarios for frontend replay
+# Loaded from agent-sdk/scenarios.py if available, otherwise inline
+import importlib.util
+_scenarios_path = os.path.join(os.path.dirname(__file__), "..", "agent-sdk", "scenarios.py")
+_scenarios_module = None
+if os.path.exists(_scenarios_path):
+    spec = importlib.util.spec_from_file_location("scenarios", _scenarios_path)
+    _scenarios_module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(_scenarios_module)
+
+
+@app.route("/api/sdk/scenarios", methods=["GET"])
+def sdk_scenarios():
+    """List all available agent simulation scenarios."""
+    if _scenarios_module:
+        return jsonify({"scenarios": _scenarios_module.list_scenarios()})
+    return jsonify({"scenarios": []})
+
+
+# Inline simulation — no external deps needed
+def _simulate_inline(scenario):
+    """Build a simulation trace from a pre-defined scenario."""
+    steps = []
+    tools_called = {}
+    for i, step_data in enumerate(scenario.get("steps", [])):
+        tool_calls = []
+        for tc_data in step_data.get("tool_calls", []):
+            tool_calls.append({
+                "tool_name": tc_data["tool"],
+                "tool_input": tc_data["input"],
+                "result": json.dumps(tc_data["result"]) if isinstance(tc_data["result"], dict) else tc_data["result"],
+                "latency_ms": tc_data.get("latency_ms", 150),
+            })
+            tools_called[tc_data["tool"]] = tools_called.get(tc_data["tool"], 0) + 1
+        steps.append({
+            "step_number": i + 1,
+            "thinking": step_data["thinking"],
+            "tool_calls": tool_calls,
+            "latency_ms": step_data.get("latency_ms", 800),
+        })
+    return {
+        "agent_name": scenario.get("title", "mark-agent"),
+        "task": scenario["task"],
+        "model": "claude-sonnet-4-20250514",
+        "steps": steps,
+        "final_response": scenario.get("final_response", ""),
+        "total_input_tokens": scenario.get("input_tokens", 2500),
+        "total_output_tokens": scenario.get("output_tokens", 1800),
+        "total_latency_ms": scenario.get("total_latency_ms", 5000),
+        "tools_called": tools_called,
+        "success": True,
+    }
+
+
+@app.route("/api/sdk/simulate/<scenario_id>", methods=["GET"])
+def sdk_simulate(scenario_id):
+    """Get a full simulation trace for a scenario."""
+    if _scenarios_module:
+        scenario = _scenarios_module.get_scenario(scenario_id)
+        if scenario:
+            return jsonify(_simulate_inline(scenario))
+        return jsonify({"error": f"Scenario '{scenario_id}' not found"}), 404
+    return jsonify({"error": "Scenarios not loaded"}), 500
+
+
 # ===== START =====
 
 if __name__ == "__main__":
@@ -515,6 +778,7 @@ if __name__ == "__main__":
     print(f"  Orchestrator     : {'ready' if orchestrator else 'disabled'}")
     print(f"  JINA Embeddings  : {'active' if elastic_client else 'off'}")
     print(f"  Commerce Engine  : active")
+    print(f"  SDK package      : marktools v{SDK_VERSION}")
     print(f"  Server           : http://localhost:{port}")
     print()
     print("  Endpoints:")
@@ -530,6 +794,11 @@ if __name__ == "__main__":
     print("    POST /api/estimate        Estimate pricing (orchestrator)")
     print("    POST /api/buy             Buy solution (orchestrator)")
     print("    GET  /api/pricing/<id>    Pricing breakdown")
+    print("    GET  /api/sdk/info        SDK package info")
+    print("    GET  /api/sdk/tools       Tool definitions")
+    print("    GET  /api/sdk/examples    Usage examples")
+    print("    GET  /api/sdk/scenarios   Agent simulation scenarios")
+    print("    GET  /api/sdk/simulate/<id> Run agent simulation")
     print("    GET  /health              Health check")
     print("=" * 60)
 

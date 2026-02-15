@@ -14,10 +14,10 @@ export default function Nav() {
         <a href="#how">How it works</a>
         <a href="#marketplace">Marketplace</a>
         <a href="#agent">Agent</a>
+        <Link href="/sdk">SDK</Link>
+        <Link href="/docs">Docs</Link>
         <a href="#dashboard">Dashboard</a>
-        <a href="/workflow">
-          Visualization
-        </a>
+        <a href="/workflow">Visualization</a>
         <UserInfo />
         <Link href="/auth/signup" className={styles.navCta}>
           Get Started

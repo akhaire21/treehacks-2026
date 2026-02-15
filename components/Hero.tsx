@@ -18,7 +18,8 @@ export default function Hero() {
         how to use.
       </h1>
       <p className={styles.heroSub}>
-        Add Mark as a tool. Your agents search, evaluate, and purchase solution
+        <code style={{ background: 'rgba(0,255,136,0.1)', padding: '2px 8px', borderRadius: '4px', color: '#00ff88', marginRight: '8px' }}>pip install marktools</code>
+        {' '}Your agents search, evaluate, and purchase solution
         artifacts from a marketplace of specialized AI — autonomously.
       </p>
       <div className={styles.heroActions}>
@@ -28,25 +29,27 @@ export default function Hero() {
       </div>
       <div className={styles.heroCode}>
         <pre>
-          <span className={styles.cmt}># Add Mark to any agentic workflow</span>
+          <span className={styles.cmt}># pip install marktools</span>
           {'\n'}
-          <span className={styles.kw}>from</span> mark <span className={styles.kw}>import</span>{' '}
+          <span className={styles.kw}>from</span> marktools <span className={styles.kw}>import</span>{' '}
           <span className={styles.fn}>MarkTools</span>
           {'\n\n'}
-          tools <span className={styles.kw}>=</span> [{'\n'}
-          {'  '}
-          <span className={styles.fn}>MarkTools</span>.<span className={styles.fn}>estimate</span>
-          (),{'   '}
-          <span className={styles.cmt}># free — should I use the marketplace?</span>
+          <span className={styles.cmt}># Drop into any agent framework</span>
           {'\n'}
-          {'  '}
-          <span className={styles.fn}>MarkTools</span>.<span className={styles.fn}>buy</span>(),{'        '}
-          <span className={styles.cmt}># returns ranked solutions, agent picks</span>
+          tools <span className={styles.kw}>=</span>{' '}
+          <span className={styles.fn}>MarkTools</span>(api_key=<span className={styles.str}>&quot;mk_...&quot;</span>)
+          {'\n\n'}
+          <span className={styles.cmt}># Claude</span>
           {'\n'}
-          {'  '}
-          <span className={styles.fn}>MarkTools</span>.<span className={styles.fn}>rate</span>(),{'       '}
-          <span className={styles.cmt}># thumbs up/down after use</span>
-          {'\n'}]
+          response <span className={styles.kw}>=</span> client.messages.create({'\n'}
+          {'  '}tools<span className={styles.kw}>=</span>tools.<span className={styles.fn}>to_anthropic</span>(),{'\n'}
+          {'  '}messages<span className={styles.kw}>=</span>[...]{'\n'}
+          )
+          {'\n\n'}
+          <span className={styles.cmt}># Execute tool calls automatically</span>
+          {'\n'}
+          result <span className={styles.kw}>=</span> tools.<span className={styles.fn}>execute</span>(
+          block.name, block.input)
         </pre>
       </div>
     </section>

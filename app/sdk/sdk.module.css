@@ -1,0 +1,627 @@
+.main {
+  min-height: 100vh;
+  padding: 80px 24px 60px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Header ── */
+.header {
+  text-align: center;
+  margin-bottom: 48px;
+}
+
+.prizeBadges {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+
+.prizeBadge {
+  background: rgba(168, 85, 247, 0.12);
+  color: #c084fc;
+  padding: 6px 16px;
+  border-radius: 999px;
+  font-size: 0.78rem;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  border: 1px solid rgba(168, 85, 247, 0.2);
+}
+
+.header h1 {
+  font-size: 3rem;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.15;
+  margin-bottom: 16px;
+}
+
+.headerAccent {
+  background: linear-gradient(135deg, #a855f7, #06b6d4);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  color: rgba(255, 255, 255, 0.55);
+  font-size: 1.1rem;
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.65;
+}
+
+.subtitle code {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  color: #00ff88;
+  background: rgba(0, 255, 136, 0.08);
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 0.95rem;
+}
+
+/* ── Architecture Diagram ── */
+.archSection {
+  margin-bottom: 56px;
+}
+
+.archDiagram {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  padding: 32px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+}
+
+.archNode {
+  text-align: center;
+  padding: 20px 28px;
+}
+
+.archIcon {
+  font-size: 2rem;
+  margin-bottom: 8px;
+}
+
+.archLabel {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #fff;
+  margin-bottom: 4px;
+}
+
+.archSub {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.archArrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  min-width: 80px;
+}
+
+.archArrow span {
+  font-size: 0.7rem;
+  color: rgba(168, 85, 247, 0.7);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-weight: 500;
+}
+
+.arrowLine {
+  width: 60px;
+  height: 2px;
+  background: linear-gradient(90deg, rgba(168, 85, 247, 0.4), rgba(6, 182, 212, 0.4));
+  position: relative;
+}
+
+.arrowLine::after {
+  content: '';
+  position: absolute;
+  right: -1px;
+  top: -3px;
+  width: 0;
+  height: 0;
+  border-left: 6px solid rgba(6, 182, 212, 0.5);
+  border-top: 4px solid transparent;
+  border-bottom: 4px solid transparent;
+}
+
+/* ── Scenario Cards ── */
+.scenarioSection {
+  margin-bottom: 48px;
+}
+
+.scenarioSection h2 {
+  font-size: 1.3rem;
+  color: #fff;
+  margin-bottom: 20px;
+  font-weight: 600;
+}
+
+.scenarioGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.scenarioCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  display: flex;
+  gap: 16px;
+  align-items: flex-start;
+}
+
+.scenarioCard:hover {
+  border-color: rgba(168, 85, 247, 0.3);
+  background: rgba(168, 85, 247, 0.05);
+  transform: translateY(-2px);
+}
+
+.scenarioCard:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.scenarioActive {
+  border-color: rgba(168, 85, 247, 0.5);
+  background: rgba(168, 85, 247, 0.08);
+}
+
+.scenarioIcon {
+  font-size: 2rem;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.scenarioContent h3 {
+  font-size: 1rem;
+  color: #fff;
+  font-weight: 600;
+  margin-bottom: 6px;
+}
+
+.scenarioContent p {
+  font-size: 0.82rem;
+  color: rgba(255, 255, 255, 0.5);
+  line-height: 1.5;
+  margin-bottom: 8px;
+}
+
+.scenarioPrize {
+  font-size: 0.72rem;
+  color: #a855f7;
+  font-weight: 500;
+}
+
+/* ── Trace Section ── */
+.traceSection {
+  margin-bottom: 56px;
+  scroll-margin-top: 100px;
+}
+
+.traceHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px 14px 0 0;
+  border-bottom: none;
+}
+
+.traceTitle {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+  color: #fff;
+  font-size: 0.95rem;
+}
+
+.statusDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.dotGreen {
+  background: #00ff88;
+  box-shadow: 0 0 8px rgba(0, 255, 136, 0.5);
+}
+
+.dotRed {
+  background: #ff4444;
+  box-shadow: 0 0 8px rgba(255, 68, 68, 0.5);
+}
+
+.traceMeta {
+  display: flex;
+  gap: 16px;
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.4);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Task Box */
+.taskBox {
+  padding: 16px 20px;
+  background: rgba(168, 85, 247, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: none;
+}
+
+.taskLabel {
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.taskBox p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.9rem;
+  line-height: 1.5;
+  margin: 0;
+}
+
+/* Steps */
+.stepsContainer {
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-top: none;
+}
+
+.step {
+  padding: 20px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  opacity: 0;
+  transform: translateY(8px);
+  transition: all 0.4s ease;
+}
+
+.stepVisible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.stepHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.stepNum {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #a855f7;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.stepLatency {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+/* Thinking */
+.thinking {
+  margin-bottom: 12px;
+}
+
+.thinkingLabel {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.thinking p {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 0.85rem;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Tool Calls */
+.toolCall {
+  margin-top: 8px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.toolCallHeader {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 14px;
+  background: rgba(0, 0, 0, 0.3);
+  border: none;
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.toolCallHeader:hover {
+  background: rgba(0, 0, 0, 0.5);
+}
+
+.toolCallLeft {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.toolIcon {
+  font-size: 0.9rem;
+}
+
+.toolName {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.82rem;
+  color: #00ff88;
+  font-weight: 500;
+}
+
+.toolLatency {
+  font-size: 0.7rem;
+  color: rgba(255, 255, 255, 0.3);
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.expandIcon {
+  color: rgba(255, 255, 255, 0.3);
+  font-size: 0.8rem;
+}
+
+.toolCallBody {
+  padding: 14px;
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.toolSection {
+  margin-bottom: 12px;
+}
+
+.toolSection:last-child {
+  margin-bottom: 0;
+}
+
+.toolSectionLabel {
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: rgba(255, 255, 255, 0.35);
+  margin-bottom: 6px;
+  font-weight: 500;
+}
+
+.toolSection pre {
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 12px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.7);
+  overflow-x: auto;
+  line-height: 1.6;
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+/* Loading */
+.stepLoading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.85rem;
+}
+
+.loadingDots {
+  display: flex;
+  gap: 4px;
+}
+
+.loadingDots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a855f7;
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+.loadingDots span:nth-child(2) { animation-delay: 0.2s; }
+.loadingDots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+  0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1.2); }
+}
+
+/* Final Response */
+.finalResponse {
+  padding: 20px;
+  background: rgba(0, 255, 136, 0.03);
+  border: 1px solid rgba(0, 255, 136, 0.15);
+  border-radius: 0 0 14px 14px;
+  animation: fadeIn 0.5s ease;
+}
+
+.finalLabel {
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #00ff88;
+  margin-bottom: 12px;
+}
+
+.finalContent p {
+  color: rgba(255, 255, 255, 0.75);
+  font-size: 0.85rem;
+  line-height: 1.65;
+  margin: 0;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Stats Grid */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.statCard {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+}
+
+.statValue {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #fff;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+}
+
+.statLabel {
+  font-size: 0.72rem;
+  color: rgba(255, 255, 255, 0.4);
+  margin-top: 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+/* Empty State */
+.emptyState {
+  text-align: center;
+  padding: 80px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px dashed rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+}
+
+.emptyIcon {
+  font-size: 3rem;
+  margin-bottom: 16px;
+}
+
+.emptyState p {
+  color: rgba(255, 255, 255, 0.4);
+  font-size: 0.95rem;
+}
+
+/* Code Section */
+.codeSection {
+  margin-bottom: 60px;
+}
+
+.codeSection h2 {
+  font-size: 1.4rem;
+  color: #fff;
+  margin-bottom: 8px;
+  font-weight: 600;
+}
+
+.codeSub {
+  color: rgba(255, 255, 255, 0.5);
+  font-size: 0.92rem;
+  margin-bottom: 24px;
+  line-height: 1.6;
+}
+
+.codeSub code {
+  color: #00ff88;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.88rem;
+}
+
+.codeBlock {
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  padding: 24px;
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 0.8rem;
+  line-height: 1.7;
+  color: rgba(255, 255, 255, 0.85);
+  overflow-x: auto;
+  white-space: pre;
+}
+
+/* ── Responsive ── */
+@media (max-width: 900px) {
+  .scenarioGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .archDiagram {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .archArrow {
+    transform: rotate(90deg);
+    min-width: unset;
+  }
+
+  .statsGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .traceMeta {
+    display: none;
+  }
+
+  .header h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 600px) {
+  .main {
+    padding: 70px 14px 40px;
+  }
+
+  .header h1 {
+    font-size: 1.7rem;
+  }
+
+  .prizeBadges {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .codeBlock {
+    padding: 16px;
+    font-size: 0.72rem;
+  }
+}

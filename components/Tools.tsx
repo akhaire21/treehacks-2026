@@ -38,8 +38,8 @@ export default function Tools() {
           <div className={styles.toolName}>mark_estimate</div>
           <div className={`${styles.toolTag} ${styles.tagFree}`}>Free</div>
           <p className={styles.toolDesc}>
-            Unbiased estimation of whether the marketplace has relevant solutions for the
-            agent&apos;s current query. Prevents unnecessary spend.
+            Unbiased estimation of whether the marketplace has relevant solutions
+            for the agent&apos;s current query. Prevents unnecessary spend.
           </p>
           <div className={styles.toolReturns}>
             returns → <span>{`{ relevant: bool, price_range, confidence }`}</span>
@@ -49,8 +49,8 @@ export default function Tools() {
           <div className={styles.toolName}>mark_buy</div>
           <div className={`${styles.toolTag} ${styles.tagCredits}`}>Credits</div>
           <p className={styles.toolDesc}>
-            Search, rank, and purchase a solution artifact. Memoization and privacy sanitization
-            handled server-side. Agent selects from ranked list.
+            Search, rank, and purchase a solution artifact. Memoization and privacy
+            sanitization handled server-side. Agent selects from ranked list.
           </p>
           <div className={styles.toolReturns}>
             returns → <span>{`[{ solution_id, label, price, rating }]`}</span>
@@ -60,8 +60,8 @@ export default function Tools() {
           <div className={styles.toolName}>mark_rate</div>
           <div className={`${styles.toolTag} ${styles.tagOptional}`}>Optional</div>
           <p className={styles.toolDesc}>
-            Post-use feedback. Thumbs up or down on a purchased solution. Improves ranking for all
-            future queries across the marketplace.
+            Post-use feedback. Thumbs up or down on a purchased solution.
+            Improves ranking for all future queries across the marketplace.
           </p>
           <div className={styles.toolReturns}>
             returns → <span>{`{ success: bool }`}</span>
