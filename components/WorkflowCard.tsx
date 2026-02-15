@@ -29,9 +29,10 @@ interface Workflow {
 interface WorkflowCardProps {
   workflow: Workflow
   onPurchase?: (workflowId: string) => void
+  purchased?: boolean
 }
 
-export default function WorkflowCard({ workflow, onPurchase }: WorkflowCardProps) {
+export default function WorkflowCard({ workflow, onPurchase, purchased = false }: WorkflowCardProps) {
   const [showPricing, setShowPricing] = useState(false)
 
   const {
@@ -103,12 +104,18 @@ export default function WorkflowCard({ workflow, onPurchase }: WorkflowCardProps
       </div>
 
       <div className={styles.cardActions}>
-        <button
-          className={styles.btnPrimary}
-          onClick={() => onPurchase && onPurchase(workflow_id)}
-        >
-          Purchase Workflow
-        </button>
+        {purchased ? (
+          <button className={styles.btnPurchased} disabled>
+            ✓ Purchased
+          </button>
+        ) : (
+          <button
+            className={styles.btnPrimary}
+            onClick={() => onPurchase && onPurchase(workflow_id)}
+          >
+            Purchase Workflow
+          </button>
+        )}
         <button className={styles.btnSecondary} onClick={() => setShowPricing(!showPricing)}>
           {showPricing ? 'Hide' : 'Show'} Pricing Details
         </button>
@@ -135,12 +142,24 @@ export default function WorkflowCard({ workflow, onPurchase }: WorkflowCardProps
 
       {showPricing && !hasFullPricingData && (
         <div className={styles.pricingDetails}>
-          <div style={{ padding: '1rem', background: 'var(--surface-2)', borderRadius: '8px', fontSize: '0.875rem', color: 'var(--text-dim)' }}>
-            <div style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text)' }}>Pricing Summary</div>
-            <div>Price: <strong style={{ color: 'var(--accent)' }}>◈ {price_tokens.toLocaleString()}</strong> tokens</div>
-            {tokens_saved > 0 && <div>Tokens saved: <strong style={{ color: 'var(--green)' }}>{tokens_saved.toLocaleString()}</strong> ({savings_percentage}% reduction)</div>}
-            {roiPercentage > 0 && <div>ROI: <strong style={{ color: 'var(--green)' }}>{roiPercentage.toLocaleString()}%</strong></div>}
-            {pricing?.breakdown && <div style={{ marginTop: '0.5rem', opacity: 0.8 }}>{pricing.breakdown}</div>}
+          <div className={styles.pricingSummary}>
+            <div className={styles.pricingSummaryTitle}>Pricing Summary</div>
+            <div className={styles.pricingSummaryRow}>
+              Price: <strong className={styles.accentText}>◈ {price_tokens.toLocaleString()}</strong> tokens
+            </div>
+            {tokens_saved > 0 && (
+              <div className={styles.pricingSummaryRow}>
+                Tokens saved: <strong className={styles.greenText}>{tokens_saved.toLocaleString()}</strong> ({savings_percentage}% reduction)
+              </div>
+            )}
+            {roiPercentage > 0 && (
+              <div className={styles.pricingSummaryRow}>
+                ROI: <strong className={styles.greenText}>{roiPercentage.toLocaleString()}%</strong>
+              </div>
+            )}
+            {pricing?.breakdown && (
+              <div className={styles.pricingSummaryBreakdown}>{pricing.breakdown}</div>
+            )}
           </div>
         </div>
       )}

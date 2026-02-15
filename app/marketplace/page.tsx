@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import Nav from '@/components/Nav'
 import Footer from '@/components/Footer'
 import WorkflowCard from '@/components/WorkflowCard'
+import PurchaseModal from '@/components/PurchaseModal'
 import styles from './marketplace.module.css'
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
@@ -135,6 +136,8 @@ export default function MarketplacePage() {
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [filter, setFilter] = useState<string>('all')
+  const [purchasingWorkflow, setPurchasingWorkflow] = useState<Workflow | null>(null)
+  const [purchasedIds, setPurchasedIds] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     fetchWorkflows()
@@ -157,8 +160,12 @@ export default function MarketplacePage() {
   }
 
   const handlePurchase = (workflowId: string) => {
-    // In a real app, this would handle the purchase flow
-    alert(`Purchasing workflow: ${workflowId}`)
+    const wf = workflows.find((w) => w.workflow_id === workflowId)
+    if (wf) setPurchasingWorkflow(wf)
+  }
+
+  const handlePurchaseSuccess = (data: any) => {
+    setPurchasedIds((prev) => new Set([...prev, data.receipt?.workflow_id || data.workflow?.workflow_id || '']))
   }
 
   const taskTypes = ['all', ...new Set(workflows.map((w) => w.task_type))]
@@ -262,6 +269,7 @@ export default function MarketplacePage() {
                 key={workflow.workflow_id}
                 workflow={workflow}
                 onPurchase={handlePurchase}
+                purchased={purchasedIds.has(workflow.workflow_id)}
               />
             ))}
           </div>
@@ -273,6 +281,16 @@ export default function MarketplacePage() {
           )}
         </div>
       </main>
+
+      {purchasingWorkflow && (
+        <PurchaseModal
+          workflow={purchasingWorkflow}
+          apiBase={API_BASE}
+          onClose={() => setPurchasingWorkflow(null)}
+          onSuccess={handlePurchaseSuccess}
+        />
+      )}
+
       <Footer />
     </>
   )

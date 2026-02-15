@@ -208,6 +208,18 @@
   box-shadow: 0 4px 12px var(--accent-dim);
 }
 
+.btnPurchased {
+  flex: 1;
+  padding: 0.75rem 1.5rem;
+  background: rgba(0, 214, 143, 0.12);
+  color: var(--green);
+  border: 1px solid rgba(0, 214, 143, 0.3);
+  border-radius: 8px;
+  font-size: 0.875rem;
+  font-weight: 700;
+  cursor: default;
+}
+
 .btnSecondary {
   padding: 0.75rem 1.5rem;
   background: transparent;
@@ -231,6 +243,43 @@
   margin-top: 1rem;
   padding-top: 1rem;
   border-top: 2px solid var(--border);
+}
+
+/* Fallback pricing summary */
+.pricingSummary {
+  padding: 1rem;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  font-size: 0.8125rem;
+  color: var(--text-dim);
+}
+
+.pricingSummaryTitle {
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text);
+}
+
+.pricingSummaryRow {
+  margin-bottom: 0.25rem;
+  line-height: 1.6;
+}
+
+.pricingSummaryBreakdown {
+  margin-top: 0.5rem;
+  opacity: 0.7;
+  font-size: 0.75rem;
+  line-height: 1.5;
+}
+
+.accentText {
+  color: var(--accent);
+}
+
+.greenText {
+  color: var(--green);
 }
 
 /* Responsive */
