@@ -16,7 +16,7 @@ export default function Nav() {
         <a href="#agent">Agent</a>
         <Link href="/sdk">SDK</Link>
         <Link href="/docs">Docs</Link>
-        <a href="#dashboard">Dashboard</a>
+        <Link href="/dashboard">Dashboard</Link>
         <a href="/workflow">Visualization</a>
         <UserInfo />
         <Link href="/auth/signup" className={styles.navCta}>
