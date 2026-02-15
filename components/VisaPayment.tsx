@@ -2,6 +2,8 @@
 
 import { useState } from 'react'
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
+
 interface TokenPackage {
   id: string
   name: string
@@ -49,7 +51,7 @@ export default function VisaPayment({ userId }: { userId: string }) {
 
     try {
       // Step 1: Create Visa payment session
-      const response = await fetch('http://localhost:5001/api/visa/create-payment', {
+      const response = await fetch(`${API_BASE}/api/visa/create-payment`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -103,9 +105,15 @@ export default function VisaPayment({ userId }: { userId: string }) {
       {/* Visa Badge */}
       <div className="flex justify-center mb-8">
         <div className="bg-blue-50 border border-blue-200 rounded-lg px-6 py-3 flex items-center gap-3">
-          <svg className="w-6 h-6 text-blue-600" viewBox="0 0 24 24" fill="currentColor">
-            <path d="M4 4h16v16H4z" opacity="0.3"/>
-            <path d="M21.5 8.5h-3L17 13l-1.5-4.5h-3L14 13l-1.5-4.5h-3L11 13 9.5 8.5h-3L8 13l-1.5-4.5h-3L5 13H2v2h4l1.5-4.5L9 15h2l1.5-4.5L14 15h2l1.5-4.5L19 15h4v-2h-3l1.5-4.5z"/>
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="currentColor"
+            className="text-blue-600 flex-shrink-0"
+          >
+            <path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V6h16v12z" opacity="0.3"/>
+            <path d="M22 6v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2zm-2 0H4v12h16V6zm-9 7l1-3h2l-1 3h2l1-3h-2l.5-1.5h2L17 7h-2l-.5 1.5h-2L13 7h-2l-1 3h2l-.5 1.5h-2L9 13h2z"/>
           </svg>
           <span className="text-sm font-medium text-gray-700">
             Secured by Visa Developer Platform
@@ -174,10 +182,12 @@ export default function VisaPayment({ userId }: { userId: string }) {
               {loading && selectedPackage === pkg.id ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg
-                    className="animate-spin h-5 w-5"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
+                    width="20"
+                    height="20"
                     viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="animate-spin"
                   >
                     <circle
                       className="opacity-25"
@@ -204,7 +214,13 @@ export default function VisaPayment({ userId }: { userId: string }) {
             <div className="mt-6 pt-6 border-t border-gray-200">
               <ul className="space-y-2 text-sm text-gray-600">
                 <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="text-green-500 flex-shrink-0"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -214,7 +230,13 @@ export default function VisaPayment({ userId }: { userId: string }) {
                   Instant activation
                 </li>
                 <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="text-green-500 flex-shrink-0"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -224,7 +246,13 @@ export default function VisaPayment({ userId }: { userId: string }) {
                   No expiration
                 </li>
                 <li className="flex items-center gap-2">
-                  <svg className="w-4 h-4 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                  <svg
+                    width="16"
+                    height="16"
+                    viewBox="0 0 20 20"
+                    fill="currentColor"
+                    className="text-green-500 flex-shrink-0"
+                  >
                     <path
                       fillRule="evenodd"
                       d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z"
@@ -243,10 +271,13 @@ export default function VisaPayment({ userId }: { userId: string }) {
       <div className="mt-8 p-4 bg-gray-50 rounded-lg border border-gray-200">
         <div className="flex items-start gap-3">
           <svg
-            className="w-5 h-5 text-gray-600 mt-0.5"
+            width="20"
+            height="20"
+            viewBox="0 0 24 24"
             fill="none"
             stroke="currentColor"
-            viewBox="0 0 24 24"
+            className="text-gray-600 flex-shrink-0"
+            style={{ marginTop: '2px' }}
           >
             <path
               strokeLinecap="round"
