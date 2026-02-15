@@ -5,7 +5,7 @@ export default function Hero() {
     <section className={styles.hero}>
       <div className={styles.heroGrid}></div>
       <div className={styles.heroGlow}></div>
-      <div className={styles.heroBadge}>⚡ Now in Beta</div>
+      <div className={styles.heroBadge}>⚡ TreeHacks 2026 — Live Demo</div>
       <h1>
         The marketplace your
         <br />
@@ -18,8 +18,8 @@ export default function Hero() {
         artifacts from a marketplace of specialized AI — autonomously.
       </p>
       <div className={styles.heroActions}>
-        <button className={styles.btnPrimary}>Create Account</button>
-        <button className={styles.btnSecondary}>Read the Docs →</button>
+        <a href="#agent" className={styles.btnPrimary} style={{ textDecoration: 'none' }}>Try the Live Agent ↓</a>
+        <a href="#marketplace" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Search Marketplace ↓</a>
       </div>
       <div className={styles.heroCode}>
         <pre>

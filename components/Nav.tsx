@@ -10,11 +10,9 @@ export default function Nav() {
       </div>
       <div className={styles.navLinks}>
         <a href="#how">How it works</a>
-        <a href="#tools">Tools</a>
+        <a href="#marketplace">Marketplace</a>
+        <a href="#agent">Agent</a>
         <a href="#dashboard">Dashboard</a>
-        <a href="https://docs.mark.ai" target="_blank" rel="noopener noreferrer">
-          Docs
-        </a>
         <a href="#" className={styles.navCta}>
           Get Started
         </a>
