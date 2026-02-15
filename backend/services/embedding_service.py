@@ -32,12 +32,21 @@ class EmbeddingService:
 
         print(f"Initialized EmbeddingService with model: {model}")
 
-    def embed(self, text: Union[str, List[str]]) -> Union[List[float], List[List[float]]]:
+    def embed(
+        self,
+        text: Union[str, List[str]],
+        task: str = "retrieval.passage"
+    ) -> Union[List[float], List[List[float]]]:
         """
         Generate embeddings for text input(s).
 
         Args:
             text: Single text string or list of text strings
+            task: Task type for embeddings. Options:
+                  - "retrieval.passage": For indexing documents (default)
+                  - "retrieval.query": For search queries
+                  - "classification": For classification tasks
+                  - "text-matching": For similarity matching
 
         Returns:
             Single embedding vector or list of embedding vectors
@@ -55,7 +64,9 @@ class EmbeddingService:
         payload = {
             "model": self.model,
             "input": texts,
-            "encoding_type": "float"
+            "encoding_type": "float",
+            "dimensions": self.embedding_dim,  # Explicitly specify dimensions
+            "task": task  # Task-specific optimization for better performance
         }
 
         try:
@@ -72,13 +83,19 @@ class EmbeddingService:
             print(f"Error generating embeddings: {e}")
             raise
 
-    def embed_batch(self, texts: List[str], batch_size: int = 32) -> List[List[float]]:
+    def embed_batch(
+        self,
+        texts: List[str],
+        batch_size: int = 32,
+        task: str = "retrieval.passage"
+    ) -> List[List[float]]:
         """
         Generate embeddings for large batches of text with batching.
 
         Args:
             texts: List of text strings
             batch_size: Number of texts to process per batch
+            task: Task type for embeddings (see embed() for options)
 
         Returns:
             List of embedding vectors
@@ -87,7 +104,7 @@ class EmbeddingService:
 
         for i in range(0, len(texts), batch_size):
             batch = texts[i:i + batch_size]
-            embeddings = self.embed(batch)
+            embeddings = self.embed(batch, task=task)
             all_embeddings.extend(embeddings)
 
             print(f"Processed batch {i // batch_size + 1}/{(len(texts) - 1) // batch_size + 1}")
@@ -130,19 +147,24 @@ if __name__ == "__main__":
     # Initialize service
     service = EmbeddingService(api_key=api_key)
 
-    # Test single embedding
+    # Test single embedding (for indexing documents)
     text = "File Ohio 2024 taxes with W2 and itemized deductions"
-    embedding = service.embed(text)
+    embedding = service.embed(text, task="retrieval.passage")
     print(f"Generated embedding with {len(embedding)} dimensions")
 
-    # Test batch embedding
+    # Test batch embedding (for indexing multiple documents)
     texts = [
         "File Ohio 2024 taxes",
         "Plan Tokyo family trip",
         "Parse Stripe invoice"
     ]
-    embeddings = service.embed_batch(texts, batch_size=2)
+    embeddings = service.embed_batch(texts, batch_size=2, task="retrieval.passage")
     print(f"Generated {len(embeddings)} embeddings")
+
+    # Test query embedding (for search queries)
+    query = "How to file taxes in Ohio"
+    query_embedding = service.embed(query, task="retrieval.query")
+    print(f"Generated query embedding with {len(query_embedding)} dimensions")
 
     # Test similarity
     similarity = service.cosine_similarity(embeddings[0], embeddings[1])
