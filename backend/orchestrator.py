@@ -104,7 +104,8 @@ class MarketplaceOrchestrator:
         self,
         raw_query: str,
         raw_context: Optional[Dict[str, Any]] = None,
-        top_k: int = 5
+        top_k: int = 5,
+        require_close_match: bool = False
     ) -> Dict[str, Any]:
         """
         Estimate pricing and search for solution (no purchase yet).
@@ -118,9 +119,12 @@ class MarketplaceOrchestrator:
             raw_query: Natural language query from agent
             raw_context: Optional context dict with metadata (may contain PII)
             top_k: Number of workflow candidates to return
+            require_close_match: If True, return nothing if best score after max_depth
+                                is below MIN_ACCEPTABLE_SCORE threshold (quality control)
 
         Returns:
-            MarketplaceResponse with DAG and pricing
+            MarketplaceResponse with DAG and pricing (or empty if require_close_match=True
+            and no good matches found)
         """
         print(f"\n{'='*70}")
         print(f"ESTIMATE PRICE AND SEARCH")
@@ -157,6 +161,44 @@ class MarketplaceOrchestrator:
         print(f"  ✓ Search complete: {search_plan.plan_type} plan with {len(search_plan.workflows)} workflows")
         if search_plan.is_composite:
             print(f"  ✓ Composite plan coverage: {search_plan.coverage}")
+        print(f"  ✓ Overall score: {search_plan.overall_score:.3f}")
+        print(f"  ✓ Final depth: {search_plan.final_depth}, Max depth reached: {search_plan.max_depth_reached}")
+
+        # ═══════════════════════════════════════════════════════════════════
+        # QUALITY CONTROL: Check if results meet minimum acceptable score
+        # ═══════════════════════════════════════════════════════════════════
+        if require_close_match:
+            from config import Config
+            min_score = Config.MIN_ACCEPTABLE_SCORE
+
+            if search_plan.max_depth_reached and search_plan.overall_score < min_score:
+                print(f"\n⚠️  QUALITY CONTROL TRIGGERED")
+                print(f"  Max depth reached: {search_plan.final_depth}")
+                print(f"  Best score: {search_plan.overall_score:.3f}")
+                print(f"  Required: {min_score:.3f}")
+                print(f"  → Returning empty results (no close matches found)")
+
+                return {
+                    "query": {
+                        "sanitized": sanitized_query,
+                        "privacy_protected": True
+                    },
+                    "decomposition": {
+                        "num_subtasks": len(search_plan.subtasks) if search_plan.subtasks else 1,
+                        "subtasks": [st.to_dict() for st in search_plan.subtasks] if search_plan.subtasks else []
+                    },
+                    "solutions": [],
+                    "num_solutions": 0,
+                    "session_id": None,
+                    "quality_control": {
+                        "triggered": True,
+                        "reason": "No close matches found after exhausting max recursion depth",
+                        "max_depth_reached": True,
+                        "final_depth": search_plan.final_depth,
+                        "best_score": search_plan.overall_score,
+                        "min_required_score": min_score
+                    }
+                }
 
         # ═══════════════════════════════════════════════════════════════════
         # CRITICAL: Extract subtasks from search_plan (SINGLE SOURCE OF TRUTH!)

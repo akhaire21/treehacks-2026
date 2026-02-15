@@ -183,7 +183,9 @@ class RecursiveQueryDecomposer:
             return SearchPlan(
                 plan_type="direct",
                 workflows=[],
-                overall_score=0.0
+                overall_score=0.0,
+                max_depth_reached=False,  # No recursion attempted
+                final_depth=depth
             )
 
         # Step 2: Compute best plan score
@@ -205,7 +207,9 @@ class RecursiveQueryDecomposer:
             return SearchPlan(
                 plan_type="direct",
                 workflows=workflows,
-                overall_score=best_plan_score
+                overall_score=best_plan_score,
+                max_depth_reached=False,  # Good match found early
+                final_depth=depth
             )
 
         # Step 4: Decompose into subtasks
@@ -240,9 +244,13 @@ class RecursiveQueryDecomposer:
 
         if improvement >= self.score_improvement_epsilon:
             print(f"✓ Composite plan improved! Accepting.")
-            return self._composite_to_plan(composite_plan)
+            plan = self._composite_to_plan(composite_plan)
+            plan.final_depth = depth
+            plan.max_depth_reached = False  # Found improvement before max depth
+            return plan
 
         # Step 9: If still weak and depth < max, recursive split
+        max_depth_reached = False
         if composite_plan.overall_score < self.score_threshold_good and depth < self.max_recursion_depth:
             print(f"\n[Step 7] Composite still weak. Attempting recursive split (depth {depth+1})...")
             improved_plan = self._recursive_split(
@@ -253,20 +261,32 @@ class RecursiveQueryDecomposer:
 
             if improved_plan and improved_plan.overall_score > composite_plan.overall_score:
                 print(f"✓ Recursive split improved score to {improved_plan.overall_score:.3f}")
-                return self._composite_to_plan(improved_plan)
+                plan = self._composite_to_plan(improved_plan)
+                plan.final_depth = depth + 1
+                plan.max_depth_reached = False  # Improvement found at depth+1
+                return plan
+        elif composite_plan.overall_score < self.score_threshold_good and depth >= self.max_recursion_depth:
+            # Exhausted max depth without finding good match
+            max_depth_reached = True
+            print(f"⚠️  Max recursion depth ({self.max_recursion_depth}) reached. Score still below threshold.")
 
         # Step 10: Return best plan found
         print(f"\n[Final] Returning best plan (score: {max(best_plan_score, composite_plan.overall_score):.3f})")
 
         if composite_plan.overall_score > best_plan_score:
-            return self._composite_to_plan(composite_plan)
+            plan = self._composite_to_plan(composite_plan)
+            plan.final_depth = depth
+            plan.max_depth_reached = max_depth_reached
+            return plan
         else:
             # Return direct match
             workflows = [c.workflow for c in candidates[:top_k]]
             return SearchPlan(
                 plan_type="direct",
                 workflows=workflows,
-                overall_score=best_plan_score
+                overall_score=best_plan_score,
+                max_depth_reached=max_depth_reached,
+                final_depth=depth
             )
 
     def _broad_search(

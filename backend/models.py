@@ -515,6 +515,8 @@ class SearchPlan:
     subtasks: List[Subtask] = field(default_factory=list)
     subtask_workflow_mapping: Dict[int, int] = field(default_factory=dict)
     coverage: str = ""
+    max_depth_reached: bool = False  # True if search exhausted max recursion depth
+    final_depth: int = 0  # Actual depth reached during search
 
     @property
     def is_composite(self) -> bool:

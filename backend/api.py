@@ -86,7 +86,10 @@ def estimate_price_and_search():
             "optional": "metadata",
             "may_contain": "PII"
         },
-        "top_k": 5  // optional, default 5
+        "top_k": 5,  // optional, default 5
+        "require_close_match": false  // optional, default false
+                                      // If true, returns nothing if no close matches
+                                      // found after exhausting max_depth
     }
 
     Response:
@@ -152,12 +155,14 @@ def estimate_price_and_search():
         query = data['query']
         context = data.get('context', None)
         top_k = data.get('top_k', 5)
+        require_close_match = data.get('require_close_match', False)
 
         # Call orchestrator
         response = orchestrator.estimate_price_and_search(
             raw_query=query,
             raw_context=context,
-            top_k=top_k
+            top_k=top_k,
+            require_close_match=require_close_match
         )
 
         # Return response (already a dict)

@@ -52,6 +52,10 @@ class Config:
     SUBTASKS_MIN: int = int(os.getenv("SUBTASKS_MIN", "2"))
     SUBTASKS_MAX: int = int(os.getenv("SUBTASKS_MAX", "8"))
 
+    # Quality Control: Minimum score required to return results
+    # If best solution after max_depth is below this, return nothing
+    MIN_ACCEPTABLE_SCORE: float = float(os.getenv("MIN_ACCEPTABLE_SCORE", "0.6"))
+
     @classmethod
     def validate(cls) -> bool:
         """Validate that required configuration is present."""
@@ -187,3 +191,4 @@ if __name__ == "__main__":
     print(f"  Improvement Epsilon: {Config.SCORE_IMPROVEMENT_EPSILON}")
     print(f"  Max Recursion Depth: {Config.MAX_RECURSION_DEPTH}")
     print(f"  Subtasks Range: {Config.SUBTASKS_MIN}-{Config.SUBTASKS_MAX}")
+    print(f"  Min Acceptable Score: {Config.MIN_ACCEPTABLE_SCORE}")
