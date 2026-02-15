@@ -22,8 +22,8 @@ interface Workflow {
     roi_percentage: number
     breakdown: string
   }
-  avg_tokens_without?: number
-  avg_tokens_with?: number
+  avg_tokens_without: number
+  avg_tokens_with: number
 }
 
 interface WorkflowCardProps {
@@ -133,14 +133,14 @@ export default function WorkflowCard({ workflow, onPurchase }: WorkflowCardProps
         </div>
       )}
 
-      {showPricing && !hasFullPricingData && pricing && (
+      {showPricing && !hasFullPricingData && (
         <div className={styles.pricingDetails}>
           <div style={{ padding: '1rem', background: 'var(--surface-2)', borderRadius: '8px', fontSize: '0.875rem', color: 'var(--text-dim)' }}>
             <div style={{ fontWeight: 700, marginBottom: '0.5rem', color: 'var(--text)' }}>Pricing Summary</div>
             <div>Price: <strong style={{ color: 'var(--accent)' }}>◈ {price_tokens.toLocaleString()}</strong> tokens</div>
             {tokens_saved > 0 && <div>Tokens saved: <strong style={{ color: 'var(--green)' }}>{tokens_saved.toLocaleString()}</strong> ({savings_percentage}% reduction)</div>}
             {roiPercentage > 0 && <div>ROI: <strong style={{ color: 'var(--green)' }}>{roiPercentage.toLocaleString()}%</strong></div>}
-            {pricing.breakdown && <div style={{ marginTop: '0.5rem', opacity: 0.8 }}>{pricing.breakdown}</div>}
+            {pricing?.breakdown && <div style={{ marginTop: '0.5rem', opacity: 0.8 }}>{pricing.breakdown}</div>}
           </div>
         </div>
       )}
