@@ -20,5 +20,4 @@ scikit-learn>=1.4.0
 gunicorn==21.2.0
 
 # Payment Processing (Visa Developer API)
-cybersource-rest-client-python==0.0.21
 python-jose==3.3.0
