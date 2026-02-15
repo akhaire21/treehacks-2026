@@ -1,83 +1,401 @@
 """
-Flask API for Agent Workflow Marketplace.
+Main Flask API for the Agent Workflow Marketplace.
 
 Endpoints:
-1. POST /api/estimate - Estimate pricing and search (no purchase)
-2. POST /api/buy - Purchase solution and get execution plan
-3. POST /api/feedback - Rate workflow (upvote/downvote)
-4. GET /health - Health check
+  ── Core Marketplace ──
+  GET  /health                   Health check
+  GET  /api/workflows            List all workflows
+  POST /api/search               Hybrid search (Elastic kNN + BM25)
+  POST /api/purchase             Purchase a workflow
+  POST /api/feedback             Rate a workflow
+
+  ── Privacy ──
+  POST /api/sanitize             Demo PII sanitization
+
+  ── Claude Agent ──
+  POST /api/agent/chat           Multi-turn agent conversation
+  GET  /api/agent/session        Get session state
+  POST /api/agent/reset          Reset agent session
+
+  ── Commerce ──
+  GET  /api/commerce/balance     Get user balance
+  POST /api/commerce/deposit     Add credits
+  POST /api/commerce/cart/add    Add workflow to cart
+  POST /api/commerce/cart/remove Remove from cart
+  GET  /api/commerce/cart        View cart
+  POST /api/commerce/checkout    Checkout cart
+  GET  /api/commerce/transactions Transaction history
+  GET  /api/commerce/stats       Marketplace statistics
+
+  ── Pricing / Orchestrator (from price-model) ──
+  POST /api/estimate             Estimate pricing and search (no purchase)
+  POST /api/buy                  Purchase solution and get execution plan
+  GET  /api/pricing/<workflow_id> Detailed pricing breakdown
+
+Tech stack: Flask, Elasticsearch, JINA embeddings, Claude Agent SDK
 """
+
+import os
+import sys
+import json
+from datetime import datetime
 
 from flask import Flask, request, jsonify
 from flask_cors import CORS
-import json
-import os
-import sys
+from dotenv import load_dotenv
+
+# Load .env
+load_dotenv(os.path.join(os.path.dirname(__file__), ".env"))
 
 # Add parent directory to path for imports
 sys.path.append(os.path.dirname(os.path.abspath(__file__)))
 
-from config import initialize_services
-from orchestrator import MarketplaceOrchestrator
+from sanitizer import PrivacySanitizer
+from commerce import CommerceEngine
 
-# Initialize Flask app
-app = Flask(__name__)
-CORS(app)  # Enable CORS for frontend
+# ---------------------------------------------------------------------------
+# Try to initialize Elasticsearch + JINA (graceful fallback if keys missing)
+# ---------------------------------------------------------------------------
+elastic_client = None
+try:
+    cloud_id = os.getenv("ELASTIC_CLOUD_ID", "")
+    api_key = os.getenv("ELASTIC_API_KEY", "")
+    jina_key = os.getenv("JINA_API_KEY", "")
 
-# Global orchestrator instance
+    if cloud_id and api_key and jina_key:
+        from elastic_client import ElasticClient, JinaEmbedder
+
+        embedder = JinaEmbedder(api_key=jina_key)
+        elastic_client = ElasticClient(
+            cloud_id=cloud_id, api_key=api_key, jina_embedder=embedder
+        )
+        print("[api] Elasticsearch + JINA connected")
+    else:
+        print("[api] Elastic/JINA keys not set — running in-memory fallback mode")
+except Exception as e:
+    print(f"[api] Elasticsearch init failed ({e}) — using in-memory fallback")
+
+# ---------------------------------------------------------------------------
+# Initialize services
+# ---------------------------------------------------------------------------
+from matcher import WorkflowMatcher
+
+matcher = WorkflowMatcher(elastic_client=elastic_client)
+sanitizer = PrivacySanitizer()
+commerce = CommerceEngine()
+
+# Load workflows from disk (always, for fallback + listing)
+WORKFLOWS_PATH = os.path.join(os.path.dirname(__file__), "workflows.json")
+matcher.load_workflows(WORKFLOWS_PATH)
+
+# ---------------------------------------------------------------------------
+# Initialize Claude Agent
+# ---------------------------------------------------------------------------
+agent_instance = None
+try:
+    anthropic_key = os.getenv("ANTHROPIC_API_KEY", "")
+    if anthropic_key:
+        from agent import MarketplaceAgent
+
+        agent_instance = MarketplaceAgent(
+            elastic_client=elastic_client,
+            sanitizer=sanitizer,
+            anthropic_api_key=anthropic_key,
+        )
+        print("[api] Claude Agent initialized")
+    else:
+        print("[api] ANTHROPIC_API_KEY not set — agent endpoints disabled")
+except Exception as e:
+    print(f"[api] Agent init failed ({e}) — agent endpoints disabled")
+
+# ---------------------------------------------------------------------------
+# Initialize Price-Model Orchestrator (optional — from price-model branch)
+# ---------------------------------------------------------------------------
 orchestrator = None
+try:
+    from config import initialize_services
+    from orchestrator import MarketplaceOrchestrator
 
-
-def init_app():
-    """Initialize application and services."""
-    global orchestrator
-
-    print("="*70)
-    print("Initializing Agent Workflow Marketplace API")
-    print("="*70)
-
-    # Initialize services
-    try:
-        initialize_services()
-    except ValueError as e:
-        print(f"ERROR: {e}")
-        print("Please create .env file with required API keys")
-        sys.exit(1)
-
-    # Create orchestrator
+    initialize_services()
     orchestrator = MarketplaceOrchestrator()
 
-    # Load and index workflows (one-time setup)
-    print("\nLoading workflows into Elasticsearch...")
     try:
         orchestrator.decomposer.es_service.create_index(delete_existing=False)
     except Exception:
-        print("  Index already exists")
-
+        pass
     try:
         orchestrator.decomposer.load_and_index_workflows("workflows.json")
-    except Exception as e:
-        print(f"  Workflows already indexed: {e}")
+    except Exception:
+        pass
 
-    print("\n" + "="*70)
-    print("✓ API Ready")
-    print("="*70 + "\n")
+    print("[api] Price-model orchestrator initialized")
+except Exception as e:
+    print(f"[api] Orchestrator init skipped ({e}) — estimate/buy endpoints disabled")
+
+# ---------------------------------------------------------------------------
+# Flask app
+# ---------------------------------------------------------------------------
+app = Flask(__name__)
+CORS(app)
 
 
-@app.route('/health', methods=['GET'])
+# ===== HEALTH =====
+
+@app.route("/health", methods=["GET"])
 def health_check():
-    """Health check endpoint."""
     return jsonify({
         "status": "healthy",
-        "service": "Agent Workflow Marketplace",
-        "version": "1.0.0"
+        "timestamp": datetime.now().isoformat(),
+        "workflows_loaded": len(matcher.workflows),
+        "elasticsearch": elastic_client is not None,
+        "agent_enabled": agent_instance is not None,
+        "orchestrator_enabled": orchestrator is not None,
     })
 
 
-@app.route('/api/estimate', methods=['POST'])
+# ===== CORE MARKETPLACE =====
+
+@app.route("/api/workflows", methods=["GET"])
+def list_workflows():
+    workflows = matcher.get_all_workflows()
+    return jsonify({"workflows": workflows, "count": len(workflows)})
+
+
+@app.route("/api/search", methods=["POST"])
+def search_workflows():
+    """
+    Hybrid search: Elasticsearch kNN (JINA vectors) + BM25.
+    Falls back to in-memory if Elastic not configured.
+
+    Body: { "task_type": "...", "state": "...", ... }
+    """
+    try:
+        query = request.json
+        if not query:
+            return jsonify({"error": "Request body required"}), 400
+
+        results = matcher.search(query, top_k=10)
+        return jsonify({"results": results, "count": len(results), "query": query})
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/purchase", methods=["POST"])
+def purchase_workflow():
+    """Purchase a workflow. Deducts tokens, returns full execution template."""
+    try:
+        data = request.json or {}
+        workflow_id = data.get("workflow_id")
+        user_id = data.get("user_id", "default_user")
+
+        if not workflow_id:
+            return jsonify({"error": "Missing workflow_id"}), 400
+
+        workflow = matcher.get_workflow_by_id(workflow_id)
+        if not workflow:
+            return jsonify({"error": "Workflow not found"}), 404
+
+        # Process purchase through commerce engine
+        receipt = commerce.purchase_workflow(user_id, workflow)
+        if not receipt["success"]:
+            return jsonify(receipt), 402  # Payment Required
+
+        return jsonify({
+            "workflow": workflow,
+            "receipt": receipt,
+            "purchased_at": datetime.now().isoformat(),
+            "success": True,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/feedback", methods=["POST"])
+def rate_workflow():
+    """Rate a workflow (1-5 stars or up/down vote)."""
+    try:
+        data = request.json or {}
+        workflow_id = data.get("workflow_id")
+        if not workflow_id:
+            return jsonify({"error": "Missing workflow_id"}), 400
+
+        workflow = matcher.get_workflow_by_id(workflow_id)
+        if not workflow:
+            return jsonify({"error": "Workflow not found"}), 404
+
+        if "rating" in data:
+            new_val = data["rating"]
+            old = workflow.get("rating", 5.0)
+            workflow["rating"] = round((old + new_val) / 2, 1)
+        elif "vote" in data:
+            if data["vote"] == "up":
+                workflow["rating"] = min(5.0, workflow.get("rating", 5.0) + 0.1)
+            elif data["vote"] == "down":
+                workflow["rating"] = max(1.0, workflow.get("rating", 5.0) - 0.1)
+
+        # Persist to Elastic if available
+        if elastic_client:
+            try:
+                elastic_client.update_field(workflow_id, "rating", workflow["rating"])
+            except Exception:
+                pass
+
+        return jsonify({
+            "workflow_id": workflow_id,
+            "new_rating": workflow["rating"],
+            "new_usage_count": workflow.get("usage_count", 0),
+            "success": True,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ===== PRIVACY =====
+
+@app.route("/api/sanitize", methods=["POST"])
+def sanitize_query():
+    """Demonstrate the two-layer privacy architecture."""
+    try:
+        data = request.json or {}
+        raw_query = data.get("raw_query", {})
+        if not raw_query:
+            return jsonify({"error": "Missing raw_query"}), 400
+
+        public_query, private_data = sanitizer.sanitize_query(raw_query)
+        summary = sanitizer.get_sanitization_summary(raw_query, public_query)
+
+        return jsonify({
+            "public_query": public_query,
+            "private_data": private_data,
+            "sanitization_summary": summary,
+        })
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+# ===== CLAUDE AGENT =====
+
+@app.route("/api/agent/chat", methods=["POST"])
+def agent_chat():
+    """
+    Multi-turn conversation with the Claude-powered agent.
+    The agent autonomously searches, evaluates, purchases, and executes workflows.
+
+    Body: { "message": "Help me file my Ohio taxes" }
+    """
+    if not agent_instance:
+        return jsonify({
+            "error": "Agent not configured. Set ANTHROPIC_API_KEY in .env",
+        }), 503
+
+    try:
+        data = request.json or {}
+        message = data.get("message", "")
+        if not message:
+            return jsonify({"error": "Missing message"}), 400
+
+        result = agent_instance.chat(message)
+        return jsonify(result)
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
+
+
+@app.route("/api/agent/session", methods=["GET"])
+def agent_session():
+    """Get current agent session state."""
+    if not agent_instance:
+        return jsonify({"error": "Agent not configured"}), 503
+    return jsonify(agent_instance.get_session_summary())
+
+
+@app.route("/api/agent/reset", methods=["POST"])
+def agent_reset():
+    """Reset the agent session (new conversation)."""
+    if not agent_instance:
+        return jsonify({"error": "Agent not configured"}), 503
+    agent_instance.reset_session()
+    return jsonify({"success": True, "message": "Session reset"})
+
+
+# ===== COMMERCE =====
+
+@app.route("/api/commerce/balance", methods=["GET"])
+def get_balance():
+    user_id = request.args.get("user_id", "default_user")
+    return jsonify({"user_id": user_id, "balance": commerce.get_balance(user_id)})
+
+
+@app.route("/api/commerce/deposit", methods=["POST"])
+def deposit_credits():
+    data = request.json or {}
+    user_id = data.get("user_id", "default_user")
+    amount = data.get("amount", 0)
+    if amount <= 0:
+        return jsonify({"error": "Amount must be positive"}), 400
+    return jsonify(commerce.deposit(user_id, amount))
+
+
+@app.route("/api/commerce/cart", methods=["GET"])
+def view_cart():
+    user_id = request.args.get("user_id", "default_user")
+    cart = commerce.get_cart(user_id)
+    return jsonify(cart.to_dict())
+
+
+@app.route("/api/commerce/cart/add", methods=["POST"])
+def add_to_cart():
+    data = request.json or {}
+    user_id = data.get("user_id", "default_user")
+    workflow_id = data.get("workflow_id")
+    if not workflow_id:
+        return jsonify({"error": "Missing workflow_id"}), 400
+
+    workflow = matcher.get_workflow_by_id(workflow_id)
+    if not workflow:
+        return jsonify({"error": "Workflow not found"}), 404
+
+    return jsonify(commerce.add_to_cart(user_id, workflow))
+
+
+@app.route("/api/commerce/cart/remove", methods=["POST"])
+def remove_from_cart():
+    data = request.json or {}
+    user_id = data.get("user_id", "default_user")
+    workflow_id = data.get("workflow_id")
+    if not workflow_id:
+        return jsonify({"error": "Missing workflow_id"}), 400
+    return jsonify(commerce.remove_from_cart(user_id, workflow_id))
+
+
+@app.route("/api/commerce/checkout", methods=["POST"])
+def checkout():
+    """Checkout all items in the shopping cart."""
+    data = request.json or {}
+    user_id = data.get("user_id", "default_user")
+    return jsonify(commerce.checkout_cart(user_id))
+
+
+@app.route("/api/commerce/transactions", methods=["GET"])
+def get_transactions():
+    user_id = request.args.get("user_id")
+    limit = int(request.args.get("limit", 50))
+    return jsonify({
+        "transactions": commerce.get_transactions(user_id, limit),
+    })
+
+
+@app.route("/api/commerce/stats", methods=["GET"])
+def marketplace_stats():
+    return jsonify(commerce.get_marketplace_stats())
+
+
+# ===== PRICE-MODEL ORCHESTRATOR ENDPOINTS =====
+
+@app.route("/api/estimate", methods=["POST"])
 def estimate_price_and_search():
     """
     Estimate pricing and search for solutions (no purchase).
+    Requires the price-model orchestrator to be initialized.
 
     Request body:
     {
@@ -143,19 +461,20 @@ def estimate_price_and_search():
         "session_id": "session_abc123"  // Use this for /api/buy
     }
     """
+    if not orchestrator:
+        return jsonify({
+            "error": "Orchestrator not configured. Ensure config.py and orchestrator.py are present.",
+        }), 503
+
     try:
         data = request.get_json()
+        if not data or "query" not in data:
+            return jsonify({"error": "Missing 'query' field in request body"}), 400
 
-        # Validate request
-        if not data or 'query' not in data:
-            return jsonify({
-                "error": "Missing 'query' field in request body"
-            }), 400
-
-        query = data['query']
-        context = data.get('context', None)
-        top_k = data.get('top_k', 5)
-        require_close_match = data.get('require_close_match', False)
+        query = data["query"]
+        context = data.get("context", None)
+        top_k = data.get("top_k", 5)
+        require_close_match = data.get("require_close_match", False)
 
         # Call orchestrator
         response = orchestrator.estimate_price_and_search(
@@ -164,286 +483,107 @@ def estimate_price_and_search():
             top_k=top_k,
             require_close_match=require_close_match
         )
-
-        # Return response (already a dict)
         return jsonify(response)
 
     except Exception as e:
         print(f"ERROR in /api/estimate: {e}")
         import traceback
         traceback.print_exc()
-
-        return jsonify({
-            "error": str(e),
-            "type": "internal_server_error"
-        }), 500
+        return jsonify({"error": str(e), "type": "internal_server_error"}), 500
 
 
-@app.route('/api/buy', methods=['POST'])
+@app.route("/api/buy", methods=["POST"])
 def buy_solution():
     """
     Purchase solution and get execution plan.
+    Requires the price-model orchestrator to be initialized.
 
-    Request body:
-    {
-        "session_id": "session_abc123",  // From /api/estimate response
-        "solution_id": "sol_1"           // Which solution to buy (sol_1, sol_2, etc.)
-    }
-
-    Response:
-    {
-        "purchase_id": "unique_purchase_id",
-        "timestamp": "2024-02-14T12:00:00Z",
-        "tokens_charged": 1000,
-        "num_workflows": 4,
-        "execution_plan": {
-            "execution_order": [...],
-            "root_ids": [...],
-            "workflows": [
-                {
-                    "subtask_id": "subtask_0",
-                    "description": "...",
-                    "workflow_id": "...",
-                    "workflow": {
-                        // Full workflow with steps, edge_cases, domain_knowledge
-                    },
-                    "dependencies": [...],
-                    "children": [...]
-                }
-            ]
-        },
-        "status": "purchased"
-    }
+    Body: { "session_id": "...", "solution_id": "sol_1" }
     """
+    if not orchestrator:
+        return jsonify({
+            "error": "Orchestrator not configured. Ensure config.py and orchestrator.py are present.",
+        }), 503
+
     try:
         data = request.get_json()
+        if not data or "session_id" not in data or "solution_id" not in data:
+            return jsonify({"error": "Missing 'session_id' or 'solution_id'"}), 400
 
-        # Validate request
-        if not data or 'session_id' not in data or 'solution_id' not in data:
-            return jsonify({
-                "error": "Missing 'session_id' or 'solution_id' in request body"
-            }), 400
+        session_id = data["session_id"]
+        solution_id = data["solution_id"]
 
-        session_id = data['session_id']
-        solution_id = data['solution_id']
-
-        # Call orchestrator (it will retrieve cached solution)
         purchase = orchestrator.buy_solution(
-            session_id=session_id,
-            solution_id=solution_id
+            session_id=session_id, solution_id=solution_id
         )
-
         return jsonify(purchase)
 
     except Exception as e:
         print(f"ERROR in /api/buy: {e}")
         import traceback
         traceback.print_exc()
-
-        return jsonify({
-            "error": str(e),
-            "type": "internal_server_error"
-        }), 500
+        return jsonify({"error": str(e), "type": "internal_server_error"}), 500
 
 
-@app.route('/api/feedback', methods=['POST'])
-def submit_feedback():
-    """
-    Submit feedback on a workflow (upvote/downvote).
-
-    Request body:
-    {
-        "workflow_id": "ohio_w2_itemized_2024",
-        "vote": "up" | "down",
-        "comment": "Optional feedback comment"
-    }
-
-    Response:
-    {
-        "status": "success",
-        "workflow_id": "ohio_w2_itemized_2024",
-        "new_rating": 4.8,
-        "new_usage_count": 48
-    }
-    """
-    try:
-        data = request.get_json()
-
-        if not data or 'workflow_id' not in data or 'vote' not in data:
-            return jsonify({
-                "error": "Missing 'workflow_id' or 'vote' in request body"
-            }), 400
-
-        workflow_id = data['workflow_id']
-        vote = data['vote']
-
-        if vote not in ['up', 'down']:
-            return jsonify({
-                "error": "'vote' must be 'up' or 'down'"
-            }), 400
-
-        # In production, update Elasticsearch document
-        # For now, just return mock response
-        return jsonify({
-            "status": "success",
-            "workflow_id": workflow_id,
-            "vote": vote,
-            "message": "Feedback recorded"
-        })
-
-    except Exception as e:
-        print(f"ERROR in /api/feedback: {e}")
-        return jsonify({
-            "error": str(e),
-            "type": "internal_server_error"
-        }), 500
-
-
-@app.route('/api/workflows', methods=['GET'])
-def list_workflows():
-    """
-    List all available workflows (for browsing).
-
-    Query params:
-    - task_type: Filter by task type
-    - limit: Max results (default 20)
-
-    Response:
-    {
-        "workflows": [
-            {
-                "workflow_id": "...",
-                "title": "...",
-                "task_type": "...",
-                "rating": 4.8,
-                "usage_count": 47,
-                "token_cost": 200
-            }
-        ],
-        "total": 8
-    }
-    """
-    try:
-        task_type = request.args.get('task_type')
-        limit = int(request.args.get('limit', 20))
-
-        # Query Elasticsearch for workflows
-        query = {"match_all": {}}
-
-        if task_type:
-            query = {
-                "bool": {
-                    "must": [
-                        {"term": {"node_type": "workflow"}},
-                        {"term": {"task_type": task_type}}
-                    ]
-                }
-            }
-        else:
-            query = {"term": {"node_type": "workflow"}}
-
-        results = orchestrator.decomposer.es_service.es.search(
-            index=orchestrator.decomposer.es_service.index_name,
-            body={"query": query, "size": limit}
-        )
-
-        workflows = []
-        for hit in results['hits']['hits']:
-            workflow = hit['_source']
-            workflows.append({
-                "workflow_id": workflow['workflow_id'],
-                "title": workflow['title'],
-                "task_type": workflow['task_type'],
-                "description": workflow.get('description', ''),
-                "rating": workflow.get('rating', 0),
-                "usage_count": workflow.get('usage_count', 0),
-                "token_cost": workflow.get('token_cost', 200),
-                "execution_tokens": workflow.get('execution_tokens', 800),
-                "tags": workflow.get('tags', [])
-            })
-
-        return jsonify({
-            "workflows": workflows,
-            "total": len(workflows)
-        })
-
-    except Exception as e:
-        print(f"ERROR in /api/workflows: {e}")
-        return jsonify({
-            "error": str(e),
-            "type": "internal_server_error"
-        }), 500
-
-
-@app.route('/api/workflows', methods=['GET'])
-def list_workflows():
-    """Get all available workflows (for browsing)."""
-    return jsonify({
-        'workflows': matcher.workflows,
-        'count': len(matcher.workflows)
-    })
-
-
-@app.route('/api/pricing/<workflow_id>', methods=['GET'])
+@app.route("/api/pricing/<workflow_id>", methods=["GET"])
 def get_workflow_pricing(workflow_id):
-    """
-    Get detailed pricing breakdown for a specific workflow.
-
-    Response:
-    {
-        "workflow_id": "ohio_w2_itemized_2024",
-        "title": "...",
-        "price_tokens": 200,
-        "tokens_saved": 11800,
-        "savings_percentage": 69,
-        "roi_percentage": 5900,
-        "pricing": {
-            "base_price": 1770,
-            "quality_multiplier": 1.08,
-            "market_rate": 185,
-            "breakdown": "Base: 1770 (15% of 11800 saved) → Quality adjusted (4.8★): ×1.08 → Final: 200 tokens"
-        },
-        "avg_tokens_without": 15000,
-        "avg_tokens_with": 3200
-    }
-    """
+    """Get detailed pricing breakdown for a specific workflow."""
     try:
         workflow = matcher.get_workflow_by_id(workflow_id)
-
         if not workflow:
-            return jsonify({
-                'error': 'Workflow not found'
-            }), 404
+            return jsonify({"error": "Workflow not found"}), 404
 
         pricing_info = {
-            'workflow_id': workflow['workflow_id'],
-            'title': workflow['title'],
-            'price_tokens': workflow.get('price_tokens', 0),
-            'tokens_saved': workflow.get('tokens_saved', 0),
-            'savings_percentage': workflow.get('savings_percentage', 0),
-            'roi_percentage': workflow.get('pricing', {}).get('roi_percentage', 0),
-            'pricing': workflow.get('pricing', {}),
-            'avg_tokens_without': workflow.get('avg_tokens_without', 0),
-            'avg_tokens_with': workflow.get('avg_tokens_with', 0),
-            'rating': workflow.get('rating', 0),
-            'usage_count': workflow.get('usage_count', 0)
+            "workflow_id": workflow["workflow_id"],
+            "title": workflow["title"],
+            "price_tokens": workflow.get("price_tokens", 0),
+            "tokens_saved": workflow.get("tokens_saved", 0),
+            "savings_percentage": workflow.get("savings_percentage", 0),
+            "roi_percentage": workflow.get("pricing", {}).get("roi_percentage", 0),
+            "pricing": workflow.get("pricing", {}),
+            "avg_tokens_without": workflow.get("avg_tokens_without", 0),
+            "avg_tokens_with": workflow.get("avg_tokens_with", 0),
+            "rating": workflow.get("rating", 0),
+            "usage_count": workflow.get("usage_count", 0),
         }
-
         return jsonify(pricing_info)
 
     except Exception as e:
-        return jsonify({
-            'error': str(e)
-        }), 500
+        return jsonify({"error": str(e)}), 500
 
 
-if __name__ == '__main__':
-    # Initialize app
-    init_app()
+# ===== START =====
 
-    # Run server
-    port = int(os.getenv('PORT', 5000))
-    debug = os.getenv('FLASK_DEBUG', 'True') == 'True'
+if __name__ == "__main__":
+    port = int(os.getenv("FLASK_PORT", 5001))
+    debug = os.getenv("FLASK_DEBUG", "true").lower() == "true"
 
-    print(f"Starting server on port {port}...")
-    app.run(host='0.0.0.0', port=port, debug=debug)
+    print()
+    print("=" * 60)
+    print("  Agent Workflow Marketplace API")
+    print("=" * 60)
+    print(f"  Workflows loaded : {len(matcher.workflows)}")
+    print(f"  Elasticsearch    : {'connected' if elastic_client else 'off (in-memory fallback)'}")
+    print(f"  Claude Agent     : {'ready' if agent_instance else 'disabled (no API key)'}")
+    print(f"  Orchestrator     : {'ready' if orchestrator else 'disabled'}")
+    print(f"  JINA Embeddings  : {'active' if elastic_client else 'off'}")
+    print(f"  Commerce Engine  : active")
+    print(f"  Server           : http://localhost:{port}")
+    print()
+    print("  Endpoints:")
+    print("    POST /api/search          Search workflows (hybrid kNN + BM25)")
+    print("    POST /api/purchase        Purchase workflow")
+    print("    POST /api/feedback        Rate workflow")
+    print("    POST /api/sanitize        Privacy sanitization demo")
+    print("    POST /api/agent/chat      Claude multi-turn agent")
+    print("    GET  /api/agent/session   Agent session state")
+    print("    POST /api/agent/reset     Reset agent")
+    print("    GET  /api/commerce/*      Commerce endpoints")
+    print("    GET  /api/workflows       List all workflows")
+    print("    POST /api/estimate        Estimate pricing (orchestrator)")
+    print("    POST /api/buy             Buy solution (orchestrator)")
+    print("    GET  /api/pricing/<id>    Pricing breakdown")
+    print("    GET  /health              Health check")
+    print("=" * 60)
+
+    app.run(debug=debug, host="0.0.0.0", port=port)

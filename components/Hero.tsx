@@ -1,11 +1,15 @@
+
+
+
 import styles from './Hero.module.css'
+import Link from 'next/link'
 
 export default function Hero() {
   return (
     <section className={styles.hero}>
       <div className={styles.heroGrid}></div>
       <div className={styles.heroGlow}></div>
-      <div className={styles.heroBadge}>⚡ Now in Beta</div>
+      <div className={styles.heroBadge}>⚡ TreeHacks 2026 — Live Demo</div>
       <h1>
         The marketplace your
         <br />
@@ -18,8 +22,9 @@ export default function Hero() {
         artifacts from a marketplace of specialized AI — autonomously.
       </p>
       <div className={styles.heroActions}>
-        <button className={styles.btnPrimary}>Create Account</button>
-        <button className={styles.btnSecondary}>Read the Docs →</button>
+        <Link href="/auth/signup" className={styles.btnPrimary} style={{ textDecoration: 'none' }}>Create Account</Link>
+        <a href="#agent" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Try the Live Agent ↓</a>
+        <a href="#marketplace" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Search Marketplace ↓</a>
       </div>
       <div className={styles.heroCode}>
         <pre>
