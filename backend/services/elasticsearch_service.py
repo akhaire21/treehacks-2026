@@ -62,13 +62,16 @@ class ElasticsearchService:
         else:
             raise ValueError("Must provide either (cloud_id + api_key) or host")
 
-        # Test connection
-        if not self.es.ping():
-            raise ConnectionError(f"Failed to connect to Elasticsearch at {connection_info}")
-
-        print(f"Connected to Elasticsearch: {connection_info}")
-        print(f"Assets Index: {index_name}")
-        print(f"Nodes Index: {self.nodes_index_name}")
+        # Test connection (serverless-compatible)
+        try:
+            # Try to get basic info - works in both regular and serverless
+            info = self.es.info()
+            print(f"Connected to Elasticsearch: {connection_info}")
+            print(f"  Version: {info.get('version', {}).get('number', 'unknown')}")
+            print(f"Assets Index: {index_name}")
+            print(f"Nodes Index: {self.nodes_index_name}")
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to Elasticsearch at {connection_info}: {e}")
 
     def create_index(self, delete_existing: bool = False):
         """
@@ -113,20 +116,12 @@ class ElasticsearchService:
                     "rating": {"type": "float"},
                     "usage_count": {"type": "integer"},
 
-                    # Workflow content
+                    # Workflow content (structured data, not searchable - use full_text for search)
                     "requirements": {"type": "text"},
-                    "steps": {
-                        "type": "nested",
-                        "properties": {
-                            "step": {"type": "integer"},
-                            "thought": {"type": "text"},
-                            "action": {"type": "text"},
-                            "context": {"type": "text"},
-                            "dependencies": {"type": "integer"}
-                        }
-                    },
-                    "edge_cases": {"type": "text"},
-                    "domain_knowledge": {"type": "text"},
+                    "steps": {"type": "object", "enabled": False},  # Store but don't index
+                    "edge_cases": {"type": "object", "enabled": False},  # Store but don't index
+                    "domain_knowledge": {"type": "object", "enabled": False},  # Store but don't index
+                    "examples": {"type": "object", "enabled": False},  # Store but don't index
 
                     # Token comparison
                     "token_comparison": {
@@ -142,29 +137,19 @@ class ElasticsearchService:
                     "child_ids": {"type": "keyword"},  # Array of child IDs
                     "depth": {"type": "integer"},  # Tree depth level
 
-                    # Vector embedding for semantic search
+                    # Vector embedding for semantic search (serverless-compatible)
                     "embedding": {
                         "type": "dense_vector",
                         "dims": self.embedding_dim,
-                        "index": "hnsw",  # Use HNSW algorithm for kNN search
-                        "similarity": "cosine",
-                        "element_type": "float",  # Explicit element type (default)
-                        "index_options": {
-                            "type": "hnsw",
-                            "m": 16,  # Number of connections per layer
-                            "ef_construction": 100  # Size of dynamic candidate list
-                        }
+                        "index": True,  # Enable indexing for kNN
+                        "similarity": "cosine"
                     },
 
                     # Full text representation
                     "full_text": {"type": "text"},
                 }
-            },
-            "settings": {
-                "number_of_shards": 1,
-                "number_of_replicas": 0
-                # kNN is automatically enabled when using dense_vector with index="hnsw"
             }
+            # Note: No settings needed - serverless handles sharding/replicas automatically
         }
 
         # Create index
@@ -211,25 +196,16 @@ class ElasticsearchService:
                     # Structure
                     "ordinal": {"type": "integer"},  # Order within parent
 
-                    # Vector embedding for semantic search
+                    # Vector embedding for semantic search (serverless-compatible)
                     "embedding": {
                         "type": "dense_vector",
                         "dims": self.embedding_dim,
-                        "index": "hnsw",
-                        "similarity": "cosine",
-                        "element_type": "float",
-                        "index_options": {
-                            "type": "hnsw",
-                            "m": 16,
-                            "ef_construction": 100
-                        }
+                        "index": True,  # Enable indexing for kNN
+                        "similarity": "cosine"
                     }
                 }
-            },
-            "settings": {
-                "number_of_shards": 1,
-                "number_of_replicas": 0
             }
+            # Note: No settings needed - serverless handles sharding/replicas automatically
         }
 
         # Create nodes index
@@ -262,11 +238,21 @@ class ElasticsearchService:
                     "_source": doc
                 }
 
-        success, failed = bulk(self.es, generate_actions())
-        print(f"Indexed {success} documents, {len(failed)} failed")
+        try:
+            success, failed = bulk(self.es, generate_actions(), raise_on_error=False)
+            print(f"Indexed {success} documents, {len(failed)} failed")
 
-        if failed:
-            print("Failed documents:", failed)
+            if failed:
+                print("Failed documents:")
+                for fail in failed[:3]:  # Show first 3 failures
+                    print(f"  Error: {fail}")
+        except Exception as e:
+            print(f"Bulk index error: {e}")
+            # Try to get more details
+            if hasattr(e, 'errors'):
+                for error in e.errors[:3]:
+                    print(f"  Details: {error}")
+            raise
 
     def vector_search(
         self,

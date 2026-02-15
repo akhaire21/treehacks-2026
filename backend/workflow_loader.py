@@ -93,11 +93,27 @@ def workflow_to_text(workflow: Workflow) -> str:
 
     # Edge cases (important for matching complex scenarios)
     if workflow.edge_cases:
-        parts.append(f"Edge cases: {', '.join(workflow.edge_cases[:3])}")  # First 3
+        # Handle both string and dict formats
+        edge_summaries = []
+        for edge in workflow.edge_cases[:3]:
+            if isinstance(edge, dict):
+                edge_summaries.append(edge.get('scenario', str(edge)))
+            else:
+                edge_summaries.append(str(edge))
+        if edge_summaries:
+            parts.append(f"Edge cases: {', '.join(edge_summaries)}")
 
     # Domain knowledge (for semantic relevance)
     if workflow.domain_knowledge:
-        parts.append(f"Domain: {', '.join(workflow.domain_knowledge[:3])}")  # First 3
+        # Handle both string and dict formats
+        domain_summaries = []
+        for domain in workflow.domain_knowledge[:3]:
+            if isinstance(domain, dict):
+                domain_summaries.append(domain.get('concept', str(domain)))
+            else:
+                domain_summaries.append(str(domain))
+        if domain_summaries:
+            parts.append(f"Domain: {', '.join(domain_summaries)}")
 
     return " | ".join(parts)
 
