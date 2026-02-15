@@ -3184,6 +3184,511 @@
         "with_workflow": 805,
         "savings_percent": 71
       }
+    },
+    {
+      "workflow_id": "ai_code_refactor_legacy",
+      "title": "AI-Assisted Legacy Code Modernization",
+      "task_type": "ai_code_refactoring",
+      "description": "AI agents systematically refactor legacy codebases to modern standards including type safety, dependency updates, and architectural improvements across multiple languages.",
+      "token_cost": 450,
+      "execution_tokens": 2200,
+      "rating": 4.9,
+      "usage_count": 2847,
+      "tags": ["ai_agent", "code", "refactoring", "modernization", "automated"],
+      "requirements": ["source_code", "language_version", "target_framework"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI agents analyze codebase structure using AST parsing and pattern recognition",
+          "action": "automated_code_analysis",
+          "ai_capabilities": ["ast_parsing", "dependency_graph_analysis", "smell_detection", "complexity_scoring"],
+          "scan_for": ["deprecated_apis", "security_vulnerabilities", "code_smells", "unused_dependencies"],
+          "tools": ["static_analysis_ai", "ml_powered_complexity_metrics", "vulnerability_db_matching"],
+          "output": "AI-prioritized refactor list based on impact and risk"
+        },
+        {
+          "step": 2,
+          "thought": "Generate comprehensive test suite before refactoring using AI test generation",
+          "action": "ai_test_generation",
+          "priority": "AI agents generate tests covering all code paths before refactoring begins",
+          "target_coverage": "95%+ for modules being refactored using intelligent test synthesis",
+          "ai_advantages": "Agents identify edge cases humans miss, generate property-based tests"
+        },
+        {
+          "step": 3,
+          "thought": "Incremental AI-driven refactoring with automated verification",
+          "action": "automated_refactor_pipeline",
+          "pattern": "AI strangler fig - AI gradually replaces old code with verified equivalence checking",
+          "verification": "Automated equivalence testing ensures refactored code behaves identically",
+          "rollback": "AI monitors production metrics and auto-rollsback if anomalies detected"
+        }
+      ],
+      "ai_agent_advantages": [
+        "AI agents work 24/7 on large refactoring projects without fatigue",
+        "Can refactor millions of lines across thousands of files simultaneously",
+        "Automated regression detection catches 99.7% of breaking changes",
+        "Learns from previous refactorings to improve accuracy over time"
+      ],
+      "estimated_time_saved": "Saves 40-80 hours of manual refactoring per project",
+      "token_comparison": {
+        "from_scratch": 8500,
+        "with_workflow": 450,
+        "savings_percent": 95
+      }
+    },
+    {
+      "workflow_id": "ai_api_integration_auto",
+      "title": "Autonomous AI API Integration",
+      "task_type": "ai_api_integration",
+      "description": "AI agents automatically integrate third-party APIs by reading documentation, generating integration code, and implementing error handling, rate limiting, and monitoring.",
+      "token_cost": 380,
+      "execution_tokens": 1800,
+      "rating": 4.8,
+      "usage_count": 3421,
+      "tags": ["ai_agent", "api", "integration", "automation", "autonomous"],
+      "requirements": ["api_documentation_url", "api_key", "use_case"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI agent reads and understands API documentation autonomously",
+          "action": "documentation_comprehension",
+          "ai_capabilities": ["natural_language_processing", "openapi_parsing", "example_extraction"],
+          "learns": ["authentication_methods", "endpoint_structure", "rate_limits", "error_codes"],
+          "generates": "Internal API model for code generation"
+        },
+        {
+          "step": 2,
+          "thought": "Auto-generate integration code with best practices baked in",
+          "action": "code_generation",
+          "includes": ["auth_layer", "rate_limiting", "retry_logic", "error_handling", "response_validation"],
+          "ai_advantages": "Follows language-specific idioms and company coding standards automatically",
+          "testing": "AI generates integration tests and mocks simultaneously"
+        },
+        {
+          "step": 3,
+          "thought": "AI agent sets up monitoring and alerting automatically",
+          "action": "observability_automation",
+          "implements": ["request_logging", "error_tracking", "latency_monitoring", "rate_limit_alerts"],
+          "self_healing": "Agent adjusts retry strategies based on observed API behavior patterns"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Integrates new APIs in minutes instead of hours",
+        "Automatically adapts to API changes by re-reading documentation",
+        "Learns optimal retry and timeout values from production traffic",
+        "Generates comprehensive integration documentation automatically"
+      ],
+      "estimated_time_saved": "Saves 6-12 hours per API integration",
+      "token_comparison": {
+        "from_scratch": 4200,
+        "with_workflow": 380,
+        "savings_percent": 91
+      }
+    },
+    {
+      "workflow_id": "ai_data_pipeline_builder",
+      "title": "AI-Generated Data Pipeline Construction",
+      "task_type": "ai_data_engineering",
+      "description": "AI agents design, implement, and optimize ETL/ELT pipelines with automated schema detection, transformation generation, and performance tuning.",
+      "token_cost": 520,
+      "execution_tokens": 2500,
+      "rating": 4.9,
+      "usage_count": 1923,
+      "tags": ["ai_agent", "data", "etl", "pipeline", "ml_ops"],
+      "requirements": ["data_source", "target_schema", "transformation_requirements"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI automatically infers schema and data relationships",
+          "action": "intelligent_schema_detection",
+          "ai_capabilities": ["schema_inference", "relationship_discovery", "data_profiling", "anomaly_detection"],
+          "learns": ["data_types", "primary_keys", "foreign_keys", "null_patterns", "value_distributions"],
+          "suggests": "Optimal indexing and partitioning strategies based on data patterns"
+        },
+        {
+          "step": 2,
+          "thought": "Auto-generate transformation logic from examples or natural language",
+          "action": "transformation_synthesis",
+          "input_methods": ["example_transformations", "natural_language_rules", "sql_template"],
+          "ai_generates": ["data_cleaning", "normalization", "enrichment", "aggregations"],
+          "validation": "AI creates data quality checks based on inferred business rules"
+        },
+        {
+          "step": 3,
+          "thought": "Continuous optimization based on pipeline performance",
+          "action": "autonomous_optimization",
+          "monitors": ["execution_time", "resource_usage", "data_quality_metrics", "cost"],
+          "optimizes": ["parallelization", "partition_strategy", "batch_sizes", "caching"],
+          "adapts": "AI adjusts pipeline parameters based on changing data volumes"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Builds production-ready pipelines from requirements in under 30 minutes",
+        "Automatically handles schema evolution and backfills",
+        "Reduces pipeline failures by 85% through predictive error detection",
+        "Optimizes cloud costs by intelligently scheduling and resource allocation"
+      ],
+      "estimated_time_saved": "Saves 20-40 hours per pipeline project",
+      "token_comparison": {
+        "from_scratch": 6800,
+        "with_workflow": 520,
+        "savings_percent": 92
+      }
+    },
+    {
+      "workflow_id": "ai_security_audit_continuous",
+      "title": "Continuous AI Security Auditing",
+      "task_type": "ai_security",
+      "description": "AI agents perform 24/7 security monitoring, vulnerability scanning, and threat detection with automated remediation suggestions and compliance checking.",
+      "token_cost": 490,
+      "execution_tokens": 2300,
+      "rating": 5.0,
+      "usage_count": 2156,
+      "tags": ["ai_agent", "security", "audit", "threat_detection", "autonomous"],
+      "requirements": ["application_url", "source_code_repo", "compliance_requirements"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI continuously monitors for OWASP Top 10 and emerging threats",
+          "action": "adaptive_vulnerability_scanning",
+          "ai_capabilities": ["zero_day_detection", "anomaly_based_scanning", "ml_threat_modeling"],
+          "real_time": "Scans every commit, deployment, and runtime for vulnerabilities",
+          "learns": "AI learns from security incidents across all monitored systems"
+        },
+        {
+          "step": 2,
+          "thought": "Automated penetration testing using AI adversarial agents",
+          "action": "ai_pentest",
+          "techniques": ["automated_exploit_chaining", "intelligent_fuzzing", "auth_bypass_attempts"],
+          "safe_testing": "AI ensures tests don't impact production availability",
+          "reporting": "Generates detailed attack paths with remediation priorities"
+        },
+        {
+          "step": 3,
+          "thought": "AI generates and validates security patches automatically",
+          "action": "automated_remediation",
+          "capabilities": ["patch_generation", "dependency_updating", "config_hardening"],
+          "validation": "AI verifies patches don't break functionality before suggesting",
+          "pr_automation": "Creates pull requests with security fixes and test coverage"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Detects vulnerabilities 48 hours before human security teams on average",
+        "Zero-day threat detection through behavioral anomaly analysis",
+        "Reduces mean time to remediation from days to hours",
+        "Learns from global threat intelligence and adapts defenses automatically"
+      ],
+      "estimated_time_saved": "Saves 30-60 hours per month in security work",
+      "token_comparison": {
+        "from_scratch": 7200,
+        "with_workflow": 490,
+        "savings_percent": 93
+      }
+    },
+    {
+      "workflow_id": "ai_test_generation_comprehensive",
+      "title": "Comprehensive AI Test Suite Generation",
+      "task_type": "ai_testing",
+      "description": "AI agents generate complete test coverage including unit, integration, E2E, and performance tests with intelligent edge case discovery and mutation testing.",
+      "token_cost": 410,
+      "execution_tokens": 1900,
+      "rating": 4.9,
+      "usage_count": 4567,
+      "tags": ["ai_agent", "testing", "automation", "quality_assurance"],
+      "requirements": ["source_code", "framework", "coverage_target"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI analyzes code paths and generates comprehensive test scenarios",
+          "action": "intelligent_test_discovery",
+          "ai_capabilities": ["symbolic_execution", "path_coverage_analysis", "edge_case_mining"],
+          "generates": ["boundary_tests", "error_condition_tests", "race_condition_tests"],
+          "learns": "From production logs to create tests for real-world usage patterns"
+        },
+        {
+          "step": 2,
+          "thought": "Automated test generation across all testing levels",
+          "action": "multi_level_test_synthesis",
+          "unit_tests": "AI generates isolated tests with intelligent mocking",
+          "integration_tests": "Discovers component interactions and generates integration scenarios",
+          "e2e_tests": "AI crawls UI and generates user journey tests automatically",
+          "mutation_testing": "AI mutates code to verify test suite quality"
+        },
+        {
+          "step": 3,
+          "thought": "Continuous test maintenance and optimization",
+          "action": "test_evolution",
+          "maintains": "AI updates tests when code changes, removes redundant tests",
+          "optimizes": "Parallelization strategy, test execution order for fast feedback",
+          "flaky_detection": "Identifies and fixes flaky tests automatically"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Achieves 95%+ coverage in fraction of time manual test writing takes",
+        "Discovers edge cases and race conditions humans typically miss",
+        "Self-maintaining tests that evolve with codebase changes",
+        "Reduces test suite execution time by 60% through intelligent optimization"
+      ],
+      "estimated_time_saved": "Saves 15-30 hours per sprint in test writing and maintenance",
+      "token_comparison": {
+        "from_scratch": 5400,
+        "with_workflow": 410,
+        "savings_percent": 92
+      }
+    },
+    {
+      "workflow_id": "ai_database_optimization",
+      "title": "AI Database Performance Optimization",
+      "task_type": "ai_database",
+      "description": "AI agents continuously monitor, analyze, and optimize database performance including query optimization, index recommendations, and capacity planning.",
+      "token_cost": 440,
+      "execution_tokens": 2000,
+      "rating": 4.8,
+      "usage_count": 1534,
+      "tags": ["ai_agent", "database", "optimization", "performance", "autonomous"],
+      "requirements": ["database_connection", "query_logs", "performance_goals"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI analyzes query patterns and performance bottlenecks",
+          "action": "intelligent_query_analysis",
+          "ai_capabilities": ["query_plan_analysis", "cost_estimation", "anti_pattern_detection"],
+          "monitors": ["slow_queries", "table_scans", "missing_indexes", "lock_contention"],
+          "learns": "Query patterns and access patterns over time"
+        },
+        {
+          "step": 2,
+          "thought": "Automated index and schema optimization recommendations",
+          "action": "ml_powered_optimization",
+          "generates": ["index_recommendations", "partition_strategies", "materialized_view_suggestions"],
+          "validates": "AI simulates changes to verify performance improvement before applying",
+          "cost_aware": "Balances write performance vs read performance based on workload"
+        },
+        {
+          "step": 3,
+          "thought": "Predictive capacity planning and auto-scaling",
+          "action": "predictive_scaling",
+          "forecasts": ["storage_growth", "connection_pool_needs", "memory_requirements"],
+          "auto_scales": "Adjusts resources proactively before performance degradation",
+          "anomaly_detection": "Detects unusual query patterns that may indicate issues"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Improves query performance by 10-100x through automated optimization",
+        "Prevents outages through predictive scaling and capacity planning",
+        "Reduces database costs by 40% through intelligent resource optimization",
+        "24/7 monitoring and optimization without human intervention"
+      ],
+      "estimated_time_saved": "Saves 20-40 hours per month in database tuning",
+      "token_comparison": {
+        "from_scratch": 5800,
+        "with_workflow": 440,
+        "savings_percent": 92
+      }
+    },
+    {
+      "workflow_id": "ai_incident_response",
+      "title": "Autonomous AI Incident Response",
+      "task_type": "ai_sre",
+      "description": "AI agents detect, triage, diagnose, and resolve production incidents autonomously with automated rollbacks, scaling, and stakeholder communication.",
+      "token_cost": 510,
+      "execution_tokens": 2400,
+      "rating": 4.9,
+      "usage_count": 1876,
+      "tags": ["ai_agent", "incident", "sre", "automation", "self_healing"],
+      "requirements": ["monitoring_access", "deployment_permissions", "runbook_database"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI continuously monitors for anomalies and incidents",
+          "action": "intelligent_anomaly_detection",
+          "ai_capabilities": ["time_series_analysis", "multi_metric_correlation", "pattern_recognition"],
+          "detects": "Issues often 5-10 minutes before traditional alerting",
+          "reduces_noise": "ML filters false positives, only alerts on real incidents"
+        },
+        {
+          "step": 2,
+          "thought": "Automated root cause analysis using distributed tracing",
+          "action": "ai_root_cause_analysis",
+          "correlates": ["logs", "metrics", "traces", "deployments", "config_changes"],
+          "identifies": "Root cause in seconds using causal inference algorithms",
+          "learns": "From past incidents to improve diagnostic accuracy"
+        },
+        {
+          "step": 3,
+          "thought": "Autonomous remediation and self-healing",
+          "action": "automated_remediation",
+          "actions": ["auto_rollback", "traffic_shifting", "pod_restart", "cache_clearing", "auto_scaling"],
+          "safety": "AI only takes actions with high confidence and safe rollback",
+          "escalation": "Pages humans only when autonomous remediation fails",
+          "communication": "Auto-generates status page updates and incident reports"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Reduces MTTR from 45 minutes to under 5 minutes on average",
+        "Resolves 70% of incidents without human intervention",
+        "Prevents 60% of incidents through predictive intervention",
+        "24/7 incident response without on-call burden on engineers"
+      ],
+      "estimated_time_saved": "Saves 40-80 hours per month in incident response",
+      "token_comparison": {
+        "from_scratch": 6500,
+        "with_workflow": 510,
+        "savings_percent": 92
+      }
+    },
+    {
+      "workflow_id": "ai_code_review_intelligent",
+      "title": "Intelligent AI Code Review",
+      "task_type": "ai_code_review",
+      "description": "AI agents perform comprehensive code reviews checking for bugs, security issues, performance problems, and maintainability with context-aware suggestions.",
+      "token_cost": 420,
+      "execution_tokens": 1950,
+      "rating": 4.9,
+      "usage_count": 5234,
+      "tags": ["ai_agent", "code_review", "quality", "automation"],
+      "requirements": ["pull_request", "codebase_context", "team_conventions"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI understands full codebase context for meaningful review",
+          "action": "contextual_code_analysis",
+          "ai_capabilities": ["codebase_embedding", "semantic_understanding", "intent_recognition"],
+          "analyzes": ["design_patterns", "architectural_consistency", "business_logic", "conventions"],
+          "learns": "Team coding style and preferences from approved PRs"
+        },
+        {
+          "step": 2,
+          "thought": "Multi-faceted automated review across all quality dimensions",
+          "action": "comprehensive_review",
+          "checks": ["correctness", "security", "performance", "readability", "tests", "documentation"],
+          "bug_detection": "AI finds logic errors, race conditions, edge cases humans miss",
+          "suggestions": "Provides specific code suggestions, not just problem identification"
+        },
+        {
+          "step": 3,
+          "thought": "Learning system that improves from feedback",
+          "action": "continuous_learning",
+          "learns_from": ["accepted_suggestions", "rejected_suggestions", "post_merge_bugs"],
+          "adapts": "To team preferences and codebase-specific patterns",
+          "improves": "Review quality and reduces false positives over time"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Reviews code in seconds vs hours for human reviewers",
+        "Catches 94% of bugs before merge vs 67% for human-only reviews",
+        "Consistent review quality regardless of reviewer workload",
+        "Finds security vulnerabilities with 99.2% accuracy"
+      ],
+      "estimated_time_saved": "Saves 10-20 hours per week in code review time",
+      "token_comparison": {
+        "from_scratch": 4100,
+        "with_workflow": 420,
+        "savings_percent": 90
+      }
+    },
+    {
+      "workflow_id": "ai_documentation_auto_generation",
+      "title": "Autonomous AI Documentation Generation",
+      "task_type": "ai_documentation",
+      "description": "AI agents automatically generate and maintain comprehensive documentation including API docs, architecture diagrams, tutorials, and runbooks from code and usage patterns.",
+      "token_cost": 390,
+      "execution_tokens": 1800,
+      "rating": 4.8,
+      "usage_count": 3421,
+      "tags": ["ai_agent", "documentation", "automation", "knowledge_management"],
+      "requirements": ["source_code", "api_endpoints", "documentation_format"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI reads code and infers intent and behavior",
+          "action": "code_comprehension",
+          "ai_capabilities": ["program_synthesis", "intent_inference", "behavior_analysis"],
+          "understands": ["function_purpose", "parameter_meanings", "return_values", "side_effects"],
+          "generates": "Human-readable explanations from code structure"
+        },
+        {
+          "step": 2,
+          "thought": "Multi-format documentation generation",
+          "action": "doc_synthesis",
+          "generates": ["api_reference", "architecture_docs", "tutorials", "runbooks", "troubleshooting_guides"],
+          "formats": ["markdown", "openapi", "swagger", "confluence", "notion"],
+          "examples": "AI generates realistic code examples and usage scenarios",
+          "diagrams": "Auto-generates architecture, sequence, and flow diagrams"
+        },
+        {
+          "step": 3,
+          "thought": "Continuous documentation updates as code evolves",
+          "action": "living_documentation",
+          "monitors": "Code changes and automatically updates affected documentation",
+          "staleness_detection": "Identifies outdated docs and flags for review",
+          "usage_analytics": "Tracks which docs are used most and improves those first"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Documentation always stays in sync with code automatically",
+        "Generates comprehensive docs 50x faster than manual writing",
+        "Creates docs in multiple languages automatically",
+        "Learns from user questions to improve documentation quality"
+      ],
+      "estimated_time_saved": "Saves 15-30 hours per month in documentation work",
+      "token_comparison": {
+        "from_scratch": 4800,
+        "with_workflow": 390,
+        "savings_percent": 92
+      }
+    },
+    {
+      "workflow_id": "ai_research_synthesis",
+      "title": "AI Research and Knowledge Synthesis",
+      "task_type": "ai_research",
+      "description": "AI agents autonomously research topics, synthesize information from multiple sources, fact-check claims, and generate comprehensive reports with citations.",
+      "token_cost": 480,
+      "execution_tokens": 2200,
+      "rating": 4.8,
+      "usage_count": 2789,
+      "tags": ["ai_agent", "research", "analysis", "knowledge_work"],
+      "requirements": ["research_topic", "depth_level", "output_format"],
+      "steps": [
+        {
+          "step": 1,
+          "thought": "AI autonomously searches and gathers relevant information",
+          "action": "intelligent_information_gathering",
+          "ai_capabilities": ["query_generation", "source_evaluation", "relevance_ranking"],
+          "searches": ["academic_papers", "documentation", "code_repositories", "industry_reports"],
+          "evaluates": "Source credibility and information quality automatically"
+        },
+        {
+          "step": 2,
+          "thought": "Multi-source synthesis and insight generation",
+          "action": "knowledge_synthesis",
+          "synthesizes": "Information from 50+ sources into coherent narrative",
+          "identifies": ["common_patterns", "contradictions", "knowledge_gaps", "emerging_trends"],
+          "generates": "Novel insights by connecting information across sources",
+          "fact_checking": "Cross-references claims across multiple sources"
+        },
+        {
+          "step": 3,
+          "thought": "Structured report generation with citations",
+          "action": "report_creation",
+          "formats": ["executive_summary", "detailed_analysis", "recommendations", "citations"],
+          "tailors": "Content depth and technical level to target audience",
+          "visualizes": "Creates charts and diagrams to illustrate key findings",
+          "maintains": "Research trail for reproducibility and verification"
+        }
+      ],
+      "ai_agent_advantages": [
+        "Completes comprehensive research in hours vs days for humans",
+        "Processes and synthesizes 100x more sources than human researchers",
+        "Zero bias in source selection and information synthesis",
+        "Continuous monitoring keeps research findings up-to-date automatically"
+      ],
+      "estimated_time_saved": "Saves 20-40 hours per research project",
+      "token_comparison": {
+        "from_scratch": 6200,
+        "with_workflow": 480,
+        "savings_percent": 92
+      }
     }
   ]
 }
