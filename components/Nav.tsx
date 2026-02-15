@@ -15,8 +15,8 @@ export default function Nav() {
         <a href="#marketplace">Marketplace</a>
         <a href="#agent">Agent</a>
         <a href="#dashboard">Dashboard</a>
-        <a href="https://docs.mark.ai" target="_blank" rel="noopener noreferrer">
-          Docs
+        <a href="/workflow">
+          Visualization
         </a>
         <UserInfo />
         <Link href="/auth/signup" className={styles.navCta}>
