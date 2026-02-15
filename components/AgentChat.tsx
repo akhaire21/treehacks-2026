@@ -171,12 +171,6 @@ export default function AgentChat() {
           Elasticsearch marketplace, evaluates workflows, manages your token economy, and
           executes multi-step tasks — all in real time.
         </p>
-        <div className={styles.prizes}>
-          <span className={`${styles.prize} ${styles.prizeAnthropic}`}>Anthropic — Best Use of Claude</span>
-          <span className={`${styles.prize} ${styles.prizeGreylock}`}>Greylock — Best Multi-Turn Agent</span>
-          <span className={`${styles.prize} ${styles.prizeElastic}`}>Elastic — Best Use of Elasticsearch</span>
-          <span className={`${styles.prize} ${styles.prizeVisa}`}>Visa — Future of Commerce</span>
-        </div>
 
         {/* Mark Tools Panel */}
         <div className={styles.toolsPanel}>
