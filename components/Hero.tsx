@@ -1,13 +1,19 @@
-
-
+'use client'
 
 import styles from './Hero.module.css'
 import Link from 'next/link'
+import { useState } from 'react'
 
 export default function Hero() {
+  const [copied, setCopied] = useState(false)
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText('pip install marktools')
+    setCopied(true)
+    setTimeout(() => setCopied(false), 2000)
+  }
   return (
     <section className={styles.hero}>
-      <div className={styles.heroGrid}></div>
       <div className={styles.heroGlow}></div>
       <div className={styles.heroBadge}>⚡ TreeHacks 2026 — Live Demo</div>
       <h1>
@@ -17,11 +23,19 @@ export default function Hero() {
         <br />
         how to use.
       </h1>
-      <p className={styles.heroSub}>
-        <code style={{ background: 'rgba(0,255,136,0.1)', padding: '2px 8px', borderRadius: '4px', color: '#00ff88', marginRight: '8px' }}>pip install marktools</code>
-        {' '}Your agents search, evaluate, and purchase solution
-        artifacts from a marketplace of specialized AI — autonomously.
-      </p>
+      <div className={styles.installBar}>
+        <div className={styles.installLabel}>Get MarkTools <span className={styles.installChevron}>&#8964;</span></div>
+        <div className={styles.installCommand}>
+          <code><span className={styles.installCmd}>pip</span> <span className={styles.installFlag}>install</span> <span className={styles.installPkg}>marktools</span></code>
+          <button className={styles.installCopy} onClick={handleCopy} aria-label="Copy command">
+            {copied ? (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><polyline points="20 6 9 17 4 12" /></svg>
+            ) : (
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2" /><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1" /></svg>
+            )}
+          </button>
+        </div>
+      </div>
       <div className={styles.heroActions}>
         <Link href="/auth/signup" className={styles.btnPrimary} style={{ textDecoration: 'none' }}>Create Account</Link>
         <a href="#agent" className={styles.btnSecondary} style={{ textDecoration: 'none' }}>Try the Live Agent ↓</a>
