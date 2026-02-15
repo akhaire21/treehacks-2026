@@ -1,0 +1,440 @@
+/* ─── Container ─── */
+
+.container {
+  position: relative;
+  padding: 20px 0;
+}
+
+/* ─── Credits ─── */
+
+.creditsWrap {
+  position: sticky;
+  top: 16px;
+  float: right;
+  z-index: 10;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 16px;
+  text-align: center;
+  min-width: 80px;
+}
+
+.creditsLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 2px;
+}
+
+.creditsValue {
+  font-family: var(--font-mono), monospace;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--accent);
+  line-height: 1;
+}
+
+.resetBtn {
+  position: sticky;
+  top: 90px;
+  float: right;
+  clear: right;
+  z-index: 10;
+  margin-top: 8px;
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  padding: 5px 12px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.resetBtn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* ─── Flow Layout ─── */
+
+.flow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  max-width: 560px;
+  margin: 0 auto;
+}
+
+/* ─── Edges ─── */
+
+.edgeWrap {
+  display: flex;
+  justify-content: center;
+  padding: 2px 0;
+}
+
+.subEdgeWrap {
+  display: flex;
+  justify-content: center;
+  padding: 0;
+}
+
+.edgeSvg {
+  display: block;
+}
+
+.flowLine {
+  animation: dashFlow 0.8s linear infinite;
+}
+
+@keyframes dashFlow {
+  from {
+    stroke-dashoffset: 9;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ─── Nodes ─── */
+
+.node {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  cursor: pointer;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  position: relative;
+}
+
+.node:hover {
+  border-color: var(--border-hover);
+}
+
+/* Color coding borders */
+.node.nodeAgent {
+  border-left: 3px solid var(--blue);
+}
+
+.node.nodeAgent:hover {
+  box-shadow: 0 0 20px rgba(77, 159, 255, 0.08);
+  border-color: rgba(77, 159, 255, 0.3);
+}
+
+.node.nodeApi {
+  border-left: 3px solid var(--accent);
+}
+
+.node.nodeApi:hover {
+  box-shadow: 0 0 20px rgba(200, 255, 0, 0.06);
+  border-color: rgba(200, 255, 0, 0.25);
+}
+
+.node.nodeBackend {
+  border-left: 3px solid var(--text-muted);
+}
+
+.node.nodeBackend:hover {
+  box-shadow: 0 0 20px rgba(255, 255, 255, 0.03);
+  border-color: var(--text-muted);
+}
+
+.node.nodeEvent {
+  border-left: 3px solid var(--green);
+}
+
+.node.nodeEvent:hover {
+  box-shadow: 0 0 20px rgba(0, 214, 143, 0.08);
+  border-color: rgba(0, 214, 143, 0.3);
+}
+
+.subNode {
+  background: var(--surface-2);
+}
+
+/* ─── Node Internals ─── */
+
+.nodeHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.nodeLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.nodeType {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 2px 7px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text-muted);
+}
+
+.nodeType.nodeAgent {
+  color: var(--blue);
+  background: rgba(77, 159, 255, 0.1);
+}
+
+.nodeType.nodeApi {
+  color: var(--accent);
+  background: rgba(200, 255, 0, 0.1);
+}
+
+.nodeType.nodeBackend {
+  color: var(--text-muted);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.nodeType.nodeEvent {
+  color: var(--green);
+  background: rgba(0, 214, 143, 0.1);
+}
+
+.nodeDesc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+.clickHint {
+  font-family: var(--font-mono), monospace;
+  font-size: 10px;
+  color: var(--text-muted);
+  margin-top: 8px;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.node:hover .clickHint {
+  opacity: 1;
+}
+
+/* ─── Expand Button ─── */
+
+.expandBtn {
+  display: inline-block;
+  margin-top: 10px;
+  background: rgba(200, 255, 0, 0.06);
+  border: 1px solid rgba(200, 255, 0, 0.15);
+  color: var(--accent);
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  padding: 5px 12px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.expandBtn:hover {
+  background: rgba(200, 255, 0, 0.12);
+  border-color: rgba(200, 255, 0, 0.3);
+}
+
+/* ─── Sub-flow (backend pipeline) ─── */
+
+.subFlow {
+  width: 100%;
+  overflow: hidden;
+}
+
+.subFlowInner {
+  padding: 8px 0 4px 24px;
+  border-left: 2px solid var(--border);
+  margin-left: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0;
+}
+
+.backendLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-muted);
+  margin-bottom: 8px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.backendPipe {
+  color: var(--border-hover);
+}
+
+/* ─── Payload Panel ─── */
+
+.payloadOverlay {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  background: rgba(0, 0, 0, 0.6);
+  backdrop-filter: blur(4px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.payloadPanel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  max-width: 520px;
+  width: 100%;
+  padding: 24px;
+  max-height: 80vh;
+  overflow-y: auto;
+}
+
+.payloadHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.payloadTitle {
+  font-family: var(--font-mono), monospace;
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.payloadClose {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 0 4px;
+  line-height: 1;
+  transition: color 0.2s;
+}
+
+.payloadClose:hover {
+  color: var(--text);
+}
+
+.payloadDesc {
+  font-size: 13px;
+  color: var(--text-dim);
+  line-height: 1.5;
+  margin: 0 0 16px;
+}
+
+.payloadBlock {
+  margin-bottom: 12px;
+}
+
+.payloadLabel {
+  font-family: var(--font-mono), monospace;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--blue);
+  margin-bottom: 6px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.payloadLabelReturn {
+  color: var(--accent);
+}
+
+.arrow {
+  font-size: 14px;
+}
+
+.payloadCode {
+  font-family: var(--font-mono), monospace;
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text);
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 12px 14px;
+  margin: 0;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+/* ─── Mobile ─── */
+
+@media (max-width: 600px) {
+  .flow {
+    max-width: 100%;
+  }
+
+  .node {
+    padding: 12px 14px;
+  }
+
+  .nodeLabel {
+    font-size: 12px;
+  }
+
+  .nodeDesc {
+    font-size: 12px;
+  }
+
+  .nodeType {
+    font-size: 9px;
+  }
+
+  .creditsWrap {
+    position: fixed;
+    top: auto;
+    bottom: 16px;
+    right: 16px;
+    float: none;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+  }
+
+  .resetBtn {
+    position: fixed;
+    top: auto;
+    bottom: 80px;
+    right: 16px;
+    float: none;
+  }
+
+  .subFlowInner {
+    padding-left: 16px;
+    margin-left: 12px;
+  }
+
+  .payloadPanel {
+    padding: 18px;
+  }
+
+  .payloadCode {
+    font-size: 11px;
+    padding: 10px 12px;
+  }
+}
