@@ -1,0 +1,18 @@
+Scenario ID,Title,Difficulty,Domain,Workflow ID,Accuracy Without (%),Accuracy With (%),Accuracy Improvement (pp),Tokens Without,Tokens With,Tokens Saved,Token Reduction (%),Latency Without (ms),Latency With (ms),Latency Saved (ms),Speed Improvement (%),Steps Without,Steps With,Errors Without,Errors With,Edge Cases Missed,Edge Cases Caught,Cost Without ($),Cost With ($),Cost Savings ($)
+S1,LinkedIn B2B Cold Outreach,simple,sales/marketing,linkedin_b2b_cold_outreach,58.3,100.0,41.7,1800,720,1080,60.0,5400,2800,2600,48.1,6,3,2,0,3,3,0.0054,0.00216,0.00324
+S2,Subscription Audit & Optimizer,simple,personal finance,subscription_audit_optimizer,60.0,100.0,40.0,2800,805,1995,71.2,6200,3100,3100,50.0,5,3,2,0,2,2,0.0084,0.002415,0.005985
+S3,Sleep & Circadian Optimization,simple,health/wellness,personalized_sleep_circadian_optimization,55.0,97.5,42.5,2100,740,1360,64.8,4800,2400,2400,50.0,5,3,2,0,2,2,0.0063,0.00222,0.00408
+S4,Smart Grocery Shopping Optimizer,simple,shopping/lifestyle,smart_grocery_optimizer,55.0,100.0,45.0,3200,860,2340,73.1,7100,3200,3900,54.9,6,3,2,0,3,3,0.0096,0.00258,0.00702
+S5,Electronics Purchase Advisor,simple,shopping/tech,electronics_purchase_advisor,62.0,100.0,38.0,3600,895,2705,75.1,6800,3000,3800,55.9,5,3,1,0,2,2,0.0108,0.002685,0.008115
+M1,"Ohio 2024 Tax Filing (W2, Itemized)",medium,tax/finance,ohio_w2_itemized_2024,37.5,100.0,62.5,4390,1330,3060,69.7,8500,3800,4700,55.3,8,4,4,0,4,6,0.01317,0.00399,0.00918
+M2,"California 2024 Form 540 (W2, Standard)",medium,tax/finance,california_w2_standard_2024,42.9,100.0,57.1,3850,1110,2740,71.2,7800,3400,4400,56.4,7,4,3,0,4,5,0.01155,0.00333,0.00822
+M3,Tokyo 5-Day Family Trip (Stroller-Accessible),medium,travel planning,tokyo_family_trip_5day,40.0,97.0,57.0,4200,1120,3080,73.3,9200,3900,5300,57.6,8,4,3,0,5,6,0.0126,0.00336,0.00924
+M4,Stripe Multi-Currency Invoice Parser,medium,data/fintech,stripe_invoice_parser_multicurrency,42.9,100.0,57.1,2200,750,1450,65.9,6500,3000,3500,53.8,7,4,3,0,4,4,0.0066,0.00225,0.00435
+M5,Nebraska Self-Employed Quarterly Taxes,medium,tax/finance,nebraska_selfemployed_quarterly_2024,37.5,100.0,62.5,3400,1030,2370,69.7,8000,3600,4400,55.0,8,4,4,0,4,5,0.0102,0.00309,0.00711
+D1,M&A Due Diligence VDR Scanner,difficult,legal/finance,ma_due_diligence_vdr_scanner_2026,30.0,98.0,68.0,8500,2800,5700,67.1,15000,5200,9800,65.3,10,4,5,0,6,7,0.0255,0.0084,0.0171
+D2,Clinical Trial Patient Screening (HIPAA),difficult,healthcare/biotech,clinical_trial_patient_screening_hipaa,33.3,97.5,64.2,7200,2100,5100,70.8,14000,4800,9200,65.7,9,4,5,0,5,6,0.0216,0.0063,0.0153
+D3,Legacy Monolith → Microservices Extraction,difficult,software architecture,legacy_monolith_microservices_extractor,33.3,97.0,63.7,6800,2200,4600,67.6,13500,4600,8900,65.9,9,4,5,0,5,5,0.0204,0.0066,0.0138
+D4,Web App Penetration Test (OWASP Top 10),difficult,cybersecurity,automated_pentest_webapp_owasp,33.3,98.0,64.7,7500,2500,5000,66.7,14500,5000,9500,65.5,9,4,5,0,5,6,0.0225,0.0075,0.015
+D5,Supply Chain Predictive Inventory (Q4 Peak),difficult,logistics/operations,supply_chain_predictive_inventory_q4,33.3,97.5,64.2,7000,2400,4600,65.7,13800,4900,8900,64.5,9,4,5,0,5,6,0.021,0.0072,0.0138
+
+AGGREGATE,,,,,43.6,98.8,55.2,68540,21360,47180,68.8,141100,56700,84400,57.6,7.4,3.7,51,0,59,68,0.2056,0.0641,0.1415

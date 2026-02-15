@@ -1,6 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 import styles from './AgentChat.module.css'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
@@ -13,11 +15,29 @@ interface Message {
 }
 
 const SUGGESTED_PROMPTS = [
-  'Help me file my Ohio taxes for 2024',
-  'Find me a grocery shopping optimizer',
-  'Compare electronics purchase workflows',
-  'I need to parse medical PDF records',
-  'Search for subscription audit tools',
+  { label: 'Search for tax filing workflows', icon: '🔍', tool: 'mark_estimate' },
+  { label: 'Find shopping comparison tools', icon: '🔍', tool: 'mark_estimate' },
+  { label: 'Buy the best tax workflow for Ohio', icon: '💳', tool: 'mark_buy' },
+  { label: 'Purchase a product comparison workflow', icon: '💳', tool: 'mark_buy' },
+]
+
+const MARK_TOOLS = [
+  {
+    name: 'mark_estimate',
+    label: 'Search',
+    icon: '🔍',
+    description: 'Search the marketplace for pre-solved workflows. Free — no credits spent.',
+    endpoint: 'POST /api/estimate',
+    color: '#00bfae',
+  },
+  {
+    name: 'mark_buy',
+    label: 'Buy',
+    icon: '💳',
+    description: 'Purchase a solution and receive the full execution plan. Deducts credits.',
+    endpoint: 'POST /api/buy',
+    color: '#ffd700',
+  },
 ]
 
 export default function AgentChat() {
@@ -151,11 +171,22 @@ export default function AgentChat() {
           Elasticsearch marketplace, evaluates workflows, manages your token economy, and
           executes multi-step tasks — all in real time.
         </p>
-        <div className={styles.prizes}>
-          <span className={`${styles.prize} ${styles.prizeAnthropic}`}>Anthropic — Best Use of Claude</span>
-          <span className={`${styles.prize} ${styles.prizeGreylock}`}>Greylock — Best Multi-Turn Agent</span>
-          <span className={`${styles.prize} ${styles.prizeElastic}`}>Elastic — Best Use of Elasticsearch</span>
-          <span className={`${styles.prize} ${styles.prizeVisa}`}>Visa — Future of Commerce</span>
+
+        {/* Mark Tools Panel */}
+        <div className={styles.toolsPanel}>
+          <div className={styles.toolsPanelLabel}>Agent SDK Tools</div>
+          <div className={styles.toolCards}>
+            {MARK_TOOLS.map((tool) => (
+              <div key={tool.name} className={styles.toolCard} style={{ '--tool-color': tool.color } as React.CSSProperties}>
+                <div className={styles.toolCardHeader}>
+                  <span className={styles.toolCardIcon}>{tool.icon}</span>
+                  <span className={styles.toolCardName}>{tool.name}</span>
+                  <span className={styles.toolCardEndpoint}>{tool.endpoint}</span>
+                </div>
+                <div className={styles.toolCardDesc}>{tool.description}</div>
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className={styles.chatWrapper}>
@@ -192,16 +223,29 @@ export default function AgentChat() {
                     {msg.timestamp && <span>{msg.timestamp}</span>}
                   </div>
                 )}
-                <div className={styles.messageBubble}>
-                  {msg.content}
+                <div className={`${styles.messageBubble} ${msg.role === 'agent' ? styles.markdown : ''}`}>
+                  {msg.role === 'agent' ? (
+                    <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                      {msg.content}
+                    </ReactMarkdown>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
                 {msg.toolCalls && msg.toolCalls.length > 0 && (
                   <div className={styles.toolCalls}>
-                    {msg.toolCalls.map((tool, j) => (
-                      <span key={j} className={styles.toolBadge}>
-                        ⚡ {tool}
-                      </span>
-                    ))}
+                    {msg.toolCalls.map((tool, j) => {
+                      const isSearch = tool.includes('search') || tool.includes('estimate') || tool.includes('evaluate') || tool.includes('sanitize') || tool.includes('complexity')
+                      const isBuy = tool.includes('purchase') || tool.includes('buy') || tool.includes('execute') || tool.includes('compare')
+                      return (
+                        <span
+                          key={j}
+                          className={`${styles.toolBadge} ${isSearch ? styles.toolBadgeSearch : ''} ${isBuy ? styles.toolBadgeBuy : ''}`}
+                        >
+                          {isSearch ? '🔍' : isBuy ? '💳' : '⚡'} {tool}
+                        </span>
+                      )
+                    })}
                   </div>
                 )}
               </div>
@@ -226,10 +270,11 @@ export default function AgentChat() {
               {SUGGESTED_PROMPTS.map((prompt, i) => (
                 <button
                   key={i}
-                  className={styles.suggestion}
-                  onClick={() => sendMessage(prompt)}
+                  className={`${styles.suggestion} ${prompt.tool === 'mark_buy' ? styles.suggestionBuy : styles.suggestionSearch}`}
+                  onClick={() => sendMessage(prompt.label)}
                 >
-                  {prompt}
+                  <span className={styles.suggestionIcon}>{prompt.icon}</span>
+                  {prompt.label}
                 </button>
               ))}
             </div>

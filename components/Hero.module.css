@@ -9,16 +9,6 @@
   position: relative;
 }
 
-.heroGrid {
-  position: absolute;
-  inset: 0;
-  background-image: linear-gradient(var(--border) 1px, transparent 1px),
-    linear-gradient(90deg, var(--border) 1px, transparent 1px);
-  background-size: 60px 60px;
-  mask-image: radial-gradient(ellipse 60% 50% at 50% 50%, black, transparent);
-  opacity: 0.4;
-}
-
 .heroGlow {
   position: absolute;
   width: 600px;
@@ -70,6 +60,86 @@
   font-weight: 300;
   position: relative;
   animation: fadeUp 0.6s ease 0.2s both;
+}
+
+.installBar {
+  display: flex;
+  align-items: stretch;
+  margin-top: 32px;
+  background: #2a2a2a;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 14px;
+  position: relative;
+  animation: fadeUp 0.6s ease 0.2s both;
+  max-width: 520px;
+  width: 100%;
+}
+
+.installLabel {
+  padding: 14px 20px;
+  font-size: 15px;
+  font-weight: 500;
+  color: #1a1a1a;
+  background: #f5f5f5;
+  border-radius: 12px;
+  margin: 4px;
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: default;
+}
+
+.installChevron {
+  font-size: 14px;
+  opacity: 0.5;
+  position: relative;
+  top: -2px;
+}
+
+.installCommand {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  padding: 0 16px 0 20px;
+  gap: 16px;
+}
+
+.installCommand code {
+  font-family: var(--font-mono), monospace;
+  font-size: 15px;
+  color: #999;
+  flex: 1;
+  text-align: left;
+  letter-spacing: 0.3px;
+}
+
+.installCmd {
+  color: #c49060;
+}
+
+.installFlag {
+  color: #7cacb0;
+}
+
+.installPkg {
+  color: #ccc;
+}
+
+.installCopy {
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  padding: 6px;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.installCopy:hover {
+  color: rgba(255, 255, 255, 0.7);
 }
 
 .heroActions {

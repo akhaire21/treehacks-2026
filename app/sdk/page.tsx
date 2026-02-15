@@ -39,7 +39,6 @@ interface Scenario {
   title: string
   description: string
   icon: string
-  prize: string
   task: string
 }
 
@@ -50,7 +49,6 @@ const FALLBACK_SCENARIOS: Scenario[] = [
     title: 'Ohio Tax Filing',
     description: 'Agent autonomously finds and purchases a tax workflow, then presents a step-by-step filing plan.',
     icon: '📋',
-    prize: 'Anthropic — Human Flourishing',
     task: 'Help me file my Ohio 2024 taxes. I have a W2 and want to use itemized deductions. Income around $85,000.',
   },
   {
@@ -58,7 +56,6 @@ const FALLBACK_SCENARIOS: Scenario[] = [
     title: 'Smart Product Comparison',
     description: 'Agent finds a product comparison workflow, purchases it, and delivers structured recommendations.',
     icon: '🛒',
-    prize: 'Visa — Future of Commerce',
     task: 'I need to buy a laptop for software development, budget $1500-2000. Need 32GB RAM and a good screen.',
   },
   {
@@ -66,7 +63,6 @@ const FALLBACK_SCENARIOS: Scenario[] = [
     title: 'Multi-Task Orchestration',
     description: 'Agent decomposes a complex relocation task into subtasks and chains marketplace workflows together.',
     icon: '🔗',
-    prize: 'Greylock — Best Multi-Turn Agent',
     task: "I'm relocating from California to Ohio. Help with: 1) CA partial-year taxes, 2) Ohio tax setup, 3) Finding neighborhoods in Columbus.",
   },
 ]
@@ -155,10 +151,6 @@ export default function SDKPage() {
       <main className={styles.main}>
         {/* Header */}
         <div className={styles.header}>
-          <div className={styles.prizeBadges}>
-            <span className={styles.prizeBadge}>🏆 Anthropic — Human Flourishing</span>
-            <span className={styles.prizeBadge}>🏆 Best Use of Claude Agent SDK</span>
-          </div>
           <h1>
             Agent SDK
             <span className={styles.headerAccent}> Simulations</span>
@@ -216,7 +208,6 @@ export default function SDKPage() {
                 <div className={styles.scenarioContent}>
                   <h3>{s.title}</h3>
                   <p>{s.description}</p>
-                  <span className={styles.scenarioPrize}>{s.prize}</span>
                 </div>
               </button>
             ))}

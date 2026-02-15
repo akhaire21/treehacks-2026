@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState, useCallback } from 'react'
 import styles from './Dashboard.module.css'
-import VisaPayment from './VisaPayment'
 
 const API = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
 
@@ -94,7 +93,7 @@ export default function Dashboard() {
         <div className={styles.dashboard}>
           <div className={styles.dashHeader}>
             <div className={styles.dashTabs}>
-              {['Overview', 'Transactions', 'Wallet', 'Agents', 'Settings'].map((tab) => (
+              {['Overview', 'Transactions', 'Agents', 'Wallet', 'Settings'].map((tab) => (
                 <button
                   key={tab}
                   className={`${styles.dashTab} ${activeTab === tab ? styles.active : ''}`}
@@ -110,43 +109,25 @@ export default function Dashboard() {
           </div>
           <div className={styles.dashBody}>
             <div className={styles.dashSidebar}>
-              <div
-                className={`${styles.dashNavItem} ${activeTab === 'Overview' ? styles.active : ''}`}
-                onClick={() => setActiveTab('Overview')}
-              >
-                <span className={styles.dashNavIcon}>◉</span> Overview
-              </div>
-              <div
-                className={`${styles.dashNavItem} ${activeTab === 'Transactions' ? styles.active : ''}`}
-                onClick={() => setActiveTab('Transactions')}
-              >
-                <span className={styles.dashNavIcon}>↗</span> Transactions
-              </div>
-              <div
-                className={`${styles.dashNavItem} ${activeTab === 'Wallet' ? styles.active : ''}`}
-                onClick={() => setActiveTab('Wallet')}
-              >
-                <span className={styles.dashNavIcon}>◈</span> Wallet
-              </div>
-              <div
-                className={`${styles.dashNavItem} ${activeTab === 'Agents' ? styles.active : ''}`}
-                onClick={() => setActiveTab('Agents')}
-              >
-                <span className={styles.dashNavIcon}>⬡</span> Agents
-              </div>
-              <div
-                className={`${styles.dashNavItem} ${activeTab === 'Settings' ? styles.active : ''}`}
-                onClick={() => setActiveTab('Settings')}
-              >
-                <span className={styles.dashNavIcon}>⚙</span> Settings
-              </div>
+              {[
+                { icon: '◉', label: 'Overview' },
+                { icon: '↗', label: 'Transactions' },
+                { icon: '⬡', label: 'Agents' },
+                { icon: '◈', label: 'Wallet' },
+                { icon: '⚙', label: 'Settings' },
+              ].map(({ icon, label }) => (
+                <div
+                  key={label}
+                  className={`${styles.dashNavItem} ${activeTab === label ? styles.active : ''}`}
+                  onClick={() => setActiveTab(label)}
+                  style={{ cursor: 'pointer' }}
+                >
+                  <span className={styles.dashNavIcon}>{icon}</span> {label}
+                </div>
+              ))}
             </div>
             <div className={styles.dashContent}>
-              {activeTab === 'Wallet' ? (
-                <div style={{ padding: '20px 0' }}>
-                  <VisaPayment userId="default_user" />
-                </div>
-              ) : (
+              {activeTab === 'Overview' && (
                 <>
                   <div className={styles.dashStats}>
                     <div className={styles.statCard}>
@@ -183,48 +164,113 @@ export default function Dashboard() {
                       <div key={i} className={styles.chartBar} style={{ height: `${height}%` }}></div>
                     ))}
                   </div>
+                </>
+              )}
 
-                  <table className={styles.txTable}>
-                    <thead>
+              {activeTab === 'Transactions' && (
+                <table className={styles.txTable}>
+                  <thead>
+                    <tr>
+                      <th>ID</th>
+                      <th>Workflow</th>
+                      <th>Buyer</th>
+                      <th>Cost</th>
+                      <th>Type</th>
+                      <th>Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {transactions.length === 0 ? (
                       <tr>
-                        <th>ID</th>
-                        <th>Workflow</th>
-                        <th>Buyer</th>
-                        <th>Cost</th>
-                        <th>Type</th>
-                        <th>Status</th>
+                        <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
+                          No transactions yet — search &amp; purchase workflows above to see live data
+                        </td>
                       </tr>
-                    </thead>
-                    <tbody>
-                      {transactions.length === 0 ? (
-                        <tr>
-                          <td colSpan={6} style={{ textAlign: 'center', color: 'var(--text-muted)', padding: '24px' }}>
-                            No transactions yet — search &amp; purchase workflows above to see live data
+                    ) : (
+                      transactions.map((tx) => (
+                        <tr key={tx.id}>
+                          <td className={styles.txId}>{tx.id.slice(0, 12)}…</td>
+                          <td className={styles.txSolution}>{tx.workflow_id}</td>
+                          <td>{tx.buyer_id}</td>
+                          <td className={styles.txPrice}>◈ {tx.amount}</td>
+                          <td>
+                            <span className={`${styles.txRating} ${styles.ratingUp}`}>
+                              {tx.type || 'purchase'}
+                            </span>
+                          </td>
+                          <td>
+                            <span className={`${styles.txStatus} ${styles.statusComplete}`}>
+                              Complete
+                            </span>
                           </td>
                         </tr>
-                      ) : (
-                        transactions.map((tx) => (
-                          <tr key={tx.id}>
-                            <td className={styles.txId}>{tx.id.slice(0, 12)}…</td>
-                            <td className={styles.txSolution}>{tx.workflow_id}</td>
-                            <td>{tx.buyer_id}</td>
-                            <td className={styles.txPrice}>◈ {tx.amount}</td>
-                            <td>
-                              <span className={`${styles.txRating} ${styles.ratingUp}`}>
-                                {tx.type || 'purchase'}
-                              </span>
-                            </td>
-                            <td>
-                              <span className={`${styles.txStatus} ${styles.statusComplete}`}>
-                                Complete
-                              </span>
-                            </td>
-                          </tr>
-                        ))
-                      )}
-                    </tbody>
-                  </table>
+                      ))
+                    )}
+                  </tbody>
+                </table>
+              )}
+
+              {activeTab === 'Agents' && (
+                <div className={styles.dashStats}>
+                  <div className={styles.statCard}>
+                    <div className={styles.statLabel}>Unique Buyers</div>
+                    <div className={styles.statValue}>{stats?.unique_buyers ?? '—'}</div>
+                    <div className={`${styles.statChange} ${styles.statUp}`}>Active agents</div>
+                  </div>
+                  <div className={styles.statCard}>
+                    <div className={styles.statLabel}>Workflows Sold</div>
+                    <div className={styles.statValue}>{stats?.unique_workflows_sold ?? '—'}</div>
+                    <div className={`${styles.statChange} ${styles.statUp}`}>Unique workflows</div>
+                  </div>
+                </div>
+              )}
+
+              {activeTab === 'Wallet' && (
+                <>
+                  <div className={styles.dashStats}>
+                    <div className={styles.statCard}>
+                      <div className={styles.statLabel}>Credits Balance</div>
+                      <div className={styles.statValue}>{balanceStr}</div>
+                      <div className={`${styles.statChange} ${styles.statUp}`}>
+                        Token economy active
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statLabel}>Total Volume</div>
+                      <div className={styles.statValue}>◈ {volumeStr}</div>
+                      <div className={`${styles.statChange} ${styles.statUp}`}>
+                        All-time token volume
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statLabel}>Platform Revenue</div>
+                      <div className={styles.statValue}>◈ {stats?.platform_revenue?.toLocaleString() ?? '—'}</div>
+                      <div className={`${styles.statChange} ${styles.statUp}`}>
+                        Lifetime earnings
+                      </div>
+                    </div>
+                    <div className={styles.statCard}>
+                      <div className={styles.statLabel}>Cart Items</div>
+                      <div className={styles.statValue}>{cartCount}</div>
+                      <div className={`${styles.statChange} ${styles.statUp}`}>
+                        Pending checkout
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className={styles.chartArea}>
+                    <div className={styles.chartTitle}>Wallet activity — last 14 days</div>
+                    {[30, 45, 35, 60, 52, 48, 70, 65, 80, 72, 85, 78, 92, 100].map((height, i) => (
+                      <div key={i} className={styles.chartBar} style={{ height: `${height}%` }}></div>
+                    ))}
+                  </div>
                 </>
+              )}
+
+              {activeTab === 'Settings' && (
+                <div style={{ padding: '24px', color: 'var(--text-muted)' }}>
+                  Settings panel — configure API keys, notification preferences, and agent permissions.
+                </div>
               )}
             </div>
           </div>
