@@ -177,6 +177,40 @@ def health_check():
 @app.route("/api/workflows", methods=["GET"])
 def list_workflows():
     workflows = matcher.get_all_workflows()
+
+    # Add dynamic pricing calculation for workflows that have the required fields
+    for workflow in workflows:
+        # Only calculate if we have the base data
+        if 'avg_tokens_without' in workflow and 'avg_tokens_with' in workflow:
+            rating = workflow.get('rating', 4.0)
+
+            # Calculate tokens saved
+            tokens_saved = workflow['avg_tokens_without'] - workflow['avg_tokens_with']
+            workflow['tokens_saved'] = tokens_saved
+
+            # Calculate savings percentage
+            if workflow['avg_tokens_without'] > 0:
+                savings_pct = int((tokens_saved / workflow['avg_tokens_without']) * 100)
+                workflow['savings_percentage'] = savings_pct
+
+            # Calculate pricing if not already present
+            if 'price_tokens' not in workflow and tokens_saved > 0:
+                from pricing import PricingEngine
+                pricing_result = PricingEngine.calculate_workflow_price(
+                    workflow['avg_tokens_without'],
+                    workflow['avg_tokens_with'],
+                    rating,
+                    None  # No comparable prices for now
+                )
+                workflow['price_tokens'] = pricing_result['final_price']
+                workflow['pricing'] = {
+                    'base_price': pricing_result['base_price'],
+                    'quality_multiplier': round(pricing_result['quality_multiplier'], 3),
+                    'market_rate': pricing_result['market_rate'],
+                    'roi_percentage': pricing_result['roi_percentage'],
+                    'breakdown': pricing_result['breakdown']
+                }
+
     return jsonify({"workflows": workflows, "count": len(workflows)})
 
 
