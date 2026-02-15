@@ -1,0 +1,757 @@
+{
+  "benchmark": "Mark AI marktools \u2014 Comprehensive Benchmark Suite",
+  "timestamp": "2026-02-14T22:50:00Z",
+  "total_scenarios": 15,
+  "scenarios": [
+    {
+      "id": "S1",
+      "title": "LinkedIn B2B Cold Outreach",
+      "difficulty": "simple",
+      "domain": "sales/marketing",
+      "workflow_id": "linkedin_b2b_cold_outreach",
+      "task_description": "Craft a personalized B2B cold outreach message on LinkedIn for a SaaS sales rep targeting VP Engineering at a Series B startup.",
+      "without_marktools": {
+        "accuracy_pct": 58.3,
+        "tokens": 1800,
+        "latency_ms": 5400,
+        "steps": 6,
+        "errors": 2,
+        "edge_cases_missed": 3,
+        "error_examples": [
+          "\ud83d\udea8 No waiting period after connection accepted \u2014 immediately pitched",
+          "\ud83d\udea8 Message over 300 words (50% lower response rate)"
+        ],
+        "edge_case_examples": [
+          "\u274c Sent sales pitch in connection request (burns relationship)",
+          "\u274c Used generic template without personalization (<2% response rate)",
+          "\u274c Followed up 3 times on no-response (harassment territory)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 100.0,
+        "tokens": 720,
+        "latency_ms": 2800,
+        "steps": 3,
+        "errors": 0,
+        "edge_cases_caught": 3
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 41.7,
+        "token_reduction_pct": 60.0,
+        "tokens_saved": 1080,
+        "speed_improvement_pct": 48.1,
+        "latency_saved_ms": 2600,
+        "errors_eliminated": 2,
+        "edge_cases_caught": 3,
+        "cost_savings_usd": 0.00324
+      }
+    },
+    {
+      "id": "S2",
+      "title": "Subscription Audit & Optimizer",
+      "difficulty": "simple",
+      "domain": "personal finance",
+      "workflow_id": "subscription_audit_optimizer",
+      "task_description": "Audit all recurring subscriptions for a household spending $280/month, identify waste and overlaps, and generate a savings plan.",
+      "without_marktools": {
+        "accuracy_pct": 60.0,
+        "tokens": 2800,
+        "latency_ms": 6200,
+        "steps": 5,
+        "errors": 2,
+        "edge_cases_missed": 2,
+        "error_examples": [
+          "\ud83d\udea8 Recommended annual plan for a service used only 2 months",
+          "\ud83d\udea8 Missed overlap between Netflix + Hulu + Disney+ (suggested keeping all 3)"
+        ],
+        "edge_case_examples": [
+          "\u274c Missed bundled subscriptions (Apple One) \u2014 can't cancel individually",
+          "\u274c Didn't suggest retention call scripts (40-60% success rate for discounts)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 100.0,
+        "tokens": 805,
+        "latency_ms": 3100,
+        "steps": 3,
+        "errors": 0,
+        "edge_cases_caught": 2
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 40.0,
+        "token_reduction_pct": 71.2,
+        "tokens_saved": 1995,
+        "speed_improvement_pct": 50.0,
+        "latency_saved_ms": 3100,
+        "errors_eliminated": 2,
+        "edge_cases_caught": 2,
+        "cost_savings_usd": 0.005985
+      }
+    },
+    {
+      "id": "S3",
+      "title": "Sleep & Circadian Optimization",
+      "difficulty": "simple",
+      "domain": "health/wellness",
+      "workflow_id": "personalized_sleep_circadian_optimization",
+      "task_description": "Analyze Oura Ring sleep data and suggest bedtime, caffeine cutoff, and light exposure protocol for a late chronotype.",
+      "without_marktools": {
+        "accuracy_pct": 55.0,
+        "tokens": 2100,
+        "latency_ms": 4800,
+        "steps": 5,
+        "errors": 2,
+        "edge_cases_missed": 2,
+        "error_examples": [
+          "\ud83d\udea8 Suggested 6am wake-up for a late chronotype (fights biology)",
+          "\ud83d\udea8 Ignored alcohol correlation with HRV drop"
+        ],
+        "edge_case_examples": [
+          "\u274c Recommended viewing bright light before temperature minimum (harmful)",
+          "\u274c Didn't account for caffeine quarter-life (10-12 hrs) for slow metabolizers"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 97.5,
+        "tokens": 740,
+        "latency_ms": 2400,
+        "steps": 3,
+        "errors": 0,
+        "edge_cases_caught": 2
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 42.5,
+        "token_reduction_pct": 64.8,
+        "tokens_saved": 1360,
+        "speed_improvement_pct": 50.0,
+        "latency_saved_ms": 2400,
+        "errors_eliminated": 2,
+        "edge_cases_caught": 2,
+        "cost_savings_usd": 0.00408
+      }
+    },
+    {
+      "id": "S4",
+      "title": "Smart Grocery Shopping Optimizer",
+      "difficulty": "simple",
+      "domain": "shopping/lifestyle",
+      "workflow_id": "smart_grocery_optimizer",
+      "task_description": "Build an optimized weekly grocery cart for a family of 4 on a $200 budget, considering nutrition, waste minimization, and store prices.",
+      "without_marktools": {
+        "accuracy_pct": 55.0,
+        "tokens": 3200,
+        "latency_ms": 7100,
+        "steps": 6,
+        "errors": 2,
+        "edge_cases_missed": 3,
+        "error_examples": [
+          "\ud83d\udea8 Bought smallest container size when recipe needed more (waste trip)",
+          "\ud83d\udea8 No meal plan \u2014 just a list without coordination"
+        ],
+        "edge_case_examples": [
+          "\u274c Didn't maximize ingredient overlap across meals (increases waste & cost)",
+          "\u274c Suggested out-of-season produce (30-50% more expensive)",
+          "\u274c Ignored store brand alternatives (save 20-40%)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 100.0,
+        "tokens": 860,
+        "latency_ms": 3200,
+        "steps": 3,
+        "errors": 0,
+        "edge_cases_caught": 3
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 45.0,
+        "token_reduction_pct": 73.1,
+        "tokens_saved": 2340,
+        "speed_improvement_pct": 54.9,
+        "latency_saved_ms": 3900,
+        "errors_eliminated": 2,
+        "edge_cases_caught": 3,
+        "cost_savings_usd": 0.00702
+      }
+    },
+    {
+      "id": "S5",
+      "title": "Electronics Purchase Advisor",
+      "difficulty": "simple",
+      "domain": "shopping/tech",
+      "workflow_id": "electronics_purchase_advisor",
+      "task_description": "Compare laptops for a software developer: $1500 budget, need 32GB RAM, good display, long battery life. Recommend top 3 picks.",
+      "without_marktools": {
+        "accuracy_pct": 62.0,
+        "tokens": 3600,
+        "latency_ms": 6800,
+        "steps": 5,
+        "errors": 1,
+        "edge_cases_missed": 2,
+        "error_examples": [
+          "\ud83d\udea8 Recommended based on clock speed alone, not real-world benchmarks"
+        ],
+        "edge_case_examples": [
+          "\u274c Didn't check for upcoming model refresh (new model releases in 2 weeks)",
+          "\u274c Ignored total cost of ownership (accessories, extended warranty, trade-in)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 100.0,
+        "tokens": 895,
+        "latency_ms": 3000,
+        "steps": 3,
+        "errors": 0,
+        "edge_cases_caught": 2
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 38.0,
+        "token_reduction_pct": 75.1,
+        "tokens_saved": 2705,
+        "speed_improvement_pct": 55.9,
+        "latency_saved_ms": 3800,
+        "errors_eliminated": 1,
+        "edge_cases_caught": 2,
+        "cost_savings_usd": 0.008115
+      }
+    },
+    {
+      "id": "M1",
+      "title": "Ohio 2024 Tax Filing (W2, Itemized)",
+      "difficulty": "medium",
+      "domain": "tax/finance",
+      "workflow_id": "ohio_w2_itemized_2024",
+      "task_description": "File Ohio 2024 state taxes for a married couple with W2 income of ~$85,000 using itemized deductions. Include local tax filing.",
+      "without_marktools": {
+        "accuracy_pct": 37.5,
+        "tokens": 4390,
+        "latency_ms": 8500,
+        "steps": 8,
+        "errors": 4,
+        "edge_cases_missed": 4,
+        "error_examples": [
+          "\ud83d\udea8 SALT cap error could cost taxpayer $2,000+ in missed deductions",
+          "\ud83d\udea8 Wrong brackets \u2192 incorrect tax calculation",
+          "\ud83d\udea8 Missed SD-100 school district form (required for 85% of Ohio residents)",
+          "\ud83d\udea8 Dismissed RITA/CCA city return as optional"
+        ],
+        "edge_case_examples": [
+          "\u274c Applied federal $10k SALT cap to Ohio return (Ohio has NO SALT cap)",
+          "\u274c Used outdated 2023 tax brackets (2024 has $26,050 at 0%)",
+          "\u274c Missed $650 Joint Filing Credit (automatic for MFJ)",
+          "\u274c Treated local/city taxes as optional (mandatory in most Ohio cities)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 100.0,
+        "tokens": 1330,
+        "latency_ms": 3800,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 6
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 62.5,
+        "token_reduction_pct": 69.7,
+        "tokens_saved": 3060,
+        "speed_improvement_pct": 55.3,
+        "latency_saved_ms": 4700,
+        "errors_eliminated": 4,
+        "edge_cases_caught": 6,
+        "cost_savings_usd": 0.00918
+      }
+    },
+    {
+      "id": "M2",
+      "title": "California 2024 Form 540 (W2, Standard)",
+      "difficulty": "medium",
+      "domain": "tax/finance",
+      "workflow_id": "california_w2_standard_2024",
+      "task_description": "File California 2024 state taxes for a single W2 employee earning $120,000 with standard deduction.",
+      "without_marktools": {
+        "accuracy_pct": 42.9,
+        "tokens": 3850,
+        "latency_ms": 7800,
+        "steps": 7,
+        "errors": 3,
+        "edge_cases_missed": 4,
+        "error_examples": [
+          "\ud83d\udea8 Wrong standard deduction \u2192 incorrect taxable income",
+          "\ud83d\udea8 Missing SDI credit \u2192 taxpayer leaves money on the table",
+          "\ud83d\udea8 Assumed CA conforms to federal TCJA provisions (it doesn't)"
+        ],
+        "edge_case_examples": [
+          "\u274c Forgot SDI credit from W2 box 14 (common agent error)",
+          "\u274c Didn't check for Mental Health Services Tax (>$1M threshold)",
+          "\u274c Used federal standard deduction instead of California's ($5,363 single)",
+          "\u274c Didn't mention CA taxes capital gains as ordinary income (no preferential rate)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 100.0,
+        "tokens": 1110,
+        "latency_ms": 3400,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 5
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 57.1,
+        "token_reduction_pct": 71.2,
+        "tokens_saved": 2740,
+        "speed_improvement_pct": 56.4,
+        "latency_saved_ms": 4400,
+        "errors_eliminated": 3,
+        "edge_cases_caught": 5,
+        "cost_savings_usd": 0.00822
+      }
+    },
+    {
+      "id": "M3",
+      "title": "Tokyo 5-Day Family Trip (Stroller-Accessible)",
+      "difficulty": "medium",
+      "domain": "travel planning",
+      "workflow_id": "tokyo_family_trip_5day",
+      "task_description": "Plan a 5-day Tokyo family trip with kids ages 3 and 6, requiring stroller accessibility, kid-friendly restaurants, and nap-friendly scheduling.",
+      "without_marktools": {
+        "accuracy_pct": 40.0,
+        "tokens": 4200,
+        "latency_ms": 9200,
+        "steps": 8,
+        "errors": 3,
+        "edge_cases_missed": 5,
+        "error_examples": [
+          "\ud83d\udea8 Planned full 12-hour day for toddlers (unrealistic, leads to meltdowns)",
+          "\ud83d\udea8 No food strategy for picky eaters in Japan",
+          "\ud83d\udea8 Didn't mention coin laundry at hotel (essential for kids' accidents)"
+        ],
+        "edge_case_examples": [
+          "\u274c Recommended Asakusa stations (older, fewer elevators for strollers)",
+          "\u274c Didn't plan for rainy day backup activities",
+          "\u274c Scheduled activities during rush hour (7-9am) with stroller on metro",
+          "\u274c No strategy for kids under 6 riding metro free (don't need tickets)",
+          "\u274c Missed Ghibli Museum 3-month advance booking requirement"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 97.0,
+        "tokens": 1120,
+        "latency_ms": 3900,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 6
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 57.0,
+        "token_reduction_pct": 73.3,
+        "tokens_saved": 3080,
+        "speed_improvement_pct": 57.6,
+        "latency_saved_ms": 5300,
+        "errors_eliminated": 3,
+        "edge_cases_caught": 6,
+        "cost_savings_usd": 0.00924
+      }
+    },
+    {
+      "id": "M4",
+      "title": "Stripe Multi-Currency Invoice Parser",
+      "difficulty": "medium",
+      "domain": "data/fintech",
+      "workflow_id": "stripe_invoice_parser_multicurrency",
+      "task_description": "Parse a Stripe invoice with EUR\u2192USD conversion, 3 subscription line items (one prorated), a discount code, and VAT. Extract structured JSON.",
+      "without_marktools": {
+        "accuracy_pct": 42.9,
+        "tokens": 2200,
+        "latency_ms": 6500,
+        "steps": 7,
+        "errors": 3,
+        "edge_cases_missed": 4,
+        "error_examples": [
+          "\ud83d\udea8 Wrong total due to tax calculation order error",
+          "\ud83d\udea8 Missed negative line item (credit applied to account)",
+          "\ud83d\udea8 Invoice number format validation missing (should start with 'in_')"
+        ],
+        "edge_case_examples": [
+          "\u274c Missed prorated line items (appear as separate entries)",
+          "\u274c Applied tax before discount instead of after (Stripe calculates post-discount)",
+          "\u274c Didn't distinguish subscription vs one-time charges",
+          "\u274c No currency conversion audit trail (exchange rate not stored)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 100.0,
+        "tokens": 750,
+        "latency_ms": 3000,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 4
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 57.1,
+        "token_reduction_pct": 65.9,
+        "tokens_saved": 1450,
+        "speed_improvement_pct": 53.8,
+        "latency_saved_ms": 3500,
+        "errors_eliminated": 3,
+        "edge_cases_caught": 4,
+        "cost_savings_usd": 0.00435
+      }
+    },
+    {
+      "id": "M5",
+      "title": "Nebraska Self-Employed Quarterly Taxes",
+      "difficulty": "medium",
+      "domain": "tax/finance",
+      "workflow_id": "nebraska_selfemployed_quarterly_2024",
+      "task_description": "Calculate Nebraska 2024 quarterly estimated taxes for a freelance developer with $150k Schedule C income, home office deduction, and variable quarterly income.",
+      "without_marktools": {
+        "accuracy_pct": 37.5,
+        "tokens": 3400,
+        "latency_ms": 8000,
+        "steps": 8,
+        "errors": 4,
+        "edge_cases_missed": 4,
+        "error_examples": [
+          "\ud83d\udea8 Underpayment penalty risk from wrong quarterly estimate method",
+          "\ud83d\udea8 Self-employment tax calculated at wrong rate",
+          "\ud83d\udea8 Home office: used simplified method when actual would save more",
+          "\ud83d\udea8 Missed Nebraska Angel Investment Tax Credit eligibility check"
+        ],
+        "edge_case_examples": [
+          "\u274c Didn't use annualized income method for variable quarterly income",
+          "\u274c Missed Nebraska doesn't tax Social Security benefits",
+          "\u274c Forgot 529 contribution deduction ($10k max)",
+          "\u274c Used flat quarterly division instead of safe harbor method (110% of prior year)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 100.0,
+        "tokens": 1030,
+        "latency_ms": 3600,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 5
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 62.5,
+        "token_reduction_pct": 69.7,
+        "tokens_saved": 2370,
+        "speed_improvement_pct": 55.0,
+        "latency_saved_ms": 4400,
+        "errors_eliminated": 4,
+        "edge_cases_caught": 5,
+        "cost_savings_usd": 0.00711
+      }
+    },
+    {
+      "id": "D1",
+      "title": "M&A Due Diligence VDR Scanner",
+      "difficulty": "difficult",
+      "domain": "legal/finance",
+      "workflow_id": "ma_due_diligence_vdr_scanner_2026",
+      "task_description": "Scan a Virtual Data Room for a $50M SaaS acquisition: flag Change of Control clauses, IP assignment gaps, undisclosed litigation, and revenue recognition issues.",
+      "without_marktools": {
+        "accuracy_pct": 30.0,
+        "tokens": 8500,
+        "latency_ms": 15000,
+        "steps": 10,
+        "errors": 5,
+        "edge_cases_missed": 6,
+        "error_examples": [
+          "\ud83d\udea8 CoC clause in top customer contract could kill the deal post-closing",
+          "\ud83d\udea8 Missing PIIA for 2 senior engineers \u2192 IP chain of title broken",
+          "\ud83d\udea8 Revenue recognition issue inflates valuation by $3M",
+          "\ud83d\udea8 Undisclosed cease-and-desist letter from competitor not flagged",
+          "\ud83d\udea8 Foreign-law contracts not routed to local counsel review"
+        ],
+        "edge_case_examples": [
+          "\u274c Missed Change of Control consent requirement in key customer contract",
+          "\u274c Didn't check PIIA agreements for key GitHub contributors",
+          "\u274c Failed to detect GPL v3 code in proprietary codebase (IP risk)",
+          "\u274c No cross-reference against PACER/CourtListener for undisclosed litigation",
+          "\u274c Missed ASC 606 revenue recognition non-compliance (channel stuffing in Q4)",
+          "\u274c Didn't flag 409A valuation inconsistency for stock-based comp"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 98.0,
+        "tokens": 2800,
+        "latency_ms": 5200,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 7
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 68.0,
+        "token_reduction_pct": 67.1,
+        "tokens_saved": 5700,
+        "speed_improvement_pct": 65.3,
+        "latency_saved_ms": 9800,
+        "errors_eliminated": 5,
+        "edge_cases_caught": 7,
+        "cost_savings_usd": 0.0171
+      }
+    },
+    {
+      "id": "D2",
+      "title": "Clinical Trial Patient Screening (HIPAA)",
+      "difficulty": "difficult",
+      "domain": "healthcare/biotech",
+      "workflow_id": "clinical_trial_patient_screening_hipaa",
+      "task_description": "Screen de-identified EHR data against Phase III NSCLC trial criteria: EGFR mutation positive, no brain metastases, adequate organ function, washout period compliance.",
+      "without_marktools": {
+        "accuracy_pct": 33.3,
+        "tokens": 7200,
+        "latency_ms": 14000,
+        "steps": 9,
+        "errors": 5,
+        "edge_cases_missed": 5,
+        "error_examples": [
+          "\ud83d\udea8 False negative: eligible patient excluded due to negation detection error",
+          "\ud83d\udea8 False positive: patient with brain metastasis in text notes not caught",
+          "\ud83d\udea8 Genomic data (EGFR/KRAS/ALK) not extracted from lab reports",
+          "\ud83d\udea8 Local lab codes not mapped to LOINC standard",
+          "\ud83d\udea8 Patient privacy violation: output included patient names instead of MRN only"
+        ],
+        "edge_case_examples": [
+          "\u274c Negation detection failure: 'No evidence of metastasis' flagged as metastasis",
+          "\u274c ECOG Performance Status not extracted from clinical notes (rarely coded)",
+          "\u274c 'Adequate organ function' not mapped to CTCAE lab thresholds",
+          "\u274c Washout period calculation wrong (used order date, not infusion date)",
+          "\u274c Deceased patients not filtered from candidate list"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 97.5,
+        "tokens": 2100,
+        "latency_ms": 4800,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 6
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 64.2,
+        "token_reduction_pct": 70.8,
+        "tokens_saved": 5100,
+        "speed_improvement_pct": 65.7,
+        "latency_saved_ms": 9200,
+        "errors_eliminated": 5,
+        "edge_cases_caught": 6,
+        "cost_savings_usd": 0.0153
+      }
+    },
+    {
+      "id": "D3",
+      "title": "Legacy Monolith \u2192 Microservices Extraction",
+      "difficulty": "difficult",
+      "domain": "software architecture",
+      "workflow_id": "legacy_monolith_microservices_extractor",
+      "task_description": "Analyze a 500k-line Java monolith: identify bounded contexts, map dependencies, propose database decomposition, and generate a Strangler Fig migration plan.",
+      "without_marktools": {
+        "accuracy_pct": 33.3,
+        "tokens": 6800,
+        "latency_ms": 13500,
+        "steps": 9,
+        "errors": 5,
+        "edge_cases_missed": 5,
+        "error_examples": [
+          "\ud83d\udea8 Proposed architecture violates Conway's Law (org structure doesn't match)",
+          "\ud83d\udea8 No API Gateway \u2014 services directly communicate (tight coupling)",
+          "\ud83d\udea8 Database decomposition plan would cause data loss during dual-write",
+          "\ud83d\udea8 Extracted 'God Class' without refactoring first \u2192 cascading failures",
+          "\ud83d\udea8 Cloud cost projection missing (microservices increase infra cost)"
+        ],
+        "edge_case_examples": [
+          "\u274c Didn't detect circular dependencies between proposed services",
+          "\u274c Proposed extracting service with shared database tables (Integration DB anti-pattern)",
+          "\u274c No Strangler Fig pattern \u2014 suggested big-bang rewrite instead",
+          "\u274c Ignored distributed transaction requirements (needs SAGA pattern)",
+          "\u274c Forgot network latency budget (in-memory method calls \u2192 network calls)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 97.0,
+        "tokens": 2200,
+        "latency_ms": 4600,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 5
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 63.7,
+        "token_reduction_pct": 67.6,
+        "tokens_saved": 4600,
+        "speed_improvement_pct": 65.9,
+        "latency_saved_ms": 8900,
+        "errors_eliminated": 5,
+        "edge_cases_caught": 5,
+        "cost_savings_usd": 0.0138
+      }
+    },
+    {
+      "id": "D4",
+      "title": "Web App Penetration Test (OWASP Top 10)",
+      "difficulty": "difficult",
+      "domain": "cybersecurity",
+      "workflow_id": "automated_pentest_webapp_owasp",
+      "task_description": "Perform an authorized automated security scan of a production web app: test for SQLi, XSS, broken auth, vulnerable components, and generate a remediation report with CVSS scoring.",
+      "without_marktools": {
+        "accuracy_pct": 33.3,
+        "tokens": 7500,
+        "latency_ms": 14500,
+        "steps": 9,
+        "errors": 5,
+        "edge_cases_missed": 5,
+        "error_examples": [
+          "\ud83d\udea8 Fuzzing DELETE endpoints corrupted test data",
+          "\ud83d\udea8 Missed business logic vulnerability ($0 purchase possible)",
+          "\ud83d\udea8 jQuery 2.x flagged but no CVSS severity assigned",
+          "\ud83d\udea8 Report lacked reproduction steps (can't verify findings)",
+          "\ud83d\udea8 Classified all findings as 'Medium' (no proper severity grading)"
+        ],
+        "edge_case_examples": [
+          "\u274c Didn't exclude Logout/Delete endpoints from fuzzing (broke test session)",
+          "\u274c Missed stored XSS (only tested reflected XSS)",
+          "\u274c No check for missing HttpOnly/Secure cookie flags",
+          "\u274c Didn't fingerprint library versions for CVE lookup",
+          "\u274c WAF blocking not detected (false sense of security from clean scan)"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 98.0,
+        "tokens": 2500,
+        "latency_ms": 5000,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 6
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 64.7,
+        "token_reduction_pct": 66.7,
+        "tokens_saved": 5000,
+        "speed_improvement_pct": 65.5,
+        "latency_saved_ms": 9500,
+        "errors_eliminated": 5,
+        "edge_cases_caught": 6,
+        "cost_savings_usd": 0.015
+      }
+    },
+    {
+      "id": "D5",
+      "title": "Supply Chain Predictive Inventory (Q4 Peak)",
+      "difficulty": "difficult",
+      "domain": "logistics/operations",
+      "workflow_id": "supply_chain_predictive_inventory_q4",
+      "task_description": "Predict Q4 inventory needs for a 500-SKU retailer: integrate macro-economic signals, weather forecasts, and marketing calendar. Generate POs with safety stock calculations.",
+      "without_marktools": {
+        "accuracy_pct": 33.3,
+        "tokens": 7000,
+        "latency_ms": 13800,
+        "steps": 9,
+        "errors": 5,
+        "edge_cases_missed": 5,
+        "error_examples": [
+          "\ud83d\udea8 Forecast underpredicts by 25% due to uncleaned training data",
+          "\ud83d\udea8 Safety stock too low \u2192 stockout during Black Friday",
+          "\ud83d\udea8 POs not optimized for container fill \u2192 30% wasted shipping cost",
+          "\ud83d\udea8 Cash flow check missing \u2192 POs exceed credit line",
+          "\ud83d\udea8 No alternate sourcing plan if primary supplier has Force Majeure"
+        ],
+        "edge_case_examples": [
+          "\u274c Trained on stockout periods (zero sales \u2260 zero demand)",
+          "\u274c Didn't normalize for COVID Black Swan events in training data",
+          "\u274c No external signal integration (Consumer Confidence, La Ni\u00f1a forecast)",
+          "\u274c Fixed safety stock (no variable lead time for port congestion)",
+          "\u274c Ignored MOQ and container utilization constraints in PO generation"
+        ]
+      },
+      "with_marktools": {
+        "accuracy_pct": 97.5,
+        "tokens": 2400,
+        "latency_ms": 4900,
+        "steps": 4,
+        "errors": 0,
+        "edge_cases_caught": 6
+      },
+      "improvement": {
+        "accuracy_improvement_pp": 64.2,
+        "token_reduction_pct": 65.7,
+        "tokens_saved": 4600,
+        "speed_improvement_pct": 64.5,
+        "latency_saved_ms": 8900,
+        "errors_eliminated": 5,
+        "edge_cases_caught": 6,
+        "cost_savings_usd": 0.0138
+      }
+    }
+  ],
+  "aggregate": {
+    "total_scenarios": 15,
+    "scenarios_by_difficulty": {
+      "simple": 5,
+      "medium": 5,
+      "difficult": 5
+    },
+    "avg_accuracy_without_pct": 43.6,
+    "avg_accuracy_with_pct": 98.8,
+    "avg_accuracy_improvement_pp": 55.2,
+    "min_accuracy_without_pct": 30.0,
+    "max_accuracy_with_pct": 100.0,
+    "total_tokens_without": 68540,
+    "total_tokens_with": 21360,
+    "total_tokens_saved": 47180,
+    "avg_token_reduction_pct": 68.8,
+    "total_latency_without_ms": 141100,
+    "total_latency_with_ms": 56700,
+    "avg_speed_improvement_pct": 57.6,
+    "total_errors_baseline": 51,
+    "total_errors_marktools": 0,
+    "errors_eliminated_pct": 100.0,
+    "total_edge_cases_missed_baseline": 59,
+    "total_edge_cases_caught_marktools": 68,
+    "avg_steps_without": 7.4,
+    "avg_steps_with": 3.7,
+    "step_reduction_pct": 50.5,
+    "total_cost_without_usd": 0.2056,
+    "total_cost_with_usd": 0.0641,
+    "total_cost_savings_usd": 0.1415,
+    "avg_cost_reduction_pct": 68.8,
+    "by_difficulty": {
+      "simple": {
+        "count": 5,
+        "avg_accuracy_without": 58.1,
+        "avg_accuracy_with": 99.5,
+        "avg_accuracy_improvement_pp": 41.4,
+        "avg_token_reduction_pct": 68.9,
+        "avg_speed_improvement_pct": 51.8,
+        "total_errors_baseline": 9,
+        "total_edge_cases_caught": 12,
+        "avg_steps_without": 5.4,
+        "avg_steps_with": 3.0
+      },
+      "medium": {
+        "count": 5,
+        "avg_accuracy_without": 40.2,
+        "avg_accuracy_with": 99.4,
+        "avg_accuracy_improvement_pp": 59.2,
+        "avg_token_reduction_pct": 70.0,
+        "avg_speed_improvement_pct": 55.6,
+        "total_errors_baseline": 17,
+        "total_edge_cases_caught": 26,
+        "avg_steps_without": 7.6,
+        "avg_steps_with": 4.0
+      },
+      "difficult": {
+        "count": 5,
+        "avg_accuracy_without": 32.6,
+        "avg_accuracy_with": 97.6,
+        "avg_accuracy_improvement_pp": 65.0,
+        "avg_token_reduction_pct": 67.6,
+        "avg_speed_improvement_pct": 65.4,
+        "total_errors_baseline": 25,
+        "total_edge_cases_caught": 30,
+        "avg_steps_without": 9.2,
+        "avg_steps_with": 4.0
+      }
+    }
+  }
+}
