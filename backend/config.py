@@ -31,7 +31,7 @@ class Config:
 
     # Legacy settings (for local/self-hosted ES)
     ELASTICSEARCH_HOST: str = os.getenv("ELASTICSEARCH_HOST", "http://localhost:9200")
-    ELASTICSEARCH_INDEX: str = os.getenv("ELASTICSEARCH_INDEX", "workflow_marketplace")
+    ELASTICSEARCH_INDEX: str = os.getenv("ELASTIC_INDEX_NAME", os.getenv("ELASTICSEARCH_INDEX", "workflow_marketplace"))
     ELASTICSEARCH_USERNAME: str = os.getenv("ELASTICSEARCH_USERNAME", "")
     ELASTICSEARCH_PASSWORD: str = os.getenv("ELASTICSEARCH_PASSWORD", "")
 

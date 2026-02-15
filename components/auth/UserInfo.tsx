@@ -68,7 +68,21 @@ export default function UserInfo() {
 
   return (
     <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-      <span style={{ fontSize: '14px', color: '#666' }}>
+      <Link
+        href="/marketplace"
+        style={{
+          padding: '8px 16px',
+          backgroundColor: 'var(--accent)',
+          color: 'var(--bg)',
+          textDecoration: 'none',
+          borderRadius: '4px',
+          fontSize: '14px',
+          fontWeight: '600'
+        }}
+      >
+        Marketplace
+      </Link>
+      <span style={{ fontSize: '14px', color: 'var(--text-dim)' }}>
         {user.email}
       </span>
       <LogoutButton />

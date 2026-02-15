@@ -1,14 +1,13 @@
 .marketplacePage {
   min-height: 100vh;
-  background: linear-gradient(180deg, #f8f9fa 0%, #ffffff 100%);
+  background: var(--bg);
 }
 
 /* Hero Section */
 .hero {
-  padding: 4rem 2rem 2rem;
+  padding: 8rem 2rem 4rem;
   text-align: center;
-  background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
-  color: white;
+  position: relative;
 }
 
 .title {
@@ -16,45 +15,45 @@
   font-weight: 800;
   margin: 0 0 1rem 0;
   letter-spacing: -0.02em;
+  color: var(--text);
 }
 
 .subtitle {
   font-size: 1.25rem;
-  margin: 0;
-  opacity: 0.95;
-  max-width: 600px;
   margin: 0 auto;
+  color: var(--text-dim);
+  max-width: 600px;
 }
 
 /* Stats Section */
 .stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 2rem;
+  gap: 1.5rem;
   max-width: 1200px;
-  margin: -2rem auto 3rem;
+  margin: -1rem auto 3rem;
   padding: 0 2rem;
 }
 
 .statCard {
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
   padding: 2rem;
   text-align: center;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .statValue {
   font-size: 2.5rem;
   font-weight: 800;
-  color: #0066ff;
+  color: var(--accent);
   margin-bottom: 0.5rem;
 }
 
 .statLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
 }
@@ -70,15 +69,15 @@
 .filters {
   margin-bottom: 2rem;
   padding: 1.5rem;
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
 }
 
 .filterLabel {
   font-size: 0.875rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-dim);
   text-transform: uppercase;
   letter-spacing: 0.05em;
   margin-bottom: 1rem;
@@ -92,27 +91,26 @@
 
 .filterButton {
   padding: 0.5rem 1rem;
-  background: #f8f9fa;
-  border: 1px solid #e0e0e0;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
   border-radius: 8px;
   font-size: 0.875rem;
   font-weight: 600;
-  color: #666;
+  color: var(--text-dim);
   cursor: pointer;
   transition: all 0.2s ease;
   text-transform: capitalize;
 }
 
 .filterButton:hover {
-  background: #e3f2fd;
-  border-color: #0066ff;
-  color: #0066ff;
+  border-color: var(--accent);
+  color: var(--accent);
 }
 
 .filterButton.active {
-  background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
-  border-color: #0066ff;
-  color: white;
+  background: var(--accent);
+  border-color: var(--accent);
+  color: var(--bg);
 }
 
 /* Workflow Grid */
@@ -130,13 +128,14 @@
   justify-content: center;
   min-height: 60vh;
   gap: 1rem;
+  color: var(--text-dim);
 }
 
 .spinner {
   width: 48px;
   height: 48px;
-  border: 4px solid #f0f0f0;
-  border-top-color: #0066ff;
+  border: 4px solid var(--border);
+  border-top-color: var(--accent);
   border-radius: 50%;
   animation: spin 1s linear infinite;
 }
@@ -150,26 +149,26 @@
 /* Error State */
 .error {
   max-width: 600px;
-  margin: 4rem auto;
+  margin: 8rem auto 4rem;
   padding: 2rem;
   text-align: center;
-  background: white;
+  background: var(--surface);
+  border: 1px solid var(--border);
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .error h2 {
-  color: #d32f2f;
+  color: var(--red);
   margin-bottom: 1rem;
 }
 
 .error p {
-  color: #666;
+  color: var(--text-dim);
   margin-bottom: 0.5rem;
 }
 
 .errorHelp {
-  background: #f8f9fa;
+  background: var(--surface-2);
   padding: 1rem;
   border-radius: 8px;
   margin: 1rem 0;
@@ -177,16 +176,16 @@
 }
 
 .errorHelp code {
-  background: #e0e0e0;
+  background: var(--border);
   padding: 0.125rem 0.5rem;
   border-radius: 4px;
-  font-family: 'Monaco', 'Courier New', monospace;
+  font-family: var(--font-mono), monospace;
 }
 
 .retryButton {
   padding: 0.75rem 2rem;
-  background: linear-gradient(135deg, #0066ff 0%, #0052cc 100%);
-  color: white;
+  background: var(--accent);
+  color: var(--bg);
   border: none;
   border-radius: 8px;
   font-size: 0.875rem;
@@ -198,14 +197,14 @@
 
 .retryButton:hover {
   transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(0, 102, 255, 0.3);
+  box-shadow: 0 4px 12px var(--accent-dim);
 }
 
 /* Empty State */
 .emptyState {
   text-align: center;
   padding: 4rem 2rem;
-  color: #666;
+  color: var(--text-dim);
 }
 
 /* Responsive */
@@ -217,7 +216,7 @@
 
 @media (max-width: 768px) {
   .hero {
-    padding: 3rem 1.5rem 1.5rem;
+    padding: 6rem 1.5rem 2rem;
   }
 
   .title {

@@ -64,7 +64,6 @@ class ElasticsearchService:
 
         # Test connection (serverless-compatible)
         try:
-            # Try to get basic info - works in both regular and serverless
             info = self.es.info()
             print(f"Connected to Elasticsearch: {connection_info}")
             print(f"  Version: {info.get('version', {}).get('number', 'unknown')}")

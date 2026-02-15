@@ -370,15 +370,6 @@ def list_workflows():
         }), 500
 
 
-@app.route('/api/workflows', methods=['GET'])
-def list_workflows():
-    """Get all available workflows (for browsing)."""
-    return jsonify({
-        'workflows': matcher.workflows,
-        'count': len(matcher.workflows)
-    })
-
-
 @app.route('/api/pricing/<workflow_id>', methods=['GET'])
 def get_workflow_pricing(workflow_id):
     """
@@ -437,7 +428,7 @@ if __name__ == '__main__':
     init_app()
 
     # Run server
-    port = int(os.getenv('PORT', 5000))
+    port = int(os.getenv('PORT', 5001))
     debug = os.getenv('FLASK_DEBUG', 'True') == 'True'
 
     print(f"Starting server on port {port}...")

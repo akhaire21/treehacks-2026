@@ -9,7 +9,7 @@ export default function LogoutButton() {
 
   const handleLogout = async () => {
     await supabase.auth.signOut()
-    router.push('/auth/login')
+    router.push('/')
     router.refresh()
   }
 
@@ -18,9 +18,9 @@ export default function LogoutButton() {
       onClick={handleLogout}
       style={{
         padding: '8px 16px',
-        backgroundColor: '#dc3545',
-        color: 'white',
-        border: 'none',
+        backgroundColor: 'transparent',
+        color: 'var(--red)',
+        border: '1px solid var(--red)',
         borderRadius: '4px',
         cursor: 'pointer',
         fontSize: '14px',
