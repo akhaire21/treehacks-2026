@@ -112,6 +112,15 @@ class Workflow:
     examples: List[Dict[str, Any]] = field(default_factory=list)
     token_comparison: Optional[TokenComparison] = None
 
+    @property
+    def total_cost(self) -> int:
+        """
+        Total cost = download_cost + execution_cost.
+
+        This is the full cost to download and execute this workflow.
+        """
+        return self.download_cost + self.execution_cost
+
     @classmethod
     def from_dict(cls, d: Dict[str, Any]) -> "Workflow":
         """Create Workflow from dict."""
@@ -418,6 +427,65 @@ class ExecutionDAG:
                 "num_unique_workflows": len(unique_workflow_ids)
             }
         }
+
+
+@dataclass
+class WorkflowNodeDoc:
+    """
+    A single node (subtask/step) within a workflow, indexed separately.
+
+    Used for tree-aware recursive search (Step 9 in algorithm).
+    Allows searching within workflow children without treating them as full workflows.
+    """
+    node_id: str
+    workflow_id: str
+    node_type: str  # "subtask" | "step" | "module"
+    title: str
+    text: str  # Full description/memo
+    capability: Optional[str] = None  # What this node can do
+    parent_node_id: Optional[str] = None
+    ordinal: int = 0  # Order within parent
+    embedding: Optional[List[float]] = None
+    score: float = 0.0
+
+    @classmethod
+    def from_es_hit(cls, hit: Dict[str, Any]) -> "WorkflowNodeDoc":
+        """Create WorkflowNodeDoc from Elasticsearch hit."""
+        source = hit.get("_source", {})
+        score = hit.get("_score", 0.0)
+
+        return cls(
+            node_id=source["node_id"],
+            workflow_id=source["workflow_id"],
+            node_type=source["node_type"],
+            title=source.get("title", ""),
+            text=source.get("text", ""),
+            capability=source.get("capability"),
+            parent_node_id=source.get("parent_node_id"),
+            ordinal=source.get("ordinal", 0),
+            embedding=source.get("embedding"),
+            score=score
+        )
+
+    def to_es_document(self) -> Dict[str, Any]:
+        """Convert to Elasticsearch document for indexing."""
+        doc = {
+            "node_id": self.node_id,
+            "workflow_id": self.workflow_id,
+            "node_type": self.node_type,
+            "title": self.title,
+            "text": self.text,
+            "ordinal": self.ordinal
+        }
+
+        if self.capability:
+            doc["capability"] = self.capability
+        if self.parent_node_id:
+            doc["parent_node_id"] = self.parent_node_id
+        if self.embedding:
+            doc["embedding"] = self.embedding
+
+        return doc
 
 
 @dataclass

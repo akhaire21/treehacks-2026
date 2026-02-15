@@ -24,7 +24,12 @@ class Config:
     JINA_MODEL: str = os.getenv("JINA_MODEL", "jina-embeddings-v3")
     JINA_EMBEDDING_DIM: int = int(os.getenv("JINA_EMBEDDING_DIM", "1024"))
 
-    # Elasticsearch Settings
+    # Elasticsearch Settings (Cloud ID + API Key recommended for Elastic Cloud)
+    ELASTIC_CLOUD_ID: str = os.getenv("ELASTIC_CLOUD_ID", "")
+    ELASTIC_API_KEY: str = os.getenv("ELASTIC_API_KEY", "")
+    ELASTIC_INDEX_NAME: str = os.getenv("ELASTIC_INDEX_NAME", "workflow_marketplace")
+
+    # Legacy settings (for local/self-hosted ES)
     ELASTICSEARCH_HOST: str = os.getenv("ELASTICSEARCH_HOST", "http://localhost:9200")
     ELASTICSEARCH_INDEX: str = os.getenv("ELASTICSEARCH_INDEX", "workflow_marketplace")
     ELASTICSEARCH_USERNAME: str = os.getenv("ELASTICSEARCH_USERNAME", "")
@@ -58,8 +63,13 @@ class Config:
         if not cls.JINA_API_KEY:
             errors.append("JINA_API_KEY is not set")
 
-        if not cls.ELASTICSEARCH_HOST:
-            errors.append("ELASTICSEARCH_HOST is not set")
+        # Check that either Cloud ID or Host is set for Elasticsearch
+        if not cls.ELASTIC_CLOUD_ID and not cls.ELASTICSEARCH_HOST:
+            errors.append("Neither ELASTIC_CLOUD_ID nor ELASTICSEARCH_HOST is set")
+
+        # If Cloud ID is used, API key is required
+        if cls.ELASTIC_CLOUD_ID and not cls.ELASTIC_API_KEY:
+            errors.append("ELASTIC_CLOUD_ID is set but ELASTIC_API_KEY is missing")
 
         if errors:
             print("Configuration errors:")
@@ -112,12 +122,18 @@ def get_elasticsearch_service():
 
     if _elasticsearch_service is None:
         from services.elasticsearch_service import ElasticsearchService
+
+        # Prefer ELASTIC_CLOUD_ID if set, otherwise fall back to ELASTICSEARCH_HOST
+        index_name = Config.ELASTIC_INDEX_NAME or Config.ELASTICSEARCH_INDEX
+
         _elasticsearch_service = ElasticsearchService(
+            index_name=index_name,
+            embedding_dim=Config.JINA_EMBEDDING_DIM,
+            cloud_id=Config.ELASTIC_CLOUD_ID,
+            api_key=Config.ELASTIC_API_KEY,
             host=Config.ELASTICSEARCH_HOST,
-            index_name=Config.ELASTICSEARCH_INDEX,
             username=Config.ELASTICSEARCH_USERNAME,
-            password=Config.ELASTICSEARCH_PASSWORD,
-            embedding_dim=Config.JINA_EMBEDDING_DIM
+            password=Config.ELASTICSEARCH_PASSWORD
         )
 
     return _elasticsearch_service
@@ -157,8 +173,15 @@ if __name__ == "__main__":
     print(f"  Claude Model: {Config.CLAUDE_MODEL}")
     print(f"  Jina Model: {Config.JINA_MODEL}")
     print(f"  Jina Embedding Dim: {Config.JINA_EMBEDDING_DIM}")
-    print(f"  Elasticsearch Host: {Config.ELASTICSEARCH_HOST}")
-    print(f"  Elasticsearch Index: {Config.ELASTICSEARCH_INDEX}")
+
+    # Show Elasticsearch config (cloud or self-hosted)
+    if Config.ELASTIC_CLOUD_ID:
+        print(f"  Elasticsearch: Cloud (ID: {Config.ELASTIC_CLOUD_ID[:20]}...)")
+        print(f"  Elasticsearch Index: {Config.ELASTIC_INDEX_NAME}")
+    else:
+        print(f"  Elasticsearch Host: {Config.ELASTICSEARCH_HOST}")
+        print(f"  Elasticsearch Index: {Config.ELASTICSEARCH_INDEX}")
+
     print(f"\nAlgorithm Parameters:")
     print(f"  Score Threshold: {Config.SCORE_THRESHOLD_GOOD}")
     print(f"  Improvement Epsilon: {Config.SCORE_IMPROVEMENT_EPSILON}")

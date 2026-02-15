@@ -3,6 +3,7 @@ Elasticsearch service for workflow indexing and search.
 Handles all Elasticsearch operations including kNN vector search.
 """
 
+import os
 from typing import List, Dict, Any, Optional
 from elasticsearch import Elasticsearch
 from elasticsearch.helpers import bulk
@@ -13,38 +14,64 @@ class ElasticsearchService:
 
     def __init__(
         self,
-        host: str,
         index_name: str,
         embedding_dim: int = 1024,
+        cloud_id: str = "",
+        api_key: str = "",
+        host: str = "",
         username: str = "",
         password: str = ""
     ):
         """
         Initialize Elasticsearch service.
 
+        Supports two connection modes:
+        1. Cloud ID + API Key (recommended for Elastic Cloud)
+        2. Host + username/password (for self-hosted)
+
         Args:
-            host: Elasticsearch host URL
-            index_name: Name of the index
+            index_name: Name of the index (for assets)
             embedding_dim: Dimension of embedding vectors
-            username: Optional username for authentication
-            password: Optional password for authentication
+            cloud_id: Elastic Cloud ID (preferred)
+            api_key: Elastic API key (used with cloud_id)
+            host: Elasticsearch host URL (fallback for self-hosted)
+            username: Optional username for basic auth (legacy)
+            password: Optional password for basic auth (legacy)
         """
-        # Build connection config
-        es_config = {"hosts": [host]}
-
-        if username and password:
-            es_config["basic_auth"] = (username, password)
-
-        self.es = Elasticsearch(**es_config)
-        self.index_name = index_name
+        self.index_name = index_name  # Assets index
+        self.nodes_index_name = f"{index_name}_nodes"  # Nodes index
         self.embedding_dim = embedding_dim
 
-        # Test connection
-        if not self.es.ping():
-            raise ConnectionError(f"Failed to connect to Elasticsearch at {host}")
+        # Build connection: prefer Cloud ID + API Key
+        if cloud_id and api_key:
+            self.es = Elasticsearch(
+                cloud_id=cloud_id,
+                api_key=api_key
+            )
+            connection_info = f"Elastic Cloud (ID: {cloud_id[:20]}...)"
+        elif host:
+            # Fallback to host-based connection
+            if username and password:
+                self.es = Elasticsearch(
+                    hosts=[host],
+                    basic_auth=(username, password)
+                )
+            else:
+                self.es = Elasticsearch(hosts=[host])
+            connection_info = host
+        else:
+            raise ValueError("Must provide either (cloud_id + api_key) or host")
 
-        print(f"Connected to Elasticsearch at {host}")
-        print(f"Index: {index_name}")
+        # Test connection (serverless-compatible)
+        try:
+            # Try to get basic info - works in both regular and serverless
+            info = self.es.info()
+            print(f"Connected to Elasticsearch: {connection_info}")
+            print(f"  Version: {info.get('version', {}).get('number', 'unknown')}")
+            print(f"Assets Index: {index_name}")
+            print(f"Nodes Index: {self.nodes_index_name}")
+        except Exception as e:
+            raise ConnectionError(f"Failed to connect to Elasticsearch at {connection_info}: {e}")
 
     def create_index(self, delete_existing: bool = False):
         """
@@ -81,26 +108,20 @@ class ElasticsearchService:
                     "year": {"type": "integer"},
                     "duration_days": {"type": "integer"},
 
-                    # Metrics
-                    "token_cost": {"type": "integer"},
-                    "execution_tokens": {"type": "integer"},
+                    # Metrics (both new and legacy field names for backward compatibility)
+                    "download_cost": {"type": "integer"},
+                    "execution_cost": {"type": "integer"},
+                    "token_cost": {"type": "integer"},  # Legacy name for download_cost
+                    "execution_tokens": {"type": "integer"},  # Legacy name for execution_cost
                     "rating": {"type": "float"},
                     "usage_count": {"type": "integer"},
 
-                    # Workflow content
+                    # Workflow content (structured data, not searchable - use full_text for search)
                     "requirements": {"type": "text"},
-                    "steps": {
-                        "type": "nested",
-                        "properties": {
-                            "step": {"type": "integer"},
-                            "thought": {"type": "text"},
-                            "action": {"type": "text"},
-                            "context": {"type": "text"},
-                            "dependencies": {"type": "integer"}
-                        }
-                    },
-                    "edge_cases": {"type": "text"},
-                    "domain_knowledge": {"type": "text"},
+                    "steps": {"type": "object", "enabled": False},  # Store but don't index
+                    "edge_cases": {"type": "object", "enabled": False},  # Store but don't index
+                    "domain_knowledge": {"type": "object", "enabled": False},  # Store but don't index
+                    "examples": {"type": "object", "enabled": False},  # Store but don't index
 
                     # Token comparison
                     "token_comparison": {
@@ -116,30 +137,80 @@ class ElasticsearchService:
                     "child_ids": {"type": "keyword"},  # Array of child IDs
                     "depth": {"type": "integer"},  # Tree depth level
 
-                    # Vector embedding for semantic search
+                    # Vector embedding for semantic search (serverless-compatible)
                     "embedding": {
                         "type": "dense_vector",
                         "dims": self.embedding_dim,
-                        "index": True,
+                        "index": True,  # Enable indexing for kNN
                         "similarity": "cosine"
                     },
 
                     # Full text representation
                     "full_text": {"type": "text"},
                 }
-            },
-            "settings": {
-                "number_of_shards": 1,
-                "number_of_replicas": 0,
-                "index": {
-                    "knn": True  # Enable k-NN search
-                }
             }
+            # Note: No settings needed - serverless handles sharding/replicas automatically
         }
 
         # Create index
         self.es.indices.create(index=self.index_name, body=mappings)
         print(f"Created index: {self.index_name}")
+
+    def create_nodes_index(self, delete_existing: bool = False):
+        """
+        Create Elasticsearch index for workflow nodes (subtasks/steps).
+
+        This enables tree-aware recursive search (Step 9).
+
+        Args:
+            delete_existing: Whether to delete existing index first
+        """
+        # Delete if requested
+        if delete_existing and self.es.indices.exists(index=self.nodes_index_name):
+            self.es.indices.delete(index=self.nodes_index_name)
+            print(f"Deleted existing nodes index: {self.nodes_index_name}")
+
+        # Check if index already exists
+        if self.es.indices.exists(index=self.nodes_index_name):
+            print(f"Nodes index '{self.nodes_index_name}' already exists")
+            return
+
+        # Define mappings for nodes
+        mappings = {
+            "mappings": {
+                "properties": {
+                    # Identity
+                    "node_id": {"type": "keyword"},
+                    "workflow_id": {"type": "keyword"},  # Parent workflow
+                    "node_type": {"type": "keyword"},  # "subtask", "step", "module"
+                    "parent_node_id": {"type": "keyword"},  # Direct parent
+
+                    # Content
+                    "title": {
+                        "type": "text",
+                        "fields": {"keyword": {"type": "keyword"}}
+                    },
+                    "text": {"type": "text"},  # Full description
+                    "capability": {"type": "keyword"},  # What this node does
+
+                    # Structure
+                    "ordinal": {"type": "integer"},  # Order within parent
+
+                    # Vector embedding for semantic search (serverless-compatible)
+                    "embedding": {
+                        "type": "dense_vector",
+                        "dims": self.embedding_dim,
+                        "index": True,  # Enable indexing for kNN
+                        "similarity": "cosine"
+                    }
+                }
+            }
+            # Note: No settings needed - serverless handles sharding/replicas automatically
+        }
+
+        # Create nodes index
+        self.es.indices.create(index=self.nodes_index_name, body=mappings)
+        print(f"Created nodes index: {self.nodes_index_name}")
 
     def index_document(self, doc_id: str, document: Dict[str, Any]):
         """
@@ -167,11 +238,21 @@ class ElasticsearchService:
                     "_source": doc
                 }
 
-        success, failed = bulk(self.es, generate_actions())
-        print(f"Indexed {success} documents, {len(failed)} failed")
+        try:
+            success, failed = bulk(self.es, generate_actions(), raise_on_error=False)
+            print(f"Indexed {success} documents, {len(failed)} failed")
 
-        if failed:
-            print("Failed documents:", failed)
+            if failed:
+                print("Failed documents:")
+                for fail in failed[:3]:  # Show first 3 failures
+                    print(f"  Error: {fail}")
+        except Exception as e:
+            print(f"Bulk index error: {e}")
+            # Try to get more details
+            if hasattr(e, 'errors'):
+                for error in e.errors[:3]:
+                    print(f"  Details: {error}")
+            raise
 
     def vector_search(
         self,
@@ -195,7 +276,7 @@ class ElasticsearchService:
             "field": "embedding",
             "query_vector": query_embedding,
             "k": top_k,
-            "num_candidates": top_k * 5  # Search more candidates for better results
+            "num_candidates": max(top_k * 10, 100)  # Higher for better recall (recommended 10x)
         }
 
         # Add filters if provided
@@ -300,11 +381,124 @@ class ElasticsearchService:
         except Exception:
             return None
 
+    def get_children(
+        self,
+        parent_id: str,
+        node_type: Optional[str] = None,
+        sort_by: str = "depth"
+    ) -> List[Dict[str, Any]]:
+        """
+        Get direct children of a node.
+
+        Args:
+            parent_id: ID of the parent node
+            node_type: Optional filter by node type ("workflow", "subtask", "step")
+            sort_by: Sort field (default: "depth")
+
+        Returns:
+            List of child nodes
+        """
+        must_clauses = [{"term": {"parent_id": parent_id}}]
+
+        if node_type:
+            must_clauses.append({"term": {"node_type": node_type}})
+
+        query = {"bool": {"must": must_clauses}}
+
+        response = self.es.search(
+            index=self.index_name,
+            query=query,
+            size=1000,
+            sort=[{sort_by: "asc"}]
+        )
+
+        return [hit["_source"] for hit in response["hits"]["hits"]]
+
+    def index_node(self, node_id: str, node_doc: Dict[str, Any]):
+        """
+        Index a single workflow node (subtask/step).
+
+        Args:
+            node_id: Node ID
+            node_doc: Node document data
+        """
+        self.es.index(index=self.nodes_index_name, id=node_id, body=node_doc)
+
+    def search_nodes(
+        self,
+        workflow_id: str,
+        query_text: str,
+        query_embedding: List[float],
+        node_type: Optional[str] = None,
+        parent_node_id: Optional[str] = None,
+        top_k: int = 5
+    ) -> List[Dict[str, Any]]:
+        """
+        Search workflow nodes using hybrid semantic + text search.
+
+        This is the key method for Step 9 tree-aware recursion.
+
+        Args:
+            workflow_id: Workflow to search within
+            query_text: Query text
+            query_embedding: Query embedding vector
+            node_type: Optional filter by node type ("subtask", "step", "module")
+            parent_node_id: Optional filter by parent node
+            top_k: Number of results
+
+        Returns:
+            List of ES hits with node documents
+        """
+        # Build filters
+        must_clauses = [{"term": {"workflow_id": workflow_id}}]
+
+        if node_type:
+            must_clauses.append({"term": {"node_type": node_type}})
+
+        if parent_node_id:
+            must_clauses.append({"term": {"parent_node_id": parent_node_id}})
+
+        # Use native kNN query (better than script_score)
+        query = {
+            "size": top_k,
+            "query": {
+                "bool": {
+                    "must": must_clauses,
+                    "should": [
+                        # Text search on title and text
+                        {
+                            "multi_match": {
+                                "query": query_text,
+                                "fields": ["title^3", "text^2", "capability^2"],
+                                "type": "best_fields"
+                            }
+                        }
+                    ]
+                }
+            },
+            "knn": {
+                "field": "embedding",
+                "query_vector": query_embedding,
+                "k": top_k,
+                "num_candidates": max(top_k * 10, 50),
+                "filter": must_clauses
+            }
+        }
+
+        response = self.es.search(index=self.nodes_index_name, body=query)
+        return response["hits"]["hits"]
+
     def delete_index(self):
-        """Delete the index."""
+        """Delete the assets index."""
         if self.es.indices.exists(index=self.index_name):
             self.es.indices.delete(index=self.index_name)
             print(f"Deleted index: {self.index_name}")
+
+    def delete_nodes_index(self):
+        """Delete the nodes index."""
+        if self.es.indices.exists(index=self.nodes_index_name):
+            self.es.indices.delete(index=self.nodes_index_name)
+            print(f"Deleted nodes index: {self.nodes_index_name}")
 
 
 # Example usage
@@ -312,11 +506,17 @@ if __name__ == "__main__":
     import os
     from embedding_service import EmbeddingService
 
-    # Initialize services
+    # Initialize services (using cloud_id + api_key or host)
+    cloud_id = os.getenv("ELASTIC_CLOUD_ID", "")
+    api_key = os.getenv("ELASTIC_API_KEY", "")
+    host = os.getenv("ELASTICSEARCH_HOST", "http://localhost:9200")
+
     es_service = ElasticsearchService(
-        host=os.getenv("ELASTICSEARCH_HOST", "http://localhost:9200"),
         index_name="test_workflows",
-        embedding_dim=1024
+        embedding_dim=1024,
+        cloud_id=cloud_id,
+        api_key=api_key,
+        host=host
     )
 
     # Create index
@@ -328,7 +528,7 @@ if __name__ == "__main__":
         model="jina-embeddings-v3"
     )
 
-    # Index a test document
+    # Index a test document (use retrieval.passage for indexing)
     test_doc = {
         "workflow_id": "test_1",
         "title": "Test Workflow",
@@ -336,7 +536,10 @@ if __name__ == "__main__":
         "description": "This is a test workflow",
         "tags": ["test"],
         "full_text": "Test Workflow: This is a test workflow for testing purposes",
-        "embedding": embedding_service.embed("Test Workflow: This is a test workflow"),
+        "embedding": embedding_service.embed(
+            "Test Workflow: This is a test workflow",
+            task="retrieval.passage"
+        ),
         "rating": 4.5,
         "usage_count": 10
     }
@@ -344,9 +547,9 @@ if __name__ == "__main__":
     es_service.index_document("test_1", test_doc)
     print("Indexed test document")
 
-    # Test search
+    # Test search (use retrieval.query for search queries)
     query_text = "test workflow"
-    query_embedding = embedding_service.embed(query_text)
+    query_embedding = embedding_service.embed(query_text, task="retrieval.query")
     results = es_service.hybrid_search(
         query_embedding=query_embedding,
         query_text=query_text,
