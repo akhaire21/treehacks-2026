@@ -13,7 +13,6 @@ export default function Nav() {
   const [walletOpen, setWalletOpen] = useState(false)
   const walletRef = useRef<HTMLDivElement>(null)
 
-  // Fetch balance on mount + poll every 15s + listen for purchase events
   useEffect(() => {
     const fetchBalance = () => {
       fetch(`${API_BASE}/api/commerce/balance?user_id=default_user`)
@@ -30,7 +29,6 @@ export default function Nav() {
     }
   }, [])
 
-  // Close wallet dropdown on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (walletRef.current && !walletRef.current.contains(e.target as Node)) {
@@ -44,7 +42,7 @@ export default function Nav() {
   return (
     <nav className={styles.nav}>
       <Link href="/" className={styles.navLogo}>
-        mark<span>.ai</span>
+        mark<span>.</span>
       </Link>
       <div className={styles.navLinks}>
         <Link href="/marketplace">Marketplace</Link>
@@ -53,7 +51,6 @@ export default function Nav() {
         <Link href="/dashboard">Dashboard</Link>
         <Link href="/workflow">Visualization</Link>
 
-        {/* Wallet */}
         <div className={styles.walletWrap} ref={walletRef}>
           <button
             className={styles.walletBtn}
