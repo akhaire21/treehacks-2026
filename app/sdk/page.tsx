@@ -152,8 +152,7 @@ export default function SDKPage() {
         {/* Header */}
         <div className={styles.header}>
           <h1>
-            Agent SDK
-            <span className={styles.headerAccent}> Simulations</span>
+            Agent SDK<span className={styles.headerAccent}> Simulations</span>
           </h1>
           <p className={styles.subtitle}>
             Watch Claude agents autonomously search, buy, and use marketplace workflows

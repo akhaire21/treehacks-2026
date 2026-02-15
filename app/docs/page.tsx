@@ -47,12 +47,12 @@ export default function DocsPage() {
               className={`${styles.tab} ${activeTab === tab ? styles.active : ''}`}
               onClick={() => setActiveTab(tab)}
             >
-              {tab === 'quickstart' ? '⚡ Quick Start' :
-               tab === 'anthropic' ? '🟣 Anthropic' :
-               tab === 'openai' ? '🟢 OpenAI' :
-               tab === 'client' ? '📦 Client' :
-               tab === 'tools' ? '🔧 Tools' :
-               '📐 Models'}
+              {tab === 'quickstart' ? 'Quick Start' :
+               tab === 'anthropic' ? 'Anthropic' :
+               tab === 'openai' ? 'OpenAI' :
+               tab === 'client' ? 'Client' :
+               tab === 'tools' ? 'Tools' :
+               'Models'}
             </button>
           ))}
         </div>

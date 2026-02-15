@@ -24,7 +24,7 @@ export default function Hero() {
         how to use.
       </h1>
       <div className={styles.installBar}>
-        <div className={styles.installLabel}>Get MarkTools <span className={styles.installChevron}>&#8964;</span></div>
+        <div className={styles.installLabel}>Get MarkTools <span className={styles.installChevron}></span></div>
         <div className={styles.installCommand}>
           <code><span className={styles.installCmd}>pip</span> <span className={styles.installFlag}>install</span> <span className={styles.installPkg}>marktools</span></code>
           <button className={styles.installCopy} onClick={handleCopy} aria-label="Copy command">
