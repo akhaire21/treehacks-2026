@@ -292,11 +292,169 @@
   background: rgba(255, 170, 0, 0.08);
 }
 
+/* ── TIER CARDS ── */
+.tierSection {
+  margin-top: 8px;
+}
+
+.tierHeader {
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 4px;
+}
+
+.tierSubheader {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-bottom: 24px;
+}
+
+.tierGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.tierCard {
+  background: var(--surface-2);
+  border: 2px solid var(--border);
+  border-radius: 12px;
+  padding: 24px 20px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+  position: relative;
+}
+
+.tierCard:hover {
+  border-color: var(--border-hover);
+}
+
+.tierSelected {
+  border-color: var(--accent) !important;
+  box-shadow: 0 0 20px var(--accent-dim);
+}
+
+.tierPopular {
+  transform: scale(1.03);
+}
+
+.tierBadge {
+  position: absolute;
+  top: -11px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--accent);
+  color: var(--bg);
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 12px;
+  border-radius: 100px;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.tierName {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 16px;
+  margin-top: 4px;
+}
+
+.tierTokens {
+  font-family: var(--font-mono), monospace;
+  font-size: 32px;
+  font-weight: 700;
+  color: var(--text);
+  line-height: 1;
+}
+
+.tierTokensLabel {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 12px;
+}
+
+.tierPrice {
+  font-family: var(--font-mono), monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--accent);
+  margin-bottom: 4px;
+}
+
+.tierDiscount {
+  font-size: 11px;
+  color: var(--green);
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.tierWorkflows {
+  font-size: 12px;
+  color: var(--text-muted);
+  margin-bottom: 20px;
+}
+
+.tierBtn {
+  width: 100%;
+  padding: 10px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text);
+  font-family: var(--font-sans), sans-serif;
+}
+
+.tierBtn:hover {
+  background: var(--border);
+}
+
+.tierBtnPopular {
+  background: var(--accent);
+  color: var(--bg);
+  border-color: var(--accent);
+}
+
+.tierBtnPopular:hover {
+  opacity: 0.9;
+  background: var(--accent);
+}
+
+.tierBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.tierFeatures {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  text-align: left;
+}
+
+.tierFeature {
+  font-size: 12px;
+  color: var(--text-dim);
+  padding: 3px 0;
+}
+
 @media (max-width: 900px) {
   .dashboardSection {
     padding: 80px 20px;
   }
   .dashStats {
     grid-template-columns: repeat(2, 1fr);
+  }
+  .tierGrid {
+    grid-template-columns: 1fr;
+  }
+  .tierPopular {
+    transform: none;
   }
 }

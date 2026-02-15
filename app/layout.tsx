@@ -1,6 +1,7 @@
 import type { Metadata } from 'next'
 import { JetBrains_Mono, Sora } from 'next/font/google'
 import './globals.css'
+import Background from '@/components/Background'
 
 const jetbrainsMono = JetBrains_Mono({
   subsets: ['latin'],
@@ -27,6 +28,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={`${jetbrainsMono.variable} ${sora.variable}`}>
+        <Background />
         {children}
       </body>
     </html>

@@ -5,11 +5,11 @@
   --border: #252529;
   --border-hover: #3a3a42;
   --text: #e8e8ed;
-  --text-dim: #7a7a85;
-  --text-muted: #4a4a55;
-  --accent: #c8ff00;
-  --accent-dim: #c8ff0020;
-  --accent-mid: #c8ff0040;
+  --text-dim: #d1d1dc;
+  --text-muted: #565663;
+  --accent: #69ff7d;
+  --accent-dim: #e6b1fc20;
+  --accent-mid: #e6b1fc40;
   --red: #ff4d4d;
   --green: #00d68f;
   --blue: #4d9fff;
@@ -28,7 +28,7 @@ html {
 }
 
 body {
-  background: var(--bg);
+  background: transparent;
   color: var(--text);
   font-family: var(--font-sans), sans-serif;
   overflow-x: hidden;

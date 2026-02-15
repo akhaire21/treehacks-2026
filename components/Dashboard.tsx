@@ -22,6 +22,47 @@ interface MarketStats {
   platform_revenue: number
 }
 
+interface TokenPackage {
+  id: string
+  name: string
+  tokens: string
+  price: string
+  priceValue: number
+  discount?: string
+  popular?: boolean
+  workflows: string
+}
+
+const TOKEN_PACKAGES: TokenPackage[] = [
+  {
+    id: 'starter',
+    name: 'Starter',
+    tokens: '1,000',
+    price: '$10',
+    priceValue: 10,
+    workflows: '2-3 workflow purchases',
+  },
+  {
+    id: 'pro',
+    name: 'Professional',
+    tokens: '5,000',
+    price: '$45',
+    priceValue: 45,
+    discount: 'Save 10%',
+    popular: true,
+    workflows: '10-12 workflow purchases',
+  },
+  {
+    id: 'enterprise',
+    name: 'Enterprise',
+    tokens: '15,000',
+    price: '$120',
+    priceValue: 120,
+    discount: 'Save 20%',
+    workflows: '30+ workflow purchases',
+  },
+]
+
 export default function Dashboard() {
   const sectionRef = useRef<HTMLElement>(null)
   const [activeTab, setActiveTab] = useState('Overview')
@@ -31,6 +72,8 @@ export default function Dashboard() {
   const [workflowCount, setWorkflowCount] = useState(0)
   const [cartCount, setCartCount] = useState(0)
   const [live, setLive] = useState(false)
+  const [purchaseLoading, setPurchaseLoading] = useState<string | null>(null)
+  const [selectedTier, setSelectedTier] = useState<string>('pro')
 
   const fetchData = useCallback(async () => {
     try {
@@ -75,6 +118,40 @@ export default function Dashboard() {
       if (sectionRef.current) observer.unobserve(sectionRef.current)
     }
   }, [])
+
+  const handlePurchase = async (packageId: string) => {
+    setPurchaseLoading(packageId)
+    try {
+      const response = await fetch(`${API}/api/visa/create-payment`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          user_id: 'default_user',
+          token_package: packageId,
+        }),
+      })
+      const result = await response.json()
+      if (!result.success) {
+        throw new Error(result.error || 'Failed to create payment session')
+      }
+      const form = document.createElement('form')
+      form.method = 'POST'
+      form.action = result.payment_url
+      Object.entries(result.form_data).forEach(([key, value]) => {
+        const input = document.createElement('input')
+        input.type = 'hidden'
+        input.name = key
+        input.value = value as string
+        form.appendChild(input)
+      })
+      document.body.appendChild(form)
+      form.submit()
+    } catch (error) {
+      console.error('Payment error:', error)
+      alert(`Payment failed: ${error instanceof Error ? error.message : 'Unknown error'}`)
+      setPurchaseLoading(null)
+    }
+  }
 
   const volumeStr = stats ? stats.total_volume_tokens.toLocaleString() : '—'
   const balanceStr = balance !== null ? balance.toLocaleString() : '—'
@@ -242,27 +319,44 @@ export default function Dashboard() {
                         All-time token volume
                       </div>
                     </div>
-                    <div className={styles.statCard}>
-                      <div className={styles.statLabel}>Platform Revenue</div>
-                      <div className={styles.statValue}>◈ {stats?.platform_revenue?.toLocaleString() ?? '—'}</div>
-                      <div className={`${styles.statChange} ${styles.statUp}`}>
-                        Lifetime earnings
-                      </div>
-                    </div>
-                    <div className={styles.statCard}>
-                      <div className={styles.statLabel}>Cart Items</div>
-                      <div className={styles.statValue}>{cartCount}</div>
-                      <div className={`${styles.statChange} ${styles.statUp}`}>
-                        Pending checkout
-                      </div>
-                    </div>
                   </div>
 
-                  <div className={styles.chartArea}>
-                    <div className={styles.chartTitle}>Wallet activity — last 14 days</div>
-                    {[30, 45, 35, 60, 52, 48, 70, 65, 80, 72, 85, 78, 92, 100].map((height, i) => (
-                      <div key={i} className={styles.chartBar} style={{ height: `${height}%` }}></div>
-                    ))}
+                  <div className={styles.tierSection}>
+                    <div className={styles.tierHeader}>Purchase Tokens</div>
+                    <div className={styles.tierSubheader}>Secure payment powered by <span style={{ color: 'var(--accent)' }}>Visa</span></div>
+                    <div className={styles.tierGrid}>
+                      {TOKEN_PACKAGES.map((pkg) => (
+                        <div
+                          key={pkg.id}
+                          className={`${styles.tierCard} ${selectedTier === pkg.id ? styles.tierSelected : ''} ${pkg.popular ? styles.tierPopular : ''}`}
+                          onClick={() => setSelectedTier(pkg.id)}
+                        >
+                          {pkg.popular && (
+                            <div className={styles.tierBadge}>MOST POPULAR</div>
+                          )}
+                          <div className={styles.tierName}>{pkg.name}</div>
+                          <div className={styles.tierTokens}>{pkg.tokens}</div>
+                          <div className={styles.tierTokensLabel}>tokens</div>
+                          <div className={styles.tierPrice}>{pkg.price}</div>
+                          {pkg.discount && (
+                            <div className={styles.tierDiscount}>{pkg.discount}</div>
+                          )}
+                          <div className={styles.tierWorkflows}>{pkg.workflows}</div>
+                          <button
+                            className={`${styles.tierBtn} ${pkg.popular ? styles.tierBtnPopular : ''}`}
+                            onClick={(e) => { e.stopPropagation(); handlePurchase(pkg.id) }}
+                            disabled={purchaseLoading === pkg.id}
+                          >
+                            {purchaseLoading === pkg.id ? 'Processing...' : `Purchase ${pkg.name}`}
+                          </button>
+                          <div className={styles.tierFeatures}>
+                            <div className={styles.tierFeature}>✓ Instant activation</div>
+                            <div className={styles.tierFeature}>✓ No expiration</div>
+                            <div className={styles.tierFeature}>✓ Secure via Visa</div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 </>
               )}
