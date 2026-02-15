@@ -1339,7 +1339,7 @@
         "roi_percentage": 10000.0,
         "breakdown": "Grants are worth $500k-$2M"
       }
-    }
+    },
     {
       "workflow_id": "california_w2_standard_2024",
       "title": "California 2024 Form 540 (W2, Standard Deduction)",
