@@ -6,6 +6,8 @@ import Footer from '@/components/Footer'
 import WorkflowCard from '@/components/WorkflowCard'
 import styles from './marketplace.module.css'
 
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5001'
+
 interface Workflow {
   workflow_id: string
   title: string
@@ -40,7 +42,7 @@ export default function MarketplacePage() {
 
   const fetchWorkflows = async () => {
     try {
-      const response = await fetch('http://localhost:5001/api/workflows')
+      const response = await fetch(`${API_BASE}/api/workflows`)
       if (!response.ok) {
         throw new Error('Failed to fetch workflows')
       }
