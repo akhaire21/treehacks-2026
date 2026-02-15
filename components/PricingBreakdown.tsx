@@ -125,72 +125,77 @@ export default function PricingBreakdown({
         </div>
       </div>
 
-      <button
-        className={styles.detailsToggle}
-        onClick={() => setShowDetails(!showDetails)}
-      >
-        {showDetails ? '▼ Hide' : '▶ Show'} pricing calculation details
-      </button>
+      {/* Only show button if we have valid pricing data */}
+      {pricing && pricing.base_price > 0 && (
+        <>
+          <button
+            className={styles.detailsToggle}
+            onClick={() => setShowDetails(!showDetails)}
+          >
+            {showDetails ? '▼ Hide' : '▶ Show'} pricing calculation details
+          </button>
 
-      {showDetails && (
-        <div className={styles.calculationDetails}>
-          <div className={styles.detailsTitle}>How is this price calculated?</div>
+          {showDetails && (
+            <div className={styles.calculationDetails}>
+              <div className={styles.detailsTitle}>How is this price calculated?</div>
 
-          <div className={styles.calculationStep}>
-            <div className={styles.stepNumber}>1</div>
-            <div className={styles.stepContent}>
-              <div className={styles.stepTitle}>Base Price (15% of savings)</div>
-              <div className={styles.stepFormula}>
-                {tokens_saved.toLocaleString()} tokens saved × 0.15 = {pricing.base_price.toLocaleString()}{' '}
-                tokens
+              <div className={styles.calculationStep}>
+                <div className={styles.stepNumber}>1</div>
+                <div className={styles.stepContent}>
+                  <div className={styles.stepTitle}>Base Price (15% of savings)</div>
+                  <div className={styles.stepFormula}>
+                    {tokens_saved.toLocaleString()} tokens saved × 0.15 = {(pricing.base_price || 0).toLocaleString()}{' '}
+                    tokens
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.calculationStep}>
+                <div className={styles.stepNumber}>2</div>
+                <div className={styles.stepContent}>
+                  <div className={styles.stepTitle}>Quality Adjustment</div>
+                  <div className={styles.stepFormula}>
+                    Rating: {rating}★ → Multiplier: ×{(pricing.quality_multiplier || 1).toFixed(2)}
+                  </div>
+                  <div className={styles.stepExplanation}>
+                    Higher rated workflows (more proven, reliable) have higher prices
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.calculationStep}>
+                <div className={styles.stepNumber}>3</div>
+                <div className={styles.stepContent}>
+                  <div className={styles.stepTitle}>Market Constraints</div>
+                  <div className={styles.stepFormula}>
+                    {pricing.market_rate
+                      ? `Market rate: ${Math.round(pricing.market_rate)} tokens (±30% variance allowed)`
+                      : 'No comparable workflows for market rate comparison'}
+                  </div>
+                  <div className={styles.stepExplanation}>
+                    Price stays within ±30% of similar workflows to ensure fairness
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.calculationStep}>
+                <div className={styles.stepNumber}>4</div>
+                <div className={styles.stepContent}>
+                  <div className={styles.stepTitle}>Final Price</div>
+                  <div className={`${styles.stepFormula} ${styles.finalPrice}`}>
+                    <span className={styles.tokenIcon}>◈</span>
+                    {price_tokens.toLocaleString()} tokens
+                  </div>
+                </div>
+              </div>
+
+              <div className={styles.breakdownSummary}>
+                <div className={styles.summaryTitle}>Summary</div>
+                <div className={styles.summaryText}>{pricing.breakdown || 'Pricing calculated based on value delivered'}</div>
               </div>
             </div>
-          </div>
-
-          <div className={styles.calculationStep}>
-            <div className={styles.stepNumber}>2</div>
-            <div className={styles.stepContent}>
-              <div className={styles.stepTitle}>Quality Adjustment</div>
-              <div className={styles.stepFormula}>
-                Rating: {rating}★ → Multiplier: ×{pricing.quality_multiplier.toFixed(2)}
-              </div>
-              <div className={styles.stepExplanation}>
-                Higher rated workflows (more proven, reliable) have higher prices
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.calculationStep}>
-            <div className={styles.stepNumber}>3</div>
-            <div className={styles.stepContent}>
-              <div className={styles.stepTitle}>Market Constraints</div>
-              <div className={styles.stepFormula}>
-                {pricing.market_rate
-                  ? `Market rate: ${Math.round(pricing.market_rate)} tokens (±30% variance allowed)`
-                  : 'No comparable workflows for market rate comparison'}
-              </div>
-              <div className={styles.stepExplanation}>
-                Price stays within ±30% of similar workflows to ensure fairness
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.calculationStep}>
-            <div className={styles.stepNumber}>4</div>
-            <div className={styles.stepContent}>
-              <div className={styles.stepTitle}>Final Price</div>
-              <div className={`${styles.stepFormula} ${styles.finalPrice}`}>
-                <span className={styles.tokenIcon}>◈</span>
-                {price_tokens.toLocaleString()} tokens
-              </div>
-            </div>
-          </div>
-
-          <div className={styles.breakdownSummary}>
-            <div className={styles.summaryTitle}>Summary</div>
-            <div className={styles.summaryText}>{pricing.breakdown}</div>
-          </div>
-        </div>
+          )}
+        </>
       )}
 
       <div className={styles.valueProposition}>
