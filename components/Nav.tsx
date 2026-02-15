@@ -11,8 +11,6 @@ export default function Nav() {
         mark<span>.ai</span>
       </Link>
       <div className={styles.navLinks}>
-        <a href="#how">How it works</a>
-        <a href="#marketplace">Marketplace</a>
         <a href="#agent">Agent</a>
         <Link href="/sdk">SDK</Link>
         <Link href="/docs">Docs</Link>

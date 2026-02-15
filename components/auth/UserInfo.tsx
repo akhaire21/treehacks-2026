@@ -38,36 +38,20 @@ export default function UserInfo() {
 
   if (!user) {
     return (
-      <div style={{ display: 'flex', gap: '10px' }}>
-        <Link
-          href="/auth/login"
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#000',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '4px',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}
-        >
-          Login
-        </Link>
-        <Link
-          href="/auth/signup"
-          style={{
-            padding: '8px 16px',
-            backgroundColor: '#0066cc',
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '4px',
-            fontSize: '14px',
-            fontWeight: '500'
-          }}
-        >
-          Sign Up
-        </Link>
-      </div>
+      <Link
+        href="/auth/login"
+        style={{
+          padding: '8px 16px',
+          backgroundColor: '#000',
+          color: 'white',
+          textDecoration: 'none',
+          borderRadius: '4px',
+          fontSize: '14px',
+          fontWeight: '500'
+        }}
+      >
+        Login
+      </Link>
     )
   }
 
